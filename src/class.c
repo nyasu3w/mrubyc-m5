@@ -462,6 +462,10 @@ int mrbc_run_mrblib(const void *bytecode)
   mrbc_vm *vm = mrbc_alloc( 0, sizeof(mrbc_vm) );
   if( !vm ) return -1;	// ENOMEM
   memset(vm, 0, sizeof(mrbc_vm));
+#if defined(MRBC_DEBUG)
+  memcpy(vm->type, "VM", 2);
+#endif
+  vm->regs_size = MAX_REGS_SIZE;
 
   if( mrbc_load_mrb(vm, bytecode) ) {
     mrbc_print_exception(&vm->exception);
