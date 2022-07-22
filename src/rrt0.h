@@ -44,6 +44,9 @@ enum MrbcTaskReason {
   TASKREASON_MUTEX = 0x01,
 };
 
+static const int MRBC_TASK_DEFAULT_PRIORITY = 128;
+static const int MRBC_TASK_DEFAULT_STATE = TASKSTATE_READY;
+
 
 /***** Macros ***************************************************************/
 /***** Typedefs *************************************************************/
@@ -55,6 +58,9 @@ struct RMutex;
   Task control block
 */
 typedef struct RTcb {
+#if defined(MRBC_DEBUG)
+  uint8_t type[4];		//!< set "TCB\0" for debug.
+#endif
   struct RTcb *next;
   uint8_t priority;
   uint8_t priority_preemption;
@@ -89,7 +95,8 @@ void mrbc_tick(void);
 void mrbc_init(uint8_t *ptr, unsigned int size);
 void mrbc_cleanup(void);
 void mrbc_init_tcb(mrbc_tcb *tcb);
-mrbc_tcb *mrbc_create_task(const uint8_t *vm_code, mrbc_tcb *tcb);
+mrbc_tcb *mrbc_alloc_tcb(int reg_size, int task_state, int priority);
+mrbc_tcb *mrbc_create_task(const void *vm_code, mrbc_tcb *tcb);
 int mrbc_start_task(mrbc_tcb *tcb);
 int mrbc_run(void);
 void mrbc_sleep_ms(mrbc_tcb *tcb, uint32_t ms);
@@ -101,6 +108,8 @@ mrbc_mutex *mrbc_mutex_init(mrbc_mutex *mutex);
 int mrbc_mutex_lock(mrbc_mutex *mutex, mrbc_tcb *tcb);
 int mrbc_mutex_unlock(mrbc_mutex *mutex, mrbc_tcb *tcb);
 int mrbc_mutex_trylock(mrbc_mutex *mutex, mrbc_tcb *tcb);
+void pq(mrbc_tcb *p_tcb);
+void pqall(void);
 
 
 /***** Inline functions *****************************************************/

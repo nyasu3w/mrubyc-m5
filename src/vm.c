@@ -307,9 +307,8 @@ mrbc_vm * mrbc_vm_new( int reg_size )
 //================================================================
 /*! Open the VM.
 
-  @param vm_arg	Pointer to mrbc_vm or NULL.
-  @return	Pointer to mrbc_vm.
-  @retval NULL	error.
+  @param vm	Pointer to VM or NULL.
+  @return	Pointer to VM, or NULL is error.
 */
 mrbc_vm * mrbc_vm_open( struct VM *vm )
 {

@@ -433,31 +433,64 @@ void mrbc_cleanup(void)
 void mrbc_init_tcb(mrbc_tcb *tcb)
 {
   memset(tcb, 0, sizeof(mrbc_tcb));
-  tcb->priority = 128;
-  tcb->priority_preemption = 128;
-  tcb->state = TASKSTATE_READY;
+
+#if defined(MRBC_DEBUG)
+  memcpy( tcb->type, "TCB", 4 );
+#endif
+  tcb->priority = MRBC_TASK_DEFAULT_PRIORITY;
+  tcb->priority_preemption = MRBC_TASK_DEFAULT_PRIORITY;
+  tcb->state = MRBC_TASK_DEFAULT_STATE;
+}
+
+
+//================================================================
+/*! create TCB.
+
+  @param  reg_size	num of allocated registers.
+  @param  task_state	task initial state.
+  @param  priority	task priority.
+  @return pointer to TCB or NULL.
+
+<pre>
+  If you want specify default value, see bellow.
+    reg_size:   MAX_REGS_SIZE (in vm_config.h)
+    task_state: MRBC_TASK_DEFAULT_STATE
+    priority:   MRBC_TASK_DEFAULT_PRIORITY
+</pre>
+*/
+mrbc_tcb * mrbc_alloc_tcb( int reg_size, int task_state, int priority )
+{
+  mrbc_tcb *tcb;
+
+  tcb = mrbc_raw_alloc( sizeof(mrbc_tcb) + sizeof(mrbc_value) * reg_size );
+  if( !tcb ) return NULL;	// ENOMEM
+
+  memset(tcb, 0, sizeof(mrbc_tcb));
+#if defined(MRBC_DEBUG)
+  memcpy( tcb->type, "TCB", 4 );
+#endif
+  tcb->priority = priority;
+  tcb->priority_preemption = tcb->priority;
+  tcb->state = task_state;
+  tcb->vm.regs_size = reg_size;
+
+  return tcb;
 }
 
 
 //================================================================
 /*! specify running VM code.
 
-  @param        vm_code pointer of VM byte code.
-  @param        tcb	Task control block with parameter, or NULL.
-  @retval       Pointer of mrbc_tcb.
-  @retval       NULL is error.
-
+  @param  byte_code	pointer to VM byte code.
+  @param  tcb		Task control block with parameter, or NULL.
+  @return Pointer to mrbc_tcb or NULL.
 */
-mrbc_tcb* mrbc_create_task(const uint8_t *vm_code, mrbc_tcb *tcb)
+mrbc_tcb * mrbc_create_task(const void *vm_code, mrbc_tcb *tcb)
 {
-  // allocate Task Control Block
-  if( tcb == NULL ) {
-    tcb = mrbc_raw_alloc( sizeof(mrbc_tcb) );
-    if( tcb == NULL ) return NULL;	// ENOMEM
+  if( !tcb ) tcb = mrbc_alloc_tcb( MAX_REGS_SIZE, MRBC_TASK_DEFAULT_STATE, MRBC_TASK_DEFAULT_PRIORITY );
+  if( !tcb ) return NULL;	// ENOMEM
 
-    mrbc_init_tcb( tcb );
-  }
-  tcb->timeslice           = MRBC_TIMESLICE_TICK_COUNT;
+  tcb->timeslice = MRBC_TIMESLICE_TICK_COUNT;
   tcb->priority_preemption = tcb->priority;
 
   // assign VM ID
