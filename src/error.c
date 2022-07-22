@@ -146,9 +146,8 @@ void mrbc_exception_delete(mrbc_value *value)
 void mrbc_raise( struct VM *vm, struct RClass *exc_cls, const char *msg )
 {
   if( vm ) {
-    vm->exception = mrbc_exception_new( vm, exc_cls ? exc_cls : MRBC_CLASS(RuntimeError), msg, 0 );
+    vm->exception = mrbc_exception_new( vm, exc_cls ? exc_cls : MRBC_CLASS(RuntimeError), msg, strlen(msg) );
     vm->flag_preemption = 2;
-
   } else {
     mrbc_printf("Exception: %s (%s)\n", msg ? msg : mrbc_symid_to_str(exc_cls->sym_id), mrbc_symid_to_str(exc_cls->sym_id));
   }
