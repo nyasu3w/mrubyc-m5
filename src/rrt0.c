@@ -427,42 +427,29 @@ void mrbc_cleanup(void)
 
 
 //================================================================
-/*! dinamic initializer of mrbc_tcb
+/*! create (allocate) TCB.
 
-*/
-void mrbc_init_tcb(mrbc_tcb *tcb)
-{
-  memset(tcb, 0, sizeof(mrbc_tcb));
-
-#if defined(MRBC_DEBUG)
-  memcpy( tcb->type, "TCB", 4 );
-#endif
-  tcb->priority = MRBC_TASK_DEFAULT_PRIORITY;
-  tcb->priority_preemption = MRBC_TASK_DEFAULT_PRIORITY;
-  tcb->state = MRBC_TASK_DEFAULT_STATE;
-}
-
-
-//================================================================
-/*! create TCB.
-
-  @param  reg_size	num of allocated registers.
+  @param  regs_size	num of allocated registers.
   @param  task_state	task initial state.
   @param  priority	task priority.
   @return pointer to TCB or NULL.
 
-<pre>
-  If you want specify default value, see bellow.
-    reg_size:   MAX_REGS_SIZE (in vm_config.h)
-    task_state: MRBC_TASK_DEFAULT_STATE
-    priority:   MRBC_TASK_DEFAULT_PRIORITY
-</pre>
+<b>Code example</b>
+@code
+  //  If you want specify default value, see bellow.
+  //    regs_size:  MAX_REGS_SIZE (in vm_config.h)
+  //    task_state: MRBC_TASK_DEFAULT_STATE
+  //    priority:   MRBC_TASK_DEFAULT_PRIORITY
+  mrbc_tcb *tcb;
+  tcb = mrbc_tcb_new( MAX_REGS_SIZE, MRBC_TASK_DEFAULT_STATE, MRBC_TASK_DEFAULT_PRIORITY );
+  mrbc_create_task( byte_code, tcb );
+@endcode
 */
-mrbc_tcb * mrbc_alloc_tcb( int reg_size, int task_state, int priority )
+mrbc_tcb * mrbc_tcb_new( int regs_size, enum MrbcTaskState task_state, int priority )
 {
   mrbc_tcb *tcb;
 
-  tcb = mrbc_raw_alloc( sizeof(mrbc_tcb) + sizeof(mrbc_value) * reg_size );
+  tcb = mrbc_raw_alloc( sizeof(mrbc_tcb) + sizeof(mrbc_value) * regs_size );
   if( !tcb ) return NULL;	// ENOMEM
 
   memset(tcb, 0, sizeof(mrbc_tcb));
@@ -470,9 +457,8 @@ mrbc_tcb * mrbc_alloc_tcb( int reg_size, int task_state, int priority )
   memcpy( tcb->type, "TCB", 4 );
 #endif
   tcb->priority = priority;
-  tcb->priority_preemption = tcb->priority;
   tcb->state = task_state;
-  tcb->vm.regs_size = reg_size;
+  tcb->vm.regs_size = regs_size;
 
   return tcb;
 }
@@ -485,9 +471,9 @@ mrbc_tcb * mrbc_alloc_tcb( int reg_size, int task_state, int priority )
   @param  tcb		Task control block with parameter, or NULL.
   @return Pointer to mrbc_tcb or NULL.
 */
-mrbc_tcb * mrbc_create_task(const void *vm_code, mrbc_tcb *tcb)
+mrbc_tcb * mrbc_create_task(const void *byte_code, mrbc_tcb *tcb)
 {
-  if( !tcb ) tcb = mrbc_alloc_tcb( MAX_REGS_SIZE, MRBC_TASK_DEFAULT_STATE, MRBC_TASK_DEFAULT_PRIORITY );
+  if( !tcb ) tcb = mrbc_tcb_new( MAX_REGS_SIZE, MRBC_TASK_DEFAULT_STATE, MRBC_TASK_DEFAULT_PRIORITY );
   if( !tcb ) return NULL;	// ENOMEM
 
   tcb->timeslice = MRBC_TIMESLICE_TICK_COUNT;
@@ -499,7 +485,7 @@ mrbc_tcb * mrbc_create_task(const void *vm_code, mrbc_tcb *tcb)
     return NULL;
   }
 
-  if( mrbc_load_mrb(&tcb->vm, vm_code) != 0 ) {
+  if( mrbc_load_mrb(&tcb->vm, byte_code) != 0 ) {
     mrbc_print_vm_exception( &tcb->vm );
     mrbc_vm_close( &tcb->vm );
     return NULL;

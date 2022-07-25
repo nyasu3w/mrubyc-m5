@@ -32,11 +32,11 @@ extern "C" {
   Task state
 */
 enum MrbcTaskState {
-  TASKSTATE_DORMANT   = 0x00,
-  TASKSTATE_READY     = 0x01,
-  TASKSTATE_RUNNING   = 0x03,
-  TASKSTATE_WAITING   = 0x04,
-  TASKSTATE_SUSPENDED = 0x08,
+  TASKSTATE_DORMANT   = 0x00,	//!< Domant
+  TASKSTATE_READY     = 0x01,	//!< Ready
+  TASKSTATE_RUNNING   = 0x03,	//!< Running
+  TASKSTATE_WAITING   = 0x04,	//!< Waiting
+  TASKSTATE_SUSPENDED = 0x08,	//!< Suspended
 };
 
 enum MrbcTaskReason {
@@ -94,9 +94,8 @@ typedef struct RMutex {
 void mrbc_tick(void);
 void mrbc_init(uint8_t *ptr, unsigned int size);
 void mrbc_cleanup(void);
-void mrbc_init_tcb(mrbc_tcb *tcb);
-mrbc_tcb *mrbc_alloc_tcb(int reg_size, int task_state, int priority);
-mrbc_tcb *mrbc_create_task(const void *vm_code, mrbc_tcb *tcb);
+mrbc_tcb *mrbc_tcb_new(int regs_size, enum MrbcTaskState task_state, int priority);
+mrbc_tcb *mrbc_create_task(const void *byte_code, mrbc_tcb *tcb);
 int mrbc_start_task(mrbc_tcb *tcb);
 int mrbc_run(void);
 void mrbc_sleep_ms(mrbc_tcb *tcb, uint32_t ms);

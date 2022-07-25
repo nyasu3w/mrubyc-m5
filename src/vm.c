@@ -284,13 +284,25 @@ void mrbc_pop_callinfo( struct VM *vm )
 //================================================================
 /*! Create (allocate) VM structure.
 
-  @param  reg_size	num of registor.
+  @param  regs_size	num of registor.
   @return		Pointer to mrbc_vm.
   @retval NULL		error.
+
+<b>Code example</b>
+@code
+  mrbc_vm *vm;
+  vm = mrbc_vm_new( MAX_REGS_SIZE );
+  mrbc_vm_open( vm );
+  mrbc_load_mrb( vm, byte_code );
+  mrbc_vm_begin( vm );
+  mrbc_vm_run( vm );
+  mrbc_vm_end( vm );
+  mrbc_vm_close( vm );
+@endcode
 */
-mrbc_vm * mrbc_vm_new( int reg_size )
+mrbc_vm * mrbc_vm_new( int regs_size )
 {
-  mrbc_vm *vm = mrbc_raw_alloc(sizeof(mrbc_vm) + sizeof(mrbc_value) * reg_size);
+  mrbc_vm *vm = mrbc_raw_alloc(sizeof(mrbc_vm) + sizeof(mrbc_value) * regs_size);
   if( !vm ) return NULL;
 
   memset(vm, 0, sizeof(mrbc_vm));	// caution: assume NULL is zero.
@@ -298,7 +310,7 @@ mrbc_vm * mrbc_vm_new( int reg_size )
   memcpy(vm->type, "VM", 2);
 #endif
   vm->flag_need_memfree = 1;
-  vm->regs_size = reg_size;
+  vm->regs_size = regs_size;
 
   return vm;
 }
