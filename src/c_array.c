@@ -503,7 +503,7 @@ mrbc_value mrbc_array_dup(struct VM *vm, const mrbc_value *ary)
 
   @param  vm	pointer to VM.
   @param  src	source
-  @oaram  pos	divide position
+  @param  pos	divide position
   @return	divided array
   @note
     src = [0,1,2,3]
