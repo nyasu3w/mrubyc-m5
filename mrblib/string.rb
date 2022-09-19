@@ -33,6 +33,9 @@ class String
     self
   end
 
+  #
+  # ljust
+  #
   def ljust(width, padding = ' ')
     __ljust_rjust_argcheck(width, padding)
     result = self.dup
@@ -45,6 +48,9 @@ class String
     end
   end
 
+  #
+  # rjust
+  #
   def rjust(width, padding = ' ')
     __ljust_rjust_argcheck(width, padding)
     return self.dup if width <= length
