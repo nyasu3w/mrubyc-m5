@@ -149,6 +149,34 @@ class Array
   end
 
   #
+  # index
+  #
+  def index( *val, &block )
+    i = 0
+
+    # case of index {|item| ...} -> Integer | nil
+    if block
+      while i < length
+        return i  if yield self[i]
+        i += 1
+      end
+      return nil
+    end
+
+    # case of index(val) -> Integer | nil
+    if !val.empty?
+      while i < length
+        return i  if self[i] == val[0]
+        i += 1
+      end
+      return nil
+    end
+
+    raise ArgumentError
+  end
+  alias find_index index
+
+  #
   # reject!
   #
   def reject!( &block )
