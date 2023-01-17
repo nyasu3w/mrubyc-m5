@@ -3,8 +3,8 @@
   console output module. (not yet input)
 
   <pre>
-  Copyright (C) 2015-2022 Kyushu Institute of Technology.
-  Copyright (C) 2015-2022 Shimane IT Open-Innovation Center.
+  Copyright (C) 2015-2023 Kyushu Institute of Technology.
+  Copyright (C) 2015-2023 Shimane IT Open-Innovation Center.
 
   This file is distributed under BSD 3-Clause License.
 
@@ -169,7 +169,7 @@ static inline int mrbc_printf_len( mrbc_printf_t *pf )
 */
 static inline int mrbc_printf_str( mrbc_printf_t *pf, const char *str, int pad )
 {
-  return mrbc_printf_bstr( pf, str, strlen(str), pad );
+  return mrbc_printf_bstr( pf, str, (str ? strlen(str) : 0), pad );
 }
 
 #ifdef __cplusplus
