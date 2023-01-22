@@ -3,8 +3,8 @@
   mruby bytecode executor.
 
   <pre>
-  Copyright (C) 2015-2022 Kyushu Institute of Technology.
-  Copyright (C) 2015-2022 Shimane IT Open-Innovation Center.
+  Copyright (C) 2015-2023 Kyushu Institute of Technology.
+  Copyright (C) 2015-2023 Shimane IT Open-Innovation Center.
 
   This file is distributed under BSD 3-Clause License.
 
@@ -65,8 +65,6 @@ static uint16_t free_vm_bitmap[MAX_VM_COUNT / 16 + 1];
 */
 static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
 {
-  // Does not support to keyword arguments.
-  // thus, reorder arguments to mruby2 series compatible.
   int narg = c & 0x0f;
   int karg = (c >> 4) & 0x0f;
   mrbc_value *regs = vm->cur_regs;
@@ -246,6 +244,7 @@ mrbc_callinfo * mrbc_push_callinfo( struct VM *vm, mrbc_sym method_id, int reg_o
   callinfo->method_id = method_id;
   callinfo->reg_offset = reg_offset;
   callinfo->n_args = n_args;
+  callinfo->kd_reg_offset = 0;
   callinfo->is_called_super = 0;
 
   callinfo->prev = vm->callinfo_tail;
@@ -1398,14 +1397,15 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
     return;
   }
 
+  // Check m2 parameter.
+  if( a & FLAG_M2 ) {
+    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 argument.");
+    return;
+  }
+
   int m1 = (a >> 18) & 0x1f;	// num of required parameters 1
   int o  = (a >> 13) & 0x1f;	// num of optional parameters
   int argc = vm->callinfo_tail->n_args;
-
-  if( a & (FLAG_M2|FLAG_KW) ) {	// check m2 and k parameter.
-    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 or keyword argument.");
-    return;
-  }
 
   if( argc < m1 && mrbc_type(regs[0]) != MRBC_TT_PROC ) {
     mrbc_raise( vm, MRBC_CLASS(ArgumentError), "wrong number of arguments.");
@@ -1438,10 +1438,10 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
     mrbc_array_delete_handle( &argary );
   }
 
-  // dictionary or rest parameter exists.
-  if( a & (FLAG_DICT|FLAG_REST) ) {
+  // dictionary, keyword or rest parameter exists.
+  if( a & (FLAG_DICT|FLAG_KW|FLAG_REST) ) {
     mrbc_value dict;
-    if( a & FLAG_DICT ) {
+    if( a & (FLAG_DICT|FLAG_KW) ) {
       if( (argc - m1) > 0 && mrbc_type(regs[argc]) == MRBC_TT_HASH ) {
 	dict = regs[argc];
 	regs[argc--].tt = MRBC_TT_EMPTY;
@@ -1476,9 +1476,10 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
       mrbc_decref(&regs[++i]);
       regs[i] = rest;
     }
-    if( a & FLAG_DICT ) {
+    if( a & (FLAG_DICT|FLAG_KW) ) {
       mrbc_decref(&regs[++i]);
       regs[i] = dict;
+      vm->callinfo_tail->kd_reg_offset = i;
     }
     mrbc_decref(&regs[i+1]);
     regs[i+1] = proc;
@@ -1516,6 +1517,70 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
 #undef FLAG_KW
 #undef FLAG_DICT
 #undef FLAG_BLOCK
+}
+
+
+//================================================================
+/*! op_key_p
+
+  R[a] = kdict.key?(Syms[b])
+*/
+static inline void op_key_p( mrbc_vm *vm, mrbc_value *regs EXT )
+{
+  FETCH_BB();
+
+  mrbc_value *kdict = &regs[vm->callinfo_tail->kd_reg_offset];
+  mrbc_value kw = mrbc_symbol_value(mrbc_irep_symbol_id(vm->cur_irep, b));
+  mrbc_value *v = mrbc_hash_search( kdict, &kw );
+
+  mrbc_decref(&regs[a]);
+  mrbc_set_bool(&regs[a], v);
+}
+
+
+//================================================================
+/*! op_keyend
+
+  raise unless kdict.empty?
+*/
+static inline void op_keyend( mrbc_vm *vm, mrbc_value *regs EXT )
+{
+  FETCH_Z();
+
+  mrbc_value *kdict = &regs[vm->callinfo_tail->kd_reg_offset];
+  if( mrbc_hash_size(kdict) != 0 ) {
+    mrbc_hash_iterator ite = mrbc_hash_iterator_new(kdict);
+    mrbc_value *kv = mrbc_hash_i_next(&ite);
+
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError), "unknown keyword: %s",
+		mrbc_symid_to_str(kv->i));
+  }
+}
+
+
+//================================================================
+/*! op_karg
+
+  R[a] = kdict[Syms[b]]; kdict.delete(Syms[b])
+*/
+static inline void op_karg( mrbc_vm *vm, mrbc_value *regs EXT )
+{
+  FETCH_BB();
+
+  mrbc_value *kdict = &regs[vm->callinfo_tail->kd_reg_offset];
+  mrbc_value kw = mrbc_symbol_value(mrbc_irep_symbol_id(vm->cur_irep, b));
+  mrbc_value *v = mrbc_hash_search( kdict, &kw );
+
+  if( !v ) {
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError), "missing keywords: %s",
+		mrbc_symid_to_str(mrbc_irep_symbol_id(vm->cur_irep, b)));
+    return;
+  }
+
+  mrbc_decref(&regs[a]);
+  regs[a] = *++v;
+
+  mrbc_hash_remove( kdict, &kw );
 }
 
 
@@ -2697,9 +2762,9 @@ int mrbc_vm_run( struct VM *vm )
     case OP_SUPER:      op_super      (vm, regs EXT); break;
     case OP_ARGARY:     op_argary     (vm, regs EXT); break;
     case OP_ENTER:      op_enter      (vm, regs EXT); break;
-    case OP_KEY_P:      op_unsupported(vm, regs EXT); break; // not implemented.
-    case OP_KEYEND:     op_unsupported(vm, regs EXT); break; // not implemented.
-    case OP_KARG:       op_unsupported(vm, regs EXT); break; // not implemented.
+    case OP_KEY_P:      op_key_p      (vm, regs EXT); break;
+    case OP_KEYEND:     op_keyend     (vm, regs EXT); break;
+    case OP_KARG:       op_karg       (vm, regs EXT); break;
     case OP_RETURN:     op_return     (vm, regs EXT); break;
     case OP_RETURN_BLK: op_return_blk (vm, regs EXT); break;
     case OP_BREAK:      op_break      (vm, regs EXT); break;
