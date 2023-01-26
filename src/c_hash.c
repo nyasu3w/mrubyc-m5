@@ -114,11 +114,6 @@ void mrbc_hash_delete(mrbc_value *hash)
 */
 mrbc_value * mrbc_hash_search(const mrbc_value *hash, const mrbc_value *key)
 {
-#ifndef MRBC_HASH_SEARCH_LINER
-#define MRBC_HASH_SEARCH_LINER
-#endif
-
-#ifdef MRBC_HASH_SEARCH_LINER
   mrbc_value *p1 = hash->hash->data;
   const mrbc_value *p2 = p1 + hash->hash->n_stored;
 
@@ -127,16 +122,6 @@ mrbc_value * mrbc_hash_search(const mrbc_value *hash, const mrbc_value *key)
     p1 += 2;
   }
   return NULL;
-#endif
-
-#ifdef MRBC_HASH_SEARCH_LINER_ITERATOR
-  mrbc_hash_iterator ite = mrbc_hash_iterator_new(hash);
-  while( mrbc_hash_i_has_next(&ite) ) {
-    mrbc_value *v = mrbc_hash_i_next(&ite);
-    if( mrbc_compare( v, key ) == 0 ) return v;
-  }
-  return NULL;
-#endif
 }
 
 
