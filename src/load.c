@@ -3,8 +3,8 @@
   mruby bytecode loader.
 
   <pre>
-  Copyright (C) 2015-2022 Kyushu Institute of Technology.
-  Copyright (C) 2015-2022 Shimane IT Open-Innovation Center.
+  Copyright (C) 2015-2023 Kyushu Institute of Technology.
+  Copyright (C) 2015-2023 Shimane IT Open-Innovation Center.
 
   This file is distributed under BSD 3-Clause License.
 
@@ -368,9 +368,9 @@ mrbc_value mrbc_irep_pool_value(struct VM *vm, int n)
     break;
 #endif
 
-#ifdef MRBC_INT64
+#if defined(MRBC_INT64)
   case IREP_TT_INT64:
-    mrbc_set_integer(&obj, obj.i = bin_to_int64(p));
+    mrbc_set_integer(&obj, bin_to_int64(p));
     break;
 #endif
 
