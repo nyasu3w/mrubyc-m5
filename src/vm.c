@@ -87,18 +87,20 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
 
   // Convert keyword argument to hash.
   if( karg ) {
-    mrbc_value h = mrbc_hash_new( vm, karg );
-    if( !h.hash ) return;	// ENOMEM
-
-    mrbc_value *r1 = recv + narg + 1;
-    memcpy( h.hash->data, r1, sizeof(mrbc_value) * karg * 2 );
-    h.hash->n_stored = karg * 2;
-
-    mrbc_value block = r1[karg * 2];
-    memset( r1 + 2, 0, sizeof(mrbc_value) * (karg * 2 - 1) );
-    *r1++ = h;
-    *r1 = block;
     narg++;
+    if( karg != CALL_MAXARGS ) {
+      mrbc_value h = mrbc_hash_new( vm, karg );
+      if( !h.hash ) return;	// ENOMEM
+
+      mrbc_value *r1 = recv + narg;
+      memcpy( h.hash->data, r1, sizeof(mrbc_value) * karg * 2 );
+      h.hash->n_stored = karg * 2;
+
+      mrbc_value block = r1[karg * 2];
+      memset( r1 + 2, 0, sizeof(mrbc_value) * (karg * 2 - 1) );
+      *r1++ = h;
+      *r1 = block;
+    }
   }
 
   // is not have block
