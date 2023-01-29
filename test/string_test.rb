@@ -29,6 +29,7 @@ class StringTest < MrubycTestCase
     s2 = "0123456789"
     assert_equal "ABCDEFGABCDEFG", s1 * 2
     assert_equal "abcabc", "abc" * 2
+    assert_equal "01234567890123456789", s2 * 2
   end
 
   description "self + other -> String"
