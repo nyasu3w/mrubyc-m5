@@ -18,6 +18,12 @@ make setup_test
 This target will build a Docker container image.
 It may take a while.
 
+### Passing docker build options
+
+```
+make setup_test options="--no-cache --quiet"
+```
+
 ## Test!
 
 ```

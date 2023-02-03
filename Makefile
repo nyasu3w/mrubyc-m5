@@ -78,7 +78,7 @@ check_tag:
 	fi
 
 setup_test:
-	docker build -t mrubyc-dev --build-arg MRUBY_TAG=$(MRUBY_TAG) --build-arg USER_ID=$(USER_ID) .
+	docker build -t mrubyc-dev --build-arg MRUBY_TAG=$(MRUBY_TAG) --build-arg USER_ID=$(USER_ID) $(options) .
 
 debug_test:
 	gdb $(OPTION) --directory $(shell pwd)/src --args test/tmp/test
