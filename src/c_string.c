@@ -3,8 +3,8 @@
   mruby/c String class
 
   <pre>
-  Copyright (C) 2015-2022 Kyushu Institute of Technology.
-  Copyright (C) 2015-2022 Shimane IT Open-Innovation Center.
+  Copyright (C) 2015-2023 Kyushu Institute of Technology.
+  Copyright (C) 2015-2023 Shimane IT Open-Innovation Center.
 
   This file is distributed under BSD 3-Clause License.
 
@@ -1264,9 +1264,10 @@ static void c_string_bytes(struct VM *vm, mrbc_value v[], int argc)
    * Note: This String#bytes doesn't support taking a block parameter.
    *       Use String#each_byte instead.
    */
-  int len = v[0].string->size;
+  int len = mrbc_string_size(&v[0]);
   mrbc_value ret = mrbc_array_new(vm, len);
-  for (int i = 0; i < len; i++) {
+  int i;
+  for (i = 0; i < len; i++) {
     mrbc_array_set(&ret, i, &mrbc_integer_value(v[0].string->data[i]));
   }
   SET_RETURN(ret);
