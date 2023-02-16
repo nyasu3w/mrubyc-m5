@@ -3,8 +3,8 @@
   mruby/c Hash class
 
   <pre>
-  Copyright (C) 2015-2022 Kyushu Institute of Technology.
-  Copyright (C) 2015-2022 Shimane IT Open-Innovation Center.
+  Copyright (C) 2015-2023 Kyushu Institute of Technology.
+  Copyright (C) 2015-2023 Shimane IT Open-Innovation Center.
 
   This file is distributed under BSD 3-Clause License.
 
@@ -48,14 +48,22 @@
     mrbc_hash_delete
 
  (setter)
-  --[name]-------------[arg]---[ret]-------
-    mrbc_hash_set	*K,*V	int
+  --[name]-----------------[arg]--[ret]-[note]------------------------
+    mrbc_hash_set	   *K,*V   int
 
  (getter)
-  --[name]-------------[arg]---[ret]---[note]------------------------
-    mrbc_hash_get	*K	T	Data remains in the container
-    mrbc_hash_remove	*K	T	Data does not remain in the container
-    mrbc_hash_i_next		*T	Data remains in the container
+  --[name]-----------------[arg]--[ret]-[note]------------------------
+    mrbc_hash_get	    *K      V	Data remains in the container
+    mrbc_hash_search	    *K     *K	Data remains in the container
+    mrbc_hash_search_by_id  SymID  *K	Data remains in the container
+    mrbc_hash_i_next	    *V		Iterator. Data remains in the container
+    mrbc_hash_remove	    *K      V	Data does not remain in the container
+    mrbc_hash_remove_by_id  SymID   V	Data does not remain in the container
+
+ (others)
+    mrbc_hash_clear
+    mrbc_hash_compare
+    mrbc_hash_dup
 */
 
 
@@ -106,7 +114,7 @@ void mrbc_hash_delete(mrbc_value *hash)
 
 
 //================================================================
-/*! search key
+/*! search by key
 
   @param  hash	pointer to target hash
   @param  key	pointer to key value
@@ -121,6 +129,30 @@ mrbc_value * mrbc_hash_search(const mrbc_value *hash, const mrbc_value *key)
     if( mrbc_compare(p1, key) == 0 ) return p1;
     p1 += 2;
   }
+
+  return NULL;
+}
+
+
+//================================================================
+/*! search by symbol ID
+
+  @param  hash		pointer to target hash
+  @param  sym_id	symbol ID
+  @return		pointer to found key or NULL(not found).
+  @note			for use with OP_KEY_P.
+*/
+mrbc_value * mrbc_hash_search_by_id(const mrbc_value *hash, mrbc_sym sym_id)
+{
+  mrbc_value *p1 = hash->hash->data;
+  const mrbc_value *p2 = p1 + hash->hash->n_stored;
+
+  while( p1 < p2 ) {
+    if( mrbc_type(*p1) == MRBC_TT_SYMBOL &&
+	mrbc_symbol(*p1) == sym_id ) return p1;
+    p1 += 2;
+  }
+
   return NULL;
 }
 
@@ -162,7 +194,7 @@ int mrbc_hash_set(mrbc_value *hash, mrbc_value *key, mrbc_value *val)
   @param  key	pointer to key value
   @return	mrbc_value data at key position or Nil.
 */
-mrbc_value mrbc_hash_get(mrbc_value *hash, mrbc_value *key)
+mrbc_value mrbc_hash_get(const mrbc_value *hash, const mrbc_value *key)
 {
   mrbc_value *v = mrbc_hash_search(hash, key);
   return v ? *++v : mrbc_nil_value();
@@ -176,12 +208,39 @@ mrbc_value mrbc_hash_get(mrbc_value *hash, mrbc_value *key)
   @param  key	pointer to key value
   @return	removed data or Nil
 */
-mrbc_value mrbc_hash_remove(mrbc_value *hash, mrbc_value *key)
+mrbc_value mrbc_hash_remove(mrbc_value *hash, const mrbc_value *key)
 {
   mrbc_value *v = mrbc_hash_search(hash, key);
   if( v == NULL ) return mrbc_nil_value();
 
   mrbc_decref(v);		// key
+  mrbc_value val = v[1];	// value
+
+  mrbc_hash *h = hash->hash;
+  h->n_stored -= 2;
+
+  memmove(v, v+2, (char*)(h->data + h->n_stored) - (char*)v);
+
+  // TODO: re-index hash table if need.
+
+  return val;
+}
+
+
+//================================================================
+/*! remove a data by symbol ID.
+
+  @param  hash		pointer to target hash
+  @param  sym_id	symbol ID
+  @return  		removed data.
+  @return 		TT_EMPTY, if not found.
+  @note			for use with OP_KARG.
+*/
+mrbc_value mrbc_hash_remove_by_id(mrbc_value *hash, mrbc_sym sym_id)
+{
+  mrbc_value *v = mrbc_hash_search_by_id(hash, sym_id);
+  if( !v ) return (mrbc_value){.tt = MRBC_TT_EMPTY};
+
   mrbc_value val = v[1];	// value
 
   mrbc_hash *h = hash->hash;
