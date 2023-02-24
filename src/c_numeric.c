@@ -195,6 +195,45 @@ static void c_integer_abs(struct VM *vm, mrbc_value v[], int argc)
 }
 
 
+//================================================================
+/*! (method) clamp
+ *
+ * Note: Does not support Range object as the argument
+ *       like `3.clamp(1..2) #=> 2`
+*/
+static void c_numeric_clamp(struct VM *vm, mrbc_value v[], int argc)
+{
+  if (argc != 2) {
+    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "wrong number of arguments (expected 2)");
+    return;
+  }
+  mrbc_value min = v[1];
+  mrbc_value max = v[2];
+  if (
+    (mrbc_type(min) != MRBC_TT_INTEGER && mrbc_type(min) != MRBC_TT_FLOAT) ||
+    (mrbc_type(max) != MRBC_TT_INTEGER && mrbc_type(max) != MRBC_TT_FLOAT)
+  ){
+    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "comparison failed");
+    return;
+  }
+  if (mrbc_compare(&max, &min) < 0) {
+    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "min argument must be smaller than max argument");
+    return;
+  }
+  if (mrbc_compare(&v[0], &min) < 0) {
+    mrbc_incref(&min);
+    SET_RETURN(min);
+    return;
+  }
+  if (mrbc_compare(&max, &v[0]) < 0) {
+    mrbc_incref(&max);
+    SET_RETURN(max);
+    return;
+  }
+  SET_RETURN(v[0]); /* return self */
+}
+
+
 #if MRBC_USE_FLOAT
 //================================================================
 /*! (method) to_f
@@ -270,6 +309,7 @@ static void c_integer_inspect(struct VM *vm, mrbc_value v[], int argc)
   METHOD( ">>",		c_integer_rshift )
   METHOD( "abs",	c_integer_abs )
   METHOD( "to_i",	c_ineffect )
+  METHOD( "clamp",	c_numeric_clamp )
 #if MRBC_USE_FLOAT
   METHOD( "to_f",	c_integer_to_f )
 #endif
@@ -377,6 +417,7 @@ static void c_float_inspect(struct VM *vm, mrbc_value v[], int argc)
   METHOD( "abs",	c_float_abs )
   METHOD( "to_i",	c_float_to_i )
   METHOD( "to_f",	c_ineffect )
+  METHOD( "clamp",	c_numeric_clamp )
 #if MRBC_USE_STRING
   METHOD( "inspect",	c_float_inspect )
   METHOD( "to_s",	c_float_inspect )

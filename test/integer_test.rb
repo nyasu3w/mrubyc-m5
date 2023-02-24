@@ -48,4 +48,29 @@ class IntegerTest < MrubycTestCase
     assert_equal( "-15wx", -54321.to_s(36) )
   end
 
+  description "clamp"
+  def clamp_case
+    assert_equal 2, 10.clamp(0, 2)
+    assert_equal 2, 10.clamp(-1, 2)
+    assert_equal -2, -10.clamp(-2, 2)
+    assert_equal 2.0, 10.clamp(0, 2.0)
+    assert_equal 2, 10.clamp(-1.0, 2.0)
+    assert_equal -2, -10.clamp(-2.0, 2)
+    assert_raise(ArgumentError.new("min argument must be smaller than max argument")) do
+      0.clamp(1, -1)
+    end
+    assert_raise(ArgumentError.new("wrong number of arguments (expected 2)")) do
+      0.clamp(1)
+    end
+    assert_raise(ArgumentError.new("wrong number of arguments (expected 2)")) do
+      0.clamp(1..2)
+    end
+    assert_raise(ArgumentError.new("comparison failed")) do
+      0.clamp("1", "2")
+    end
+    assert_raise(ArgumentError.new("comparison failed")) do
+      0.clamp(0..10, 9)
+    end
+  end
+
 end
