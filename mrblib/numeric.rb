@@ -10,13 +10,19 @@
 class Integer
 
   # times
-  def times
-    i = 0
-    while i < self
-      yield i
+  def times(&block)
+    1.upto(self, &block)
+    return self
+  end
+
+  # upto
+  def upto(max, &block)
+    i = self
+    while i <= max
+      block.call i
       i += 1
     end
-    self
+    return self
   end
 
 end

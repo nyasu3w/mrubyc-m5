@@ -23,6 +23,15 @@ class IntegerTest < MrubycTestCase
     assert_equal 10, i
   end
 
+  description "upto"
+  def upto_case
+    result = 0
+    -1.upto 10 do |i|
+      result += i
+    end
+    assert_equal 54, result
+  end
+
   description "to_f"
   def to_f_case
     assert_equal( 10.0, 10.to_f )
