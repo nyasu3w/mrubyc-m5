@@ -11,7 +11,7 @@ class Integer
 
   # times
   def times(&block)
-    1.upto(self, &block)
+    0.upto(self - 1, &block)
     return self
   end
 

@@ -16,11 +16,11 @@ class IntegerTest < MrubycTestCase
 
   description "times"
   def times_case
-    i = 0
-    10.times {
-      i += 1
+    result = 0
+    10.times { |i|
+      result += i
     }
-    assert_equal 10, i
+    assert_equal 45, result
   end
 
   description "upto"
