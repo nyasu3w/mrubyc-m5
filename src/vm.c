@@ -1532,8 +1532,8 @@ static inline void op_key_p( mrbc_vm *vm, mrbc_value *regs EXT )
   FETCH_BB();
 
   mrbc_value *kdict = &regs[vm->callinfo_tail->kd_reg_offset];
-  mrbc_value kw = mrbc_symbol_value(mrbc_irep_symbol_id(vm->cur_irep, b));
-  mrbc_value *v = mrbc_hash_search( kdict, &kw );
+  mrbc_sym sym_id = mrbc_irep_symbol_id( vm->cur_irep, b );
+  mrbc_value *v = mrbc_hash_search_by_id( kdict, sym_id );
 
   mrbc_decref(&regs[a]);
   mrbc_set_bool(&regs[a], v);
@@ -1550,6 +1550,7 @@ static inline void op_keyend( mrbc_vm *vm, mrbc_value *regs EXT )
   FETCH_Z();
 
   mrbc_value *kdict = &regs[vm->callinfo_tail->kd_reg_offset];
+
   if( mrbc_hash_size(kdict) != 0 ) {
     mrbc_hash_iterator ite = mrbc_hash_iterator_new(kdict);
     mrbc_value *kv = mrbc_hash_i_next(&ite);
@@ -1570,19 +1571,17 @@ static inline void op_karg( mrbc_vm *vm, mrbc_value *regs EXT )
   FETCH_BB();
 
   mrbc_value *kdict = &regs[vm->callinfo_tail->kd_reg_offset];
-  mrbc_value kw = mrbc_symbol_value(mrbc_irep_symbol_id(vm->cur_irep, b));
-  mrbc_value *v = mrbc_hash_search( kdict, &kw );
+  mrbc_sym sym_id = mrbc_irep_symbol_id( vm->cur_irep, b );
+  mrbc_value v = mrbc_hash_remove_by_id( kdict, sym_id );
 
-  if( !v ) {
+  if( v.tt == MRBC_TT_EMPTY ) {
     mrbc_raisef(vm, MRBC_CLASS(ArgumentError), "missing keywords: %s",
-		mrbc_symid_to_str(mrbc_irep_symbol_id(vm->cur_irep, b)));
+		mrbc_symid_to_str(sym_id));
     return;
   }
 
   mrbc_decref(&regs[a]);
-  regs[a] = *++v;
-
-  mrbc_hash_remove( kdict, &kw );
+  regs[a] = v;
 }
 
 
