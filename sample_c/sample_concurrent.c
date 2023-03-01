@@ -6,8 +6,10 @@
 #include <stdlib.h>
 #include "mrubyc.h"
 
-#define MEMORY_SIZE (1024*60)
-static uint8_t memory_pool[MEMORY_SIZE];
+#if !defined(MRBC_MEMORY_SIZE)
+#define MRBC_MEMORY_SIZE (1024*60)
+#endif
+static uint8_t memory_pool[MRBC_MEMORY_SIZE];
 
 uint8_t * load_mrb_file(const char *filename)
 {
@@ -45,7 +47,10 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  mrbc_init(memory_pool, MEMORY_SIZE);
+  /*
+    start mruby/c with rrt0 scheduler.
+  */
+  mrbc_init(memory_pool, MRBC_MEMORY_SIZE);
 
   // create each task.
   for( int i = 0; i < vm_cnt; i++ ) {
