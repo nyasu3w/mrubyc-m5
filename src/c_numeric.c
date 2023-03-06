@@ -221,12 +221,10 @@ static void c_numeric_clamp(struct VM *vm, mrbc_value v[], int argc)
     return;
   }
   if (mrbc_compare(&v[0], &min) < 0) {
-    mrbc_incref(&min);
     SET_RETURN(min);
     return;
   }
   if (mrbc_compare(&max, &v[0]) < 0) {
-    mrbc_incref(&max);
     SET_RETURN(max);
     return;
   }
