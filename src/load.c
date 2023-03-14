@@ -213,7 +213,7 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len, int 
   uint16_t *ofs_pools = mrbc_irep_tbl_pools(p_irep);
   p = p_irep->pool + 2;
   for( i = 0; i < irep.plen; i++ ) {
-    int siz;
+    int siz = 0;
     if( (p - irep.pool) > UINT16_MAX ) {
       mrbc_raise(vm, MRBC_CLASS(Exception), "Overflow IREP data offset table.");
       return NULL;
