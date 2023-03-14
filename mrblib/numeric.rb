@@ -19,4 +19,24 @@ class Integer
     self
   end
 
+  # upto
+  def upto(max, &block)
+    i = self
+    while i <= max
+      block.call i
+      i += 1
+    end
+    return self
+  end
+
+  # downto
+  def downto(min, &block)
+    i = self
+    while min <= i
+      block.call i
+      i -= 1
+    end
+    return self
+  end
+
 end
