@@ -16,6 +16,7 @@ static const mrbc_sym method_symbols_Integer[] = {
 #if MRBC_USE_STRING
   MRBC_SYM(chr),
 #endif
+  MRBC_SYM(clamp),
 #if MRBC_USE_STRING
   MRBC_SYM(inspect),
 #endif
@@ -44,6 +45,7 @@ static const mrbc_func_t method_functions_Integer[] = {
 #if MRBC_USE_STRING
   c_integer_chr,
 #endif
+  c_numeric_clamp,
 #if MRBC_USE_STRING
   c_integer_inspect,
 #endif
