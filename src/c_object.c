@@ -872,6 +872,12 @@ static void c_false_to_s(struct VM *vm, mrbc_value v[], int argc)
   CLASS("FalseClass")
   APPEND("_autogen_class_object.h")
 
+  METHOD( "==", _dummy_for_symbol_table )
+  METHOD( "<",  _dummy_for_symbol_table )
+  METHOD( "<=", _dummy_for_symbol_table )
+  METHOD( ">",  _dummy_for_symbol_table )
+  METHOD( ">=", _dummy_for_symbol_table )
+
 #if MRBC_USE_STRING
   METHOD( "inspect",	c_false_to_s )
   METHOD( "to_s",	c_false_to_s )

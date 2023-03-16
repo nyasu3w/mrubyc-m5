@@ -2003,11 +2003,15 @@ static inline void op_eq( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  // TODO: case OBJECT == OBJECT is not supported.
-  int result = mrbc_compare(&regs[a], &regs[a+1]);
+  if (regs[a].tt != MRBC_TT_OBJECT) {
+    int result = mrbc_compare(&regs[a], &regs[a+1]);
 
-  mrbc_decref(&regs[a]);
-  regs[a].tt = result ? MRBC_TT_FALSE : MRBC_TT_TRUE;
+    mrbc_decref(&regs[a]);
+    regs[a].tt = result ? MRBC_TT_FALSE : MRBC_TT_TRUE;
+    return;
+  }
+
+  send_by_name( vm, MRBC_SYM(EQ_EQ), a, 1 );
 }
 
 
@@ -2020,11 +2024,15 @@ static inline void op_lt( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  // TODO: case OBJECT < OBJECT is not supported.
-  int result = mrbc_compare(&regs[a], &regs[a+1]);
+  if (regs[a].tt != MRBC_TT_OBJECT) {
+    int result = mrbc_compare(&regs[a], &regs[a+1]);
 
-  mrbc_decref(&regs[a]);
-  regs[a].tt = result < 0 ? MRBC_TT_TRUE : MRBC_TT_FALSE;
+    mrbc_decref(&regs[a]);
+    regs[a].tt = result < 0 ? MRBC_TT_TRUE : MRBC_TT_FALSE;
+    return;
+  }
+
+  send_by_name( vm, MRBC_SYM(LT), a, 1 );
 }
 
 
@@ -2037,11 +2045,15 @@ static inline void op_le( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  // TODO: case OBJECT <= OBJECT is not supported.
-  int result = mrbc_compare(&regs[a], &regs[a+1]);
+  if (regs[a].tt != MRBC_TT_OBJECT) {
+    int result = mrbc_compare(&regs[a], &regs[a+1]);
 
-  mrbc_decref(&regs[a]);
-  regs[a].tt = result <= 0 ? MRBC_TT_TRUE : MRBC_TT_FALSE;
+    mrbc_decref(&regs[a]);
+    regs[a].tt = result <= 0 ? MRBC_TT_TRUE : MRBC_TT_FALSE;
+    return;
+  }
+
+  send_by_name( vm, MRBC_SYM(LT_EQ), a, 1 );
 }
 
 
@@ -2054,11 +2066,15 @@ static inline void op_gt( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  // TODO: case OBJECT > OBJECT is not supported.
-  int result = mrbc_compare(&regs[a], &regs[a+1]);
+  if (regs[a].tt != MRBC_TT_OBJECT) {
+    int result = mrbc_compare(&regs[a], &regs[a+1]);
 
-  mrbc_decref(&regs[a]);
-  regs[a].tt = result > 0 ? MRBC_TT_TRUE : MRBC_TT_FALSE;
+    mrbc_decref(&regs[a]);
+    regs[a].tt = result > 0 ? MRBC_TT_TRUE : MRBC_TT_FALSE;
+    return;
+  }
+
+  send_by_name( vm, MRBC_SYM(GT), a, 1 );
 }
 
 
@@ -2071,11 +2087,15 @@ static inline void op_ge( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  // TODO: case OBJECT >= OBJECT is not supported.
-  int result = mrbc_compare(&regs[a], &regs[a+1]);
+  if (regs[a].tt != MRBC_TT_OBJECT) {
+    int result = mrbc_compare(&regs[a], &regs[a+1]);
 
-  mrbc_decref(&regs[a]);
-  regs[a].tt = result >= 0 ? MRBC_TT_TRUE : MRBC_TT_FALSE;
+    mrbc_decref(&regs[a]);
+    regs[a].tt = result >= 0 ? MRBC_TT_TRUE : MRBC_TT_FALSE;
+    return;
+  }
+
+  send_by_name( vm, MRBC_SYM(GT_EQ), a, 1 );
 }
 
 
