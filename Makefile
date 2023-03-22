@@ -30,6 +30,10 @@ clean:
 	cd src ; $(MAKE) clean
 	cd sample_c ; $(MAKE) clean
 
+# clean including auto generated files.
+clean_all: clean
+	cd src ; $(MAKE) clean_all
+
 package: clean
 	@LANG=C ;\
 	TARGET="mruby-c_`head -n1 Version`" ;\
