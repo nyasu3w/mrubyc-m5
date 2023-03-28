@@ -731,6 +731,19 @@ void * mrbc_raw_realloc(void *ptr, unsigned int size)
 }
 
 
+//================================================================
+/*! allocated memory size
+
+  @param  ptr                   Return value of mrbc_alloc()
+  @retval MRBC_ALLOC_MEMSIZE_T  pointer to allocated memory.
+*/
+MRBC_ALLOC_MEMSIZE_T mrbc_alloc_usable_size(void *ptr)
+{
+  USED_BLOCK *target = (USED_BLOCK *)((uint8_t *)ptr - sizeof(USED_BLOCK));
+  return target->size - sizeof(USED_BLOCK);
+}
+
+
 #if defined(MRBC_ALLOC_VMID)
 //================================================================
 /*! allocate memory

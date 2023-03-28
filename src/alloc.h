@@ -58,6 +58,7 @@ void mrbc_raw_free(void *ptr);
 void *mrbc_raw_realloc(void *ptr, unsigned int size);
 #define mrbc_free(vm,ptr)		mrbc_raw_free(ptr)
 #define mrbc_realloc(vm,ptr,size)	mrbc_raw_realloc(ptr, size)
+unsigned int mrbc_alloc_usable_size(void *ptr);
 void mrbc_alloc_statistics(struct MRBC_ALLOC_STATISTICS *ret);
 void mrbc_alloc_print_memory_pool(void);
 
@@ -98,6 +99,9 @@ static inline void mrbc_raw_free(void *ptr) {
 }
 static inline void *mrbc_raw_realloc(void *ptr, unsigned int size) {
   return realloc(ptr, size);
+}
+static inline unsigned int mrbc_alloc_usable_size(void* ptr) {
+  return malloc_usable_size(ptr);
 }
 static inline void mrbc_free(const struct VM *vm, void *ptr) {
   free(ptr);
