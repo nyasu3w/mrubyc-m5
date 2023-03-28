@@ -207,19 +207,19 @@ class StringStripTest < MrubycTestCase
   description "chomp!"
   def chomp_bang_case
     s = "foo\r\n"
-    assert_equal "foo", s.strip!
+    assert_equal "foo", s.chomp!
     assert_equal "foo", s
 
     s = "foo"
-    assert_equal nil, s.strip!
+    assert_equal nil, s.chomp!
     assert_equal "foo", s
 
     s = ""
-    assert_equal nil, s.strip!
+    assert_equal nil, s.chomp!
     assert_equal "", s
 
     s = "\r\n"
-    assert_equal "", s.strip!
+    assert_equal "", s.chomp!
     assert_equal "", s
   end
 
