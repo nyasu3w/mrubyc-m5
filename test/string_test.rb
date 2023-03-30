@@ -505,4 +505,11 @@ class StringTest < MrubycTestCase
     assert_equal [97, 0, 98], "a\000b".bytes
   end
 
+  description "String#dup"
+  def string_dup_case
+    assert_equal "a", "a".dup
+    assert_equal "abc", "abc".dup
+    assert_equal "", "".dup
+  end
+
 end
