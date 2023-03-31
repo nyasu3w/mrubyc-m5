@@ -48,7 +48,7 @@ AUTOGEN_METHOD_TABLE = _autogen_class_array.h _autogen_class_exception.h \
 	_autogen_class_string.h _autogen_class_symbol.h
 
 #
-# un-comment bellow, if you need add and/or delete method in builtin class.
+# un-comment below, if you need add and/or delete method in builtin class.
 #
 #AUTOGEN_METHOD_SRCS = c_array.c c_hash.c c_math.c c_numeric.c c_object.c c_range.c c_string.c error.c
 

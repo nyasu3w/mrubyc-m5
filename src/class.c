@@ -387,8 +387,8 @@ mrbc_class * mrbc_get_class_by_name( const char *name )
 /*! (BETA) Call any method of the object, but written by C.
 
   @param  vm		pointer to vm.
-  @param  v		see bellow example.
-  @param  reg_ofs	see bellow example.
+  @param  v		see below example.
+  @param  reg_ofs	see below example.
   @param  recv		pointer to receiver.
   @param  method_name	method name.
   @param  argc		num of params.
