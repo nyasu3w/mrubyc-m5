@@ -3,10 +3,10 @@
 class StringSplitTest < MrubycTestCase
 
   #
-  # Regex  not supprted.
+  # Regex not supported.
   #
 
-  description "Sring"
+  description "String"
   def string_case
     assert_equal ["a","b","c"],             "a,b,c".split(",")
     assert_equal ["a","","b","c"],          "a,,b,c".split(",")
