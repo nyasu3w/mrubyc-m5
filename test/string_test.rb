@@ -512,4 +512,13 @@ class StringTest < MrubycTestCase
     assert_equal "", "".dup
   end
 
+  description "String#empty?"
+  def string_empty_question_case
+    assert_true  "".empty?
+    assert_false "a".empty?
+    assert_false "abc".empty?
+    assert_false " ".empty?
+    assert_false "\0".empty?
+  end
+
 end
