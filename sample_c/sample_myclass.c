@@ -9,15 +9,17 @@
 #include <stdlib.h>
 #include "mrubyc.h"
 
-#define MEMORY_SIZE (1024*30)
-static uint8_t memory_pool[MEMORY_SIZE];
+#if !defined(MRBC_MEMORY_SIZE)
+#define MRBC_MEMORY_SIZE (1024*40)
+#endif
+static uint8_t memory_pool[MRBC_MEMORY_SIZE];
 
 uint8_t * load_mrb_file(const char *filename)
 {
   FILE *fp = fopen(filename, "rb");
 
   if( fp == NULL ) {
-    fprintf(stderr, "File not found\n");
+    fprintf(stderr, "File not found (%s)\n", filename);
     return NULL;
   }
 
@@ -39,45 +41,17 @@ uint8_t * load_mrb_file(const char *filename)
 }
 
 
-// Sample code for making a mruby/c class
-static void c_myclass_func(mrb_vm *vm, mrb_value *v, int argc)
+// Sample code for making a mruby/c method.
+static void c_myclass_method1(mrb_vm *vm, mrb_value v[], int argc)
 {
-  printf("MyClass - func\n");
-}
-
-void make_class(mrb_vm *vm)
-{
-  mrb_class *cls = mrbc_define_class(vm, "MyClass", mrbc_class_object);
-  mrbc_define_method(vm, cls, "func", c_myclass_func);
-}
-
-
-
-void mrubyc(uint8_t *mrbbuf)
-{
-  hal_init();
-  mrbc_init_alloc(memory_pool, MEMORY_SIZE);
-  mrbc_init_global();
-  mrbc_init_class();
-
-  mrbc_vm *vm = mrbc_vm_open(NULL);
-  if( vm == 0 ) {
-    fprintf(stderr, "Error: Can't open VM.\n");
-    return;
+  mrbc_printf("MyClass.method1 argument list.\n");
+  for( int i = 0; i <= argc; i++ ) {
+    mrbc_printf("  v[%d]=", i);
+    mrbc_p( &v[i] );
   }
 
-  if( mrbc_load_mrb(vm, mrbbuf) != 0 ) {
-    fprintf(stderr, "Error: Illegal bytecode.\n");
-    return;
-  }
-
-  mrbc_vm_begin(vm);
-
-  make_class(vm);
-
-  mrbc_vm_run(vm);
-  mrbc_vm_end(vm);
-  mrbc_vm_close(vm);
+  // return values. defined in value.h
+  SET_INT_RETURN(1);
 }
 
 
@@ -91,8 +65,22 @@ int main(int argc, char *argv[])
   uint8_t *mrbbuf = load_mrb_file( argv[1] );
   if( mrbbuf == 0 ) return 1;
 
-  mrubyc( mrbbuf );
-  free( mrbbuf );
+  /*
+    start mruby/c with rrt0 scheduler.
+  */
+  mrbc_init(memory_pool, MRBC_MEMORY_SIZE);
 
-  return 0;
+
+  // Define your own class.
+  mrb_class *my_cls = mrbc_define_class(0, "MyClass", mrbc_class_object);
+  mrbc_define_method(0, my_cls, "method1", c_myclass_method1);
+
+
+  if( !mrbc_create_task(mrbbuf, NULL) ) return 1;
+  int ret = mrbc_run();
+
+  /*
+    Done
+  */
+  return ret == 1 ? 0 : ret;
 }
