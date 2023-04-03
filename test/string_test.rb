@@ -521,4 +521,11 @@ class StringTest < MrubycTestCase
     assert_false "\0".empty?
   end
 
+  description "String#clear"
+  def string_clear_case
+    s = "abc"
+    assert_equal "", s.clear
+    assert_equal "", s
+  end
+
 end
