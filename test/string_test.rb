@@ -528,4 +528,10 @@ class StringTest < MrubycTestCase
     assert_equal "", s
   end
 
+  description "String#inspect"
+  def string_inspect_case
+    assert_equal "\"\\x00\"", "\0".inspect
+    assert_equal "\"foo\"", "foo".inspect
+  end
+
 end
