@@ -528,6 +528,16 @@ class StringTest < MrubycTestCase
     assert_equal "", s
   end
 
+  description "String#getbyte"
+  def string_getbyte_case
+    s = "abc"
+    assert_equal 97, s.getbyte(0)
+    assert_equal 98, s.getbyte(1)
+    assert_equal 99, s.getbyte(2)
+    assert_equal nil, s.getbyte(3)
+    assert_equal 99, s.getbyte(-1)
+  end
+
   description "String#inspect"
   def string_inspect_case
     assert_equal "\"\\x00\"", "\0".inspect
