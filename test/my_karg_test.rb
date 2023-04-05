@@ -27,9 +27,9 @@ class MyKargTest < MrubycTestCase
   description 'karg combined with dict'
   def karg_combined_with_dict
     assert_equal 10, @obj.combined_with_dict(k2: 2, k1: 1, k3: 3, k4: 4)
-    assert_equal 10, @obj.combined_with_dict({k2: 2, k1: 1, k3: 3, k4: 4})
-    assert_equal 10, @obj.combined_with_dict(k2: 2, k1: 1, {k3: 3, k4: 4})
-    assert_equal 10, @obj.combined_with_dict(k2: 2, k1: 1, {k3: 3}, {k4: 4})
+    assert_equal 10, @obj.combined_with_dict(**{k2: 2, k1: 1, k3: 3, k4: 4})
+    assert_equal 10, @obj.combined_with_dict(k2: 2, k1: 1, **{k3: 3, k4: 4})
+    assert_equal 10, @obj.combined_with_dict(k2: 2, k1: 1, **{k3: 3}, **{k4: 4})
   end
 
   description 'karg in block argument'
