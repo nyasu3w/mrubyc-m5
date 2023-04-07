@@ -275,9 +275,10 @@ typedef struct RObject mrbc_value;
     mrbc_decref(v);		\
     v[0].tt = MRBC_TT_TRUE;	\
   } while(0)
-#define SET_BOOL_RETURN(n) do {			  \
-    mrbc_decref(v);				  \
-    v[0].tt = (n) ? MRBC_TT_TRUE : MRBC_TT_FALSE; \
+#define SET_BOOL_RETURN(n) do {			 \
+    int tt = (n) ? MRBC_TT_TRUE : MRBC_TT_FALSE; \
+    mrbc_decref(v);				 \
+    v[0].tt = tt;				 \
   } while(0)
 #define SET_INT_RETURN(n) do {	\
     mrbc_int_t nnn = (n);	\
