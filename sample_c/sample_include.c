@@ -12,7 +12,9 @@
 
 #include "sample_include_bytecode.c"
 
-#define MRBC_MEMORY_SIZE (1024*30)
+#if !defined(MRBC_MEMORY_SIZE)
+#define MRBC_MEMORY_SIZE (1024*40)
+#endif
 static uint8_t memory_pool[MRBC_MEMORY_SIZE];
 
 int main(void)
