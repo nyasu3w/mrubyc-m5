@@ -353,6 +353,21 @@ class StringTest < MrubycTestCase
     assert_equal "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09", s1
   end
 
+  description "String#size"
+  def string_size_case
+    s = "abc"
+    assert_equal 3, s.size
+    assert_equal 3, s.length
+
+    s = ""
+    assert_equal 0, s.size
+    assert_equal 0, s.length
+
+    s = "\0"
+    assert_equal 1, s.size
+    assert_equal 1, s.length
+  end
+
   description "index"
   def index_case
     assert_equal 0, "abcde".index("")
