@@ -129,6 +129,51 @@ mrbc_class * mrbc_define_class(struct VM *vm, const char *name, mrbc_class *supe
 
 
 //================================================================
+/*! define nested class
+
+  @param  vm		pointer to vm.
+  @param  outer		outer class
+  @param  name		class name.
+  @param  super		super class.
+  @return		pointer to defined class.
+*/
+mrbc_class * mrbc_define_class_under(struct VM *vm, const mrbc_class *outer, const char *name, mrbc_class *super)
+{
+  mrbc_sym sym_id = mrbc_str_to_symid(name);
+  if( sym_id < 0 ) {
+    mrbc_raise(vm, MRBC_CLASS(Exception), "Overflow MAX_SYMBOLS_COUNT");
+    return 0;
+  }
+
+  // already defined?
+  const mrbc_value *val = mrbc_get_class_const( outer, sym_id );
+  if( val ) {
+    assert( mrbc_type(*val) == MRBC_TT_CLASS );
+    return val->cls;
+  }
+
+  // create a new nested class.
+  mrbc_class *cls = mrbc_raw_alloc_no_free( sizeof(mrbc_class) );
+  if( !cls ) return cls;	// ENOMEM
+
+  cls->sym_id = sym_id;
+  cls->num_builtin_method = 0;
+  cls->super = super ? super : mrbc_class_object;
+  cls->method_link = 0;
+#if defined(MRBC_DEBUG)
+  cls->name = name;
+#endif
+
+  // register to global constant
+  // (note) override cls->sym_id in this function.
+  mrbc_set_class_const( outer, sym_id,
+			&(mrbc_value){.tt = MRBC_TT_CLASS, .cls = cls});
+
+  return cls;
+}
+
+
+//================================================================
 /*! define method.
 
   @param  vm		pointer to vm.
