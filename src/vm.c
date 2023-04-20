@@ -402,15 +402,6 @@ void mrbc_vm_begin( struct VM *vm )
 */
 void mrbc_vm_end( struct VM *vm )
 {
-#if 0
-  void mrbc_symbol_debug_dump(void);
-  mrbc_symbol_debug_dump();
-  void mrbc_global_debug_dump(int);
-  mrbc_global_debug_dump(5);
-  void mrbc_alloc_print_memory_pool( void );
-  //  mrbc_alloc_print_memory_pool();
-#endif
-
   if( mrbc_israised(vm) ) {
 #if defined(MRBC_ABORT_BY_EXCEPTION)
     MRBC_ABORT_BY_EXCEPTION(vm);
