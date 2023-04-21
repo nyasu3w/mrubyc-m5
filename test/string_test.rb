@@ -328,6 +328,57 @@ class StringTest < MrubycTestCase
     assert_equal "012345678ab9", s1
   end
 
+  description "String#slice!"
+  def slice_self_case
+    s = "bar"
+    assert_equal "r", s.slice!(2)
+    assert_equal "ba", s
+
+    s = "bar"
+    assert_equal "r", s.slice!(-1)
+    assert_equal "ba", s
+
+    s = "bar"
+    assert_equal nil, s.slice!(3)
+    assert_equal "bar", s
+
+    s = "bar"
+    assert_equal nil, s.slice!(-4)
+    assert_equal "bar", s
+
+    s = "bar"
+    assert_equal "r", s.slice!(2, 1)
+    assert_equal "ba", s
+
+    s = "bar"
+    assert_equal "",  s.slice!(2, 0)
+    assert_equal "bar", s
+
+    s = "bar"
+    assert_equal "r", s.slice!(2, 100)
+    assert_equal "ba", s
+
+    s = "bar"
+    assert_equal "r", s.slice!(-1, 1)
+    assert_equal "ba", s
+
+    s = "bar"
+    assert_equal "r", s.slice!(-1, 2)
+    assert_equal "ba", s
+
+    s = "bar"
+    assert_equal "", s.slice!(3, 1)
+    assert_equal "bar", s
+
+    s = "bar"
+    assert_equal nil, s.slice!(4, 1)
+    assert_equal "bar", s
+
+    s = "bar"
+    assert_equal nil, s.slice!(-4, 1)
+    assert_equal "bar", s
+  end
+
   description "ord"
   def ord_case
     assert_equal 97, "a".ord
