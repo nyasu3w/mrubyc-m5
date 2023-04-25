@@ -383,6 +383,10 @@ class StringTest < MrubycTestCase
   def ord_case
     assert_equal 97, "a".ord
     assert_equal 97, "abcde".ord
+
+    assert_raise(ArgumentError.new("empty string")) do
+      "".ord
+    end
   end
 
   description "binary string"
