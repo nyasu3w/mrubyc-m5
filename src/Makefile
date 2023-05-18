@@ -95,8 +95,9 @@ c_numeric.o: c_numeric.c vm_config.h value.h class.h keyvalue.h error.h \
   c_string.h console.h _autogen_class_integer.h \
   _autogen_builtin_symbol.h _autogen_class_float.h
 c_object.o: c_object.c vm_config.h alloc.h value.h symbol.h \
-  _autogen_builtin_symbol.h error.h class.h keyvalue.h c_string.h \
-  c_array.h c_hash.h vm.h console.h _autogen_class_object.h
+  _autogen_builtin_symbol.h error.h class.h keyvalue.h c_object.h \
+  c_string.h c_array.h c_hash.h global.h vm.h console.h \
+  _autogen_class_object.h
 c_range.o: c_range.c vm_config.h alloc.h value.h class.h keyvalue.h \
   error.h c_string.h c_range.h console.h _autogen_class_range.h \
   _autogen_builtin_symbol.h
