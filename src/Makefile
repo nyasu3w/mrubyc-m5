@@ -83,42 +83,42 @@ hal.o: $(HAL_DIR)/hal.c $(HAL_DIR)/hal.h
 
 alloc.o: alloc.c vm_config.h alloc.h hal_selector.h $(HAL_DIR)/hal.h \
   console.h value.h
-c_array.o: c_array.c vm_config.h alloc.h value.h class.h keyvalue.h \
-  error.h c_string.h c_array.h console.h _autogen_class_array.h \
-  _autogen_builtin_symbol.h
-c_hash.o: c_hash.c vm_config.h alloc.h value.h class.h keyvalue.h error.h \
-  c_string.h c_array.h c_hash.h _autogen_class_hash.h \
-  _autogen_builtin_symbol.h
+c_array.o: c_array.c vm_config.h alloc.h value.h symbol.h \
+  _autogen_builtin_symbol.h class.h keyvalue.h error.h c_string.h \
+  c_array.h console.h _autogen_class_array.h
+c_hash.o: c_hash.c vm_config.h alloc.h value.h symbol.h \
+  _autogen_builtin_symbol.h class.h keyvalue.h error.h c_string.h \
+  c_array.h c_hash.h _autogen_class_hash.h
 c_math.o: c_math.c vm_config.h value.h symbol.h _autogen_builtin_symbol.h \
-  class.h keyvalue.h error.h global.h
-c_numeric.o: c_numeric.c vm_config.h value.h class.h keyvalue.h error.h \
-  c_string.h console.h _autogen_class_integer.h \
-  _autogen_builtin_symbol.h _autogen_class_float.h
+  error.h class.h keyvalue.h global.h
+c_numeric.o: c_numeric.c vm_config.h value.h symbol.h \
+  _autogen_builtin_symbol.h error.h class.h keyvalue.h c_string.h \
+  console.h _autogen_class_integer.h _autogen_class_float.h
 c_object.o: c_object.c vm_config.h alloc.h value.h symbol.h \
   _autogen_builtin_symbol.h error.h class.h keyvalue.h c_object.h \
   c_string.h c_array.h c_hash.h global.h vm.h console.h \
   _autogen_class_object.h
-c_range.o: c_range.c vm_config.h alloc.h value.h class.h keyvalue.h \
-  error.h c_string.h c_range.h console.h _autogen_class_range.h \
-  _autogen_builtin_symbol.h
+c_range.o: c_range.c vm_config.h alloc.h value.h symbol.h \
+  _autogen_builtin_symbol.h class.h keyvalue.h error.h c_string.h \
+  c_range.h console.h _autogen_class_range.h
 c_string.o: c_string.c vm_config.h alloc.h value.h symbol.h \
   _autogen_builtin_symbol.h class.h keyvalue.h error.h c_string.h \
   c_array.h vm.h console.h _autogen_class_string.h
-class.o: class.c vm_config.h alloc.h value.h vm.h class.h keyvalue.h \
-  error.h symbol.h _autogen_builtin_symbol.h global.h console.h load.h \
-  c_string.h c_array.h c_hash.h
-console.o: console.c vm_config.h hal_selector.h $(HAL_DIR)/hal.h value.h \
-  class.h keyvalue.h error.h console.h symbol.h \
-  _autogen_builtin_symbol.h c_string.h c_array.h alloc.h c_hash.h \
-  c_range.h
+class.o: class.c vm_config.h alloc.h value.h symbol.h \
+  _autogen_builtin_symbol.h error.h keyvalue.h class.h c_string.h \
+  c_array.h c_hash.h global.h vm.h load.h console.h
+console.o: console.c vm_config.h hal_selector.h $(HAL_DIR)/hal.h alloc.h \
+  value.h class.h keyvalue.h error.h console.h symbol.h \
+  _autogen_builtin_symbol.h c_string.h c_array.h c_hash.h c_range.h \
+  global.h
 error.o: error.c vm_config.h alloc.h value.h symbol.h \
   _autogen_builtin_symbol.h error.h class.h keyvalue.h c_string.h vm.h \
-  _autogen_class_exception.h
-global.o: global.c vm_config.h value.h global.h keyvalue.h class.h \
-  error.h symbol.h _autogen_builtin_symbol.h console.h
+  console.h _autogen_class_exception.h
+global.o: global.c vm_config.h value.h global.h symbol.h \
+  _autogen_builtin_symbol.h keyvalue.h class.h error.h console.h
 keyvalue.o: keyvalue.c vm_config.h value.h alloc.h keyvalue.h
-load.o: load.c vm_config.h vm.h value.h class.h keyvalue.h error.h load.h \
-  alloc.h symbol.h _autogen_builtin_symbol.h c_string.h
+load.o: load.c vm_config.h vm.h value.h class.h keyvalue.h error.h \
+  alloc.h symbol.h _autogen_builtin_symbol.h c_string.h load.h
 mrblib.o: mrblib.c
 rrt0.o: rrt0.c vm_config.h alloc.h load.h value.h class.h keyvalue.h \
   error.h global.h symbol.h _autogen_builtin_symbol.h vm.h console.h \
