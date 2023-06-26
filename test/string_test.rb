@@ -614,4 +614,47 @@ class StringTest < MrubycTestCase
     assert_equal "\"foo\"", "foo".inspect
   end
 
+  description "String#upcase"
+  def string_upcase
+    assert_equal "ABC", "abc".upcase
+    assert_equal "ABC", "ABC".upcase
+    assert_equal "ABC", "aBc".upcase
+    assert_equal "ABC", "AbC".upcase
+    assert_equal "ABC", "aBC".upcase
+    assert_equal "ABC", "Abc".upcase
+    assert_equal "ABC", "abc".upcase
+    assert_equal "A\0BC", "a\0bc".upcase
+  end
+
+  description "String#upcase!"
+  def string_upcase_bang
+    str = "\0abc"
+    ret = str.upcase!
+    assert_equal "\0ABC", ret
+    assert_equal "\0ABC", str
+    assert_equal str, ret
+    assert_nil "ABC".upcase!
+  end
+
+  description "String#downcase"
+  def string_downcase
+    assert_equal "abc", "abc".downcase
+    assert_equal "a\0bc", "A\0BC".downcase
+    assert_equal "abc", "aBc".downcase
+    assert_equal "abc", "AbC".downcase
+    assert_equal "abc", "aBC".downcase
+    assert_equal "abc", "Abc".downcase
+    assert_equal "abc", "abc".downcase
+  end
+
+  description "String#downcase!"
+  def string_downcase_bang
+    str = "A\0BC"
+    ret = str.downcase!
+    assert_equal "a\0bc", ret
+    assert_equal "a\0bc", str
+    assert_equal str, ret
+    assert_nil "abc".downcase!
+  end
+
 end
