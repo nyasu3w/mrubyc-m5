@@ -27,6 +27,7 @@
 #undef MRBC_DEFINE_SYMBOL_TABLE
 #include "alloc.h"
 #include "value.h"
+#include "symbol.h"
 #include "class.h"
 #include "c_string.h"
 #include "c_array.h"
@@ -271,6 +272,36 @@ mrbc_sym mrbc_search_symid( const char *str )
   if( sym_id < 0 ) return sym_id;
 
   return sym_id + OFFSET_BUILTIN_SYMBOL;
+}
+
+
+//================================================================
+/*! separate nested symbol ID
+
+  @param	sym_id	symbol ID
+  @param [out]	id1	result 1
+  @param [out]	id2	result 2
+  @see	make_nested_symbol_s
+*/
+void mrbc_separate_nested_symid(mrbc_sym sym_id, mrbc_sym *id1, mrbc_sym *id2)
+{
+  static const int w = sizeof(mrbc_sym) * 2;
+  const char *s = mrbc_symid_to_str(sym_id);
+
+  assert( mrbc_is_nested_symid( sym_id ));
+  assert( strlen(s) == w*2 );
+
+  *id1 = 0;
+  int i = 0;
+  while( i < w ) {
+    *id1 = (*id1 << 4) + (s[i++] - '0');
+  }
+
+  if( id2 == NULL ) return;
+  *id2 = 0;
+  while( i < w*2 ) {
+    *id2 = (*id2 << 4) + (s[i++] - '0');
+  }
 }
 
 

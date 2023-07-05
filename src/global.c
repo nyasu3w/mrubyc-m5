@@ -3,8 +3,8 @@
   Constant and global variables.
 
   <pre>
-  Copyright (C) 2015-2022 Kyushu Institute of Technology.
-  Copyright (C) 2015-2022 Shimane IT Open-Innovation Center.
+  Copyright (C) 2015-2023 Kyushu Institute of Technology.
+  Copyright (C) 2015-2023 Shimane IT Open-Innovation Center.
 
   This file is distributed under BSD 3-Clause License.
 
@@ -19,10 +19,10 @@
 
 /***** Local headers ********************************************************/
 #include "value.h"
+#include "symbol.h"
 #include "global.h"
 #include "keyvalue.h"
 #include "class.h"
-#include "symbol.h"
 #include "console.h"
 
 /***** Constat values *******************************************************/
@@ -199,31 +199,6 @@ void mrbc_global_clear_vm_id(void)
 #endif
 
 
-//================================================================
-/*! separate nested symbol ID
-*/
-void mrbc_separate_nested_symid(mrbc_sym sym_id, mrbc_sym *id1, mrbc_sym *id2)
-{
-  static const int w = sizeof(mrbc_sym) * 2;
-  const char *s = mrbc_symid_to_str(sym_id);
-
-  assert( mrbc_is_nested_symid( sym_id ));
-  assert( strlen(s) == w*2 );
-
-  *id1 = 0;
-  int i = 0;
-  while( i < w ) {
-    *id1 = (*id1 << 4) + (s[i++] - '0');
-  }
-
-  if( id2 == NULL ) return;
-  *id2 = 0;
-  while( i < w*2 ) {
-    *id2 = (*id2 << 4) + (s[i++] - '0');
-  }
-}
-
-
 #ifdef MRBC_DEBUG
 //================================================================
 /*! debug dump all const table.
@@ -245,7 +220,7 @@ void mrbc_debug_dump_const( void )
     mrbc_printf(" %04x:%s", kv->sym_id, s );
     if( mrbc_is_nested_symid(kv->sym_id) ) {
       mrbc_printf("(");
-      mrbc_print_nested_symbol(kv->sym_id);
+      mrbc_print_symbol(kv->sym_id);
       mrbc_printf(")");
     }
 
