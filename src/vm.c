@@ -721,18 +721,33 @@ static inline void op_getconst( mrbc_vm *vm, mrbc_value *regs EXT )
   mrbc_value *v;
 
   if( vm->target_class->sym_id != MRBC_SYM(Object) ) {
-    cls = vm->target_class;
+    cls = vm->target_class;		// References in class definitions.
   } else if( vm->callinfo_tail ) {
-    cls = vm->callinfo_tail->own_class;
+    cls = vm->callinfo_tail->own_class;	// References in methods.
+  }
+  if( !cls ) goto TOP_LEVEL;
+
+  // search in my class, then search nested outer class.
+  mrbc_class *cls1 = cls;
+  while( 1 ) {
+    v = mrbc_get_class_const(cls, sym_id);
+    if( v != NULL ) goto DONE;
+
+    if( !mrbc_is_nested_symid(cls->sym_id) ) break;
+    mrbc_sym outer_id;
+    mrbc_separate_nested_symid( cls->sym_id, &outer_id, 0 );
+    cls = mrbc_get_const( outer_id )->cls;
   }
 
-  // search back through super classes.
-  while( cls != NULL ) {
+  // search in super class.
+  cls = cls1->super;
+  while( cls->sym_id != MRBC_SYM(Object) ) {
     v = mrbc_get_class_const(cls, sym_id);
     if( v != NULL ) goto DONE;
     cls = cls->super;
   }
 
+ TOP_LEVEL:
   // is top level constant definition?
   v = mrbc_get_const(sym_id);
   if( v == NULL ) {
@@ -783,7 +798,7 @@ static inline void op_getmcnst( mrbc_vm *vm, mrbc_value *regs EXT )
 
   while( !(v = mrbc_get_class_const(cls, sym_id)) ) {
     cls = cls->super;
-    if( !cls ) {
+    if( cls->sym_id == MRBC_SYM(Object) ) {
       mrbc_raisef( vm, MRBC_CLASS(NameError), "uninitialized constant %s::%s",
 	mrbc_symid_to_str( regs[a].cls->sym_id ), mrbc_symid_to_str( sym_id ));
       return;
@@ -2525,7 +2540,9 @@ static inline void op_class( mrbc_vm *vm, mrbc_value *regs EXT )
   FETCH_BB();
 
   const char *class_name = mrbc_irep_symbol_cstr(vm->cur_irep, b);
+  mrbc_class *outer = (regs[a].tt == MRBC_TT_CLASS) ? regs[a].cls : 0;
   mrbc_class *super = (regs[a+1].tt == MRBC_TT_CLASS) ? regs[a+1].cls : 0;
+  mrbc_class *cls;
 
   // check unsupported pattern.
   if( super ) {
@@ -2539,12 +2556,14 @@ static inline void op_class( mrbc_vm *vm, mrbc_value *regs EXT )
   }
 
   // define a new class (or get an already defined class)
-  mrbc_class *cls = mrbc_define_class(vm, class_name, super);
-  if( !cls ) return;
+  if( outer ) {
+    cls = mrbc_define_class_under(vm, outer, class_name, super);
+  } else {
+    cls = mrbc_define_class(vm, class_name, super);
+  }
 
   // (note)
-  //  regs[a] was set to NIL by compiler. So, no need to release regs[a].
-  assert( mrbc_type(regs[a]) == MRBC_TT_NIL );
+  //  regs[a] was set to NIL or Class by compiler. So, no need to release.
   regs[a].tt = MRBC_TT_CLASS;
   regs[a].cls = cls;
 }
@@ -2727,6 +2746,7 @@ static inline void op_unsupported( mrbc_vm *vm, mrbc_value *regs EXT )
 	       "Unimplemented opcode (0x%02x) found.", *(vm->inst - 1));
 }
 #undef EXT
+
 
 //================================================================
 /*! Fetch a bytecode and execute

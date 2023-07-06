@@ -136,29 +136,16 @@ mrbc_value * mrbc_get_const( mrbc_sym sym_id )
 mrbc_value * mrbc_get_class_const( const struct RClass *cls, mrbc_sym sym_id )
 {
   if( cls->sym_id == MRBC_SYM(Object) ) {
-    return mrbc_kv_get( &handle_const, sym_id );
+    return mrbc_kv_get( &handle_const, sym_id );  // ::CONST case.
   }
 
-  while( 1 ) {
-    char buf[sizeof(mrbc_sym)*4+1];
+  char buf[sizeof(mrbc_sym)*4+1];
 
-    make_nested_symbol_s( buf, cls->sym_id, sym_id );
-    mrbc_sym id = mrbc_search_symid(buf);
-    if( id > 0 ) {
-      mrbc_value *v = mrbc_kv_get( &handle_const, id );
-      if( v ) return v;
-    }
+  make_nested_symbol_s( buf, cls->sym_id, sym_id );
+  mrbc_sym id = mrbc_search_symid(buf);
+  if( id <= 0 ) return 0;
 
-    // not found it in own class, traverses nested class.
-    if( !mrbc_is_nested_symid(cls->sym_id) ) break;
-
-    mrbc_separate_nested_symid( cls->sym_id, &id, 0 );
-    mrbc_value *v = mrbc_kv_get( &handle_const, id );
-    assert( v->tt == MRBC_TT_CLASS );
-    cls = v->cls;
-  }
-
-  return 0;
+  return mrbc_kv_get( &handle_const, id );
 }
 
 
