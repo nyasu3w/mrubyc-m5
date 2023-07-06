@@ -366,7 +366,7 @@ int mrbc_string_chomp(mrbc_value *src)
 //================================================================
 /*! upcase myself
 
-  @param    src     pointer to target value
+  @param    str     pointer to target value
   @return   count   number of upcased characters
 */
 static int mrbc_string_upcase(mrbc_value *str)
@@ -388,7 +388,7 @@ static int mrbc_string_upcase(mrbc_value *str)
 //================================================================
 /*! downcase myself
 
-  @param    src     pointer to target value
+  @param    str     pointer to target value
   @return   count   number of downcased characters
 */
 static int mrbc_string_downcase(mrbc_value *str)
