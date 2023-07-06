@@ -405,28 +405,35 @@ static void c_symbol_to_s(struct VM *vm, mrbc_value v[], int argc)
 #if defined(MRBC_DEBUG)
 //================================================================
 /*! debug dump all symbols.
+
+  (examples)
+  mrbc_define_method(0, 0, "dump_symbol", (mrbc_func_t)mrbc_debug_dump_symbol);
 */
 void mrbc_debug_dump_symbol(void)
 {
-  mrbc_print("<< Symbol table dump >>\n");
+  mrbc_printf("<< Symbol table dump >>\n");
 
-  int i;
-  for( i = 0; i < sym_index_pos; i++ ) {
+  for( int i = 0; i < sym_index_pos; i++ ) {
     mrbc_sym sym_id = i + OFFSET_BUILTIN_SYMBOL;
-    mrbc_printf(" %04x:%s\n", sym_id, sym_index[i].cstr );
+    mrbc_printf(" %04x: %s", sym_id, sym_index[i].cstr );
+    if( mrbc_is_nested_symid(sym_id) ) {
+      mrbc_printf(" as ");
+      mrbc_print_symbol(sym_id);
+    }
+    mrbc_printf("\n");
   }
 
-  mrbc_print("\n");
+  mrbc_printf("\n");
 }
 
 
 //================================================================
-/* statistics
+/*! statistics
 
-   (e.g.)
-   total = MAX_SYMBOLS_COUNT;
-   mrbc_symbol_statistics( &used );
-   mrbc_printf("Symbol table: %d/%d %d%% used.\n",
+  (examples)
+  int used, total = MAX_SYMBOLS_COUNT;
+  mrbc_symbol_statistics( &used );
+  mrbc_printf("Symbol table: %d/%d %d%% used.\n",
 		used, total, 100 * used / total );
 */
 void mrbc_symbol_statistics( int *total_used )
