@@ -1,8 +1,8 @@
 #
 # mruby/c  src/Makefile
 #
-# Copyright (C) 2015-2022 Kyushu Institute of Technology.
-# Copyright (C) 2015-2022 Shimane IT Open-Innovation Center.
+# Copyright (C) 2015-2023 Kyushu Institute of Technology.
+# Copyright (C) 2015-2023 Shimane IT Open-Innovation Center.
 #
 #  This file is distributed under BSD 3-Clause License.
 #
@@ -108,14 +108,13 @@ class.o: class.c vm_config.h alloc.h value.h symbol.h \
   _autogen_builtin_symbol.h error.h keyvalue.h class.h c_string.h \
   c_array.h c_hash.h global.h vm.h load.h console.h
 console.o: console.c vm_config.h hal_selector.h $(HAL_DIR)/hal.h alloc.h \
-  value.h class.h keyvalue.h error.h console.h symbol.h \
-  _autogen_builtin_symbol.h c_string.h c_array.h c_hash.h c_range.h \
-  global.h
+  value.h symbol.h _autogen_builtin_symbol.h class.h keyvalue.h error.h \
+  console.h c_string.h c_array.h c_hash.h c_range.h global.h
 error.o: error.c vm_config.h alloc.h value.h symbol.h \
   _autogen_builtin_symbol.h error.h class.h keyvalue.h c_string.h vm.h \
   console.h _autogen_class_exception.h
-global.o: global.c vm_config.h value.h global.h symbol.h \
-  _autogen_builtin_symbol.h keyvalue.h class.h error.h console.h
+global.o: global.c vm_config.h value.h symbol.h _autogen_builtin_symbol.h \
+  global.h keyvalue.h class.h error.h console.h
 keyvalue.o: keyvalue.c vm_config.h value.h alloc.h keyvalue.h
 load.o: load.c vm_config.h vm.h value.h class.h keyvalue.h error.h \
   alloc.h symbol.h _autogen_builtin_symbol.h c_string.h load.h
@@ -124,7 +123,7 @@ rrt0.o: rrt0.c vm_config.h alloc.h load.h value.h class.h keyvalue.h \
   error.h global.h symbol.h _autogen_builtin_symbol.h vm.h console.h \
   rrt0.h hal_selector.h $(HAL_DIR)/hal.h
 symbol.o: symbol.c vm_config.h _autogen_builtin_symbol.h alloc.h value.h \
-  class.h keyvalue.h error.h c_string.h c_array.h console.h \
+  symbol.h class.h keyvalue.h error.h c_string.h c_array.h console.h \
   _autogen_class_symbol.h
 value.o: value.c vm_config.h value.h symbol.h _autogen_builtin_symbol.h \
   class.h keyvalue.h error.h c_string.h c_range.h c_array.h alloc.h \
