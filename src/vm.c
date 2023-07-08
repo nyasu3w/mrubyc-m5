@@ -1255,15 +1255,19 @@ static inline void op_super( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_BB();
 
+  int narg = b & 0x0f;
+  int karg = (b >> 4) & 0x0f;
+  mrbc_value *recv = regs + a;	// new regs[0]
+
   // set self to new regs[0]
-  mrbc_value *recv = mrbc_get_self(vm, regs);
-  assert( recv->tt != MRBC_TT_PROC );
+  mrbc_value *self = mrbc_get_self(vm, regs);
+  assert( self->tt != MRBC_TT_PROC );
 
-  mrbc_incref( recv );
-  mrbc_decref( &regs[a] );
-  regs[a] = *recv;
+  mrbc_incref( self );
+  mrbc_decref( recv );
+  *recv = *self;
 
-  if( (b & 0x0f) == CALL_MAXARGS ) {
+  if( narg == CALL_MAXARGS ) {
     /* (note)
        on mrbc ver 3.1
          b = 15  in initialize method.
@@ -1271,24 +1275,23 @@ static inline void op_super( mrbc_vm *vm, mrbc_value *regs EXT )
     */
 
     // expand array
-    assert( regs[a+1].tt == MRBC_TT_ARRAY );
+    assert( recv[1].tt == MRBC_TT_ARRAY );
 
-    mrbc_value argary = regs[a+1];
-    regs[a+1].tt = MRBC_TT_EMPTY;
-    mrbc_value proc = regs[a+2];
-    regs[a+2].tt = MRBC_TT_EMPTY;
+    mrbc_value argary = recv[1];
+    recv[1].tt = MRBC_TT_EMPTY;
+    mrbc_value proc = recv[2];
+    recv[2].tt = MRBC_TT_EMPTY;
 
     int argc = mrbc_array_size(&argary);
-    int i, j;
-    for( i = 0, j = a+1; i < argc; i++, j++ ) {
-      mrbc_decref( &regs[j] );
-      regs[j] = argary.array->data[i];
+    for( int i = 0; i < argc; i++ ) {
+      mrbc_decref( &recv[i+1] );
+      recv[i+1] = argary.array->data[i];
     }
     mrbc_array_delete_handle(&argary);
 
-    mrbc_decref( &regs[j] );
-    regs[j] = proc;
-    b = argc;
+    mrbc_decref( &recv[argc+1] );
+    recv[argc+1] = proc;
+    narg = argc;
   }
 
   // find super class
@@ -1307,21 +1310,23 @@ static inline void op_super( mrbc_vm *vm, mrbc_value *regs EXT )
     return;
   }
 
+  // call C function and return.
   if( method.c_func ) {
-    method.func(vm, regs+a, b);
-    for( int i = a+1; i <= a+b+1; i++ ) {
-      mrbc_decref_empty( regs + i );
+    method.func(vm, recv, narg);
+    for( int i = 1; i <= narg+1; i++ ) {
+      mrbc_decref_empty( recv + i );
     }
     return;
   }
 
-  callinfo = mrbc_push_callinfo(vm, callinfo->method_id, a, b);
+  // call Ruby method.
+  callinfo = mrbc_push_callinfo(vm, callinfo->method_id, a, narg);
   callinfo->own_class = method.cls;
   callinfo->is_called_super = 1;
 
   vm->cur_irep = method.irep;
   vm->inst = vm->cur_irep->inst;
-  vm->cur_regs += a;
+  vm->cur_regs = recv;
 }
 
 
