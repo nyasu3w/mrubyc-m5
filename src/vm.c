@@ -1310,6 +1310,22 @@ static inline void op_super( mrbc_vm *vm, mrbc_value *regs EXT )
     return;
   }
 
+  // Convert keyword argument to hash.
+  if( karg && karg != CALL_MAXARGS ) {
+    narg++;
+    mrbc_value h = mrbc_hash_new( vm, karg );
+    if( !h.hash ) return;	// ENOMEM
+
+    mrbc_value *r1 = recv + narg;
+    memcpy( h.hash->data, r1, sizeof(mrbc_value) * karg * 2 );
+    h.hash->n_stored = karg * 2;
+
+    mrbc_value block = r1[karg * 2];
+    memset( r1 + 2, 0, sizeof(mrbc_value) * (karg * 2 - 1) );
+    *r1++ = h;
+    *r1 = block;
+  }
+
   // call C function and return.
   if( method.c_func ) {
     method.func(vm, recv, narg);
