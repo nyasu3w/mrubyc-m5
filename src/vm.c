@@ -74,8 +74,7 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
   if( narg == CALL_MAXARGS ) {
     mrbc_value argv = recv[1];
     narg = mrbc_array_size(&argv);
-    int i;
-    for( i = 0; i < narg; i++ ) {
+    for( int i = 0; i < narg; i++ ) {
       mrbc_incref( &argv.array->data[i] );
     }
 
@@ -121,8 +120,8 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
     return;
   }
 
+  // call C function and return.
   if( method.c_func ) {
-    // call C method.
     method.func(vm, recv, narg);
 
     if( mrbc_israised(vm) && vm->exception.exception->method_id == 0 ) {
@@ -134,16 +133,16 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
     for( int i = 1; i <= narg+1; i++ ) {
       mrbc_decref_empty( recv + i );
     }
-
-  } else {
-    // call Ruby method.
-    mrbc_callinfo *callinfo = mrbc_push_callinfo(vm, sym_id, a, narg);
-    callinfo->own_class = method.cls;
-
-    vm->cur_irep = method.irep;
-    vm->inst = vm->cur_irep->inst;
-    vm->cur_regs = recv;
+    return;
   }
+
+  // call Ruby method.
+  mrbc_callinfo *callinfo = mrbc_push_callinfo(vm, sym_id, a, narg);
+  callinfo->own_class = method.cls;
+
+  vm->cur_irep = method.irep;
+  vm->inst = vm->cur_irep->inst;
+  vm->cur_regs = recv;
 }
 
 
@@ -394,8 +393,7 @@ void mrbc_vm_begin( struct VM *vm )
   // set self to reg[0], others nil
   vm->regs[0] = mrbc_instance_new(vm, mrbc_class_object, 0);
   if( vm->regs[0].instance == NULL ) return;	// ENOMEM
-  int i;
-  for( i = 1; i < vm->regs_size; i++ ) {
+  for( int i = 1; i < vm->regs_size; i++ ) {
     vm->regs[i] = mrbc_nil_value();
   }
 }
@@ -419,8 +417,7 @@ void mrbc_vm_end( struct VM *vm )
   assert( vm->ret_blk == 0 );
 
   int n_used = 0;
-  int i;
-  for( i = 0; i < vm->regs_size; i++ ) {
+  for( int i = 0; i < vm->regs_size; i++ ) {
     //mrbc_printf("vm->regs[%d].tt = %d\n", i, mrbc_type(vm->regs[i]));
     if( mrbc_type(vm->regs[i]) != MRBC_TT_NIL ) n_used = i;
     mrbc_decref_empty(&vm->regs[i]);
@@ -826,8 +823,7 @@ static inline void op_getupvar( mrbc_vm *vm, mrbc_value *regs EXT )
   assert( mrbc_type(regs[0]) == MRBC_TT_PROC );
   mrbc_callinfo *callinfo = regs[0].proc->callinfo;
 
-  int i;
-  for( i = 0; i < c; i++ ) {
+  for( int i = 0; i < c; i++ ) {
     assert( callinfo );
     mrbc_value *reg0 = callinfo->cur_regs + callinfo->reg_offset;
 
@@ -860,8 +856,7 @@ static inline void op_setupvar( mrbc_vm *vm, mrbc_value *regs EXT )
   assert( regs[0].tt == MRBC_TT_PROC );
   mrbc_callinfo *callinfo = regs[0].proc->callinfo;
 
-  int i;
-  for( i = 0; i < c; i++ ) {
+  for( int i = 0; i < c; i++ ) {
     assert( callinfo );
     mrbc_value *reg0 = callinfo->cur_regs + callinfo->reg_offset;
     assert( reg0->tt == MRBC_TT_PROC );
@@ -1267,6 +1262,7 @@ static inline void op_super( mrbc_vm *vm, mrbc_value *regs EXT )
   mrbc_decref( recv );
   *recv = *self;
 
+  // If it's packed in an array, expand it.
   if( narg == CALL_MAXARGS ) {
     /* (note)
        on mrbc ver 3.1
@@ -1274,12 +1270,11 @@ static inline void op_super( mrbc_vm *vm, mrbc_value *regs EXT )
 	 b = 255 in other method.
     */
 
-    // expand array
     assert( recv[1].tt == MRBC_TT_ARRAY );
 
     mrbc_value argary = recv[1];
-    recv[1].tt = MRBC_TT_EMPTY;
     mrbc_value proc = recv[2];
+    recv[1].tt = MRBC_TT_EMPTY;
     recv[2].tt = MRBC_TT_EMPTY;
 
     int argc = mrbc_array_size(&argary);
@@ -1292,22 +1287,6 @@ static inline void op_super( mrbc_vm *vm, mrbc_value *regs EXT )
     mrbc_decref( &recv[argc+1] );
     recv[argc+1] = proc;
     narg = argc;
-  }
-
-  // find super class
-  mrbc_callinfo *callinfo = vm->callinfo_tail;
-  mrbc_class *cls = callinfo->own_class;
-  mrbc_method method;
-
-  assert( cls );
-  cls = cls->super;
-  assert( cls );
-  if( mrbc_find_method( &method, cls, callinfo->method_id ) == 0 ) {
-    mrbc_raisef( vm, MRBC_CLASS(NoMethodError),
-	"no superclass method '%s' for %s",
-	mrbc_symid_to_str(callinfo->method_id),
-	mrbc_symid_to_str(callinfo->own_class->sym_id));
-    return;
   }
 
   // Convert keyword argument to hash.
@@ -1324,6 +1303,22 @@ static inline void op_super( mrbc_vm *vm, mrbc_value *regs EXT )
     memset( r1 + 2, 0, sizeof(mrbc_value) * (karg * 2 - 1) );
     *r1++ = h;
     *r1 = block;
+  }
+
+  // find super class
+  mrbc_callinfo *callinfo = vm->callinfo_tail;
+  mrbc_class *cls = callinfo->own_class;
+  mrbc_method method;
+
+  assert( cls );
+  cls = cls->super;
+  assert( cls );
+  if( mrbc_find_method( &method, cls, callinfo->method_id ) == 0 ) {
+    mrbc_raisef( vm, MRBC_CLASS(NoMethodError),
+	"no superclass method '%s' for %s",
+	mrbc_symid_to_str(callinfo->method_id),
+	mrbc_symid_to_str(callinfo->own_class->sym_id));
+    return;
   }
 
   // call C function and return.
@@ -1379,8 +1374,7 @@ static inline void op_argary( mrbc_vm *vm, mrbc_value *regs EXT )
     mrbc_callinfo *callinfo = reg0->proc->callinfo;
     assert( callinfo );
 
-    int i;
-    for( i = 1; i < lv; i ++ ) {
+    for( int i = 1; i < lv; i ++ ) {
       reg0 = callinfo->cur_regs + callinfo->reg_offset;
       assert( mrbc_type(*reg0) == MRBC_TT_PROC );
       callinfo = reg0->proc->callinfo;
@@ -1395,8 +1389,7 @@ static inline void op_argary( mrbc_vm *vm, mrbc_value *regs EXT )
   mrbc_value val = mrbc_array_new( vm, array_size );
   if( !val.array ) return;	// ENOMEM
 
-  int i;
-  for( i = 0; i < array_size; i++ ) {
+  for( int i = 0; i < array_size; i++ ) {
     mrbc_array_push( &val, &reg0[i+1] );
     mrbc_incref( &reg0[i+1] );
   }
@@ -1464,8 +1457,7 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
     argc = mrbc_array_size(&argary);
     if( argc < m1 ) argc = m1;
 
-    int i;
-    for( i = 0; i < argc; i++ ) {
+    for( int i = 0; i < argc; i++ ) {
       mrbc_decref( &regs[i+1] );
       if( mrbc_array_size(&argary) > i ) {
 	regs[i+1] = argary.array->data[i];
@@ -1496,8 +1488,7 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
       if( !rest.array ) return;	// ENOMEM
 
       int rest_reg = m1 + o + 1;
-      int i;
-      for( i = 0; i < rest_size; i++ ) {
+      for( int i = 0; i < rest_size; i++ ) {
 	mrbc_array_push( &rest, &regs[rest_reg] );
 	regs[rest_reg++].tt = MRBC_TT_EMPTY;
       }
@@ -2168,8 +2159,7 @@ static inline void op_array2( mrbc_vm *vm, mrbc_value *regs EXT )
   mrbc_value value = mrbc_array_new(vm, c);
   if( value.array == NULL ) return;  // ENOMEM
 
-  int i;
-  for( i = 0; i < c; i++ ) {
+  for( int i = 0; i < c; i++ ) {
     mrbc_incref( &regs[b+i] );
     value.array->data[i] = regs[b+i];
   }
@@ -2210,8 +2200,7 @@ static inline void op_arycat( mrbc_vm *vm, mrbc_value *regs EXT )
     mrbc_array_resize(&regs[a], new_size);
   }
 
-  int i;
-  for( i = 0; i < size_2; i++ ) {
+  for( int i = 0; i < size_2; i++ ) {
     mrbc_incref( &regs[a+1].array->data[i] );
     regs[a].array->data[size_1+i] = regs[a+1].array->data[i];
   }
@@ -2324,9 +2313,9 @@ static inline void op_apost( mrbc_vm *vm, mrbc_value *regs EXT )
   if( len > pre + post ) {
     int ary_size = len - pre - post;
     regs[a] = mrbc_array_new(vm, ary_size);
+
     // copy elements
-    int i;
-    for( i = 0; i < ary_size; i++ ) {
+    for( int i = 0; i < ary_size; i++ ) {
       regs[a].array->data[i] = src.array->data[pre+i];
       mrbc_incref( &regs[a].array->data[i] );
     }
@@ -2567,8 +2556,7 @@ static inline void op_class( mrbc_vm *vm, mrbc_value *regs EXT )
 
   // check unsupported pattern.
   if( super ) {
-    int i;
-    for( i = 1; i < MRBC_TT_MAXVAL; i++ ) {
+    for( int i = 1; i < MRBC_TT_MAXVAL; i++ ) {
       if( super == mrbc_class_tbl[i] ) {
 	mrbc_raise(vm, MRBC_CLASS(NotImplementedError), "Inherit the built-in class is not supported.");
 	return;
