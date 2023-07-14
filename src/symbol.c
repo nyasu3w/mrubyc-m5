@@ -34,7 +34,7 @@
 #include "console.h"
 
 /***** Constant values ******************************************************/
-#if !defined(MRBC_SYMBOL_SEARCH_LINER) && !defined(MRBC_SYMBOL_SEARCH_BTREE)
+#if !defined(MRBC_SYMBOL_SEARCH_LINEAR) && !defined(MRBC_SYMBOL_SEARCH_BTREE)
 #define MRBC_SYMBOL_SEARCH_BTREE
 #endif
 
@@ -133,7 +133,7 @@ static int search_builtin_symbol( const char *str )
 */
 static int search_index( uint16_t hash, const char *str )
 {
-#ifdef MRBC_SYMBOL_SEARCH_LINER
+#ifdef MRBC_SYMBOL_SEARCH_LINEAR
   int i;
   for( i = 0; i < sym_index_pos; i++ ) {
     if( sym_index[i].hash == hash && strcmp(str, sym_index[i].cstr) == 0 ) {
