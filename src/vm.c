@@ -251,7 +251,6 @@ mrbc_callinfo * mrbc_push_callinfo( struct VM *vm, mrbc_sym method_id, int reg_o
   callinfo->method_id = method_id;
   callinfo->reg_offset = reg_offset;
   callinfo->n_args = n_args;
-  callinfo->kd_reg_offset = 0;
   callinfo->is_called_super = 0;
 
   callinfo->prev = vm->callinfo_tail;
@@ -1508,7 +1507,6 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
     if( a & (FLAG_DICT|FLAG_KW) ) {
       mrbc_decref(&regs[++i]);
       regs[i] = dict;
-      vm->callinfo_tail->kd_reg_offset = i;
     }
     mrbc_decref(&regs[i+1]);
     regs[i+1] = proc;
@@ -1558,7 +1556,7 @@ static inline void op_key_p( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_BB();
 
-  mrbc_value *kdict = &regs[vm->callinfo_tail->kd_reg_offset];
+  mrbc_value *kdict = &regs[vm->callinfo_tail->n_args];
   mrbc_sym sym_id = mrbc_irep_symbol_id( vm->cur_irep, b );
   mrbc_value *v = mrbc_hash_search_by_id( kdict, sym_id );
 
@@ -1576,7 +1574,7 @@ static inline void op_keyend( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_Z();
 
-  mrbc_value *kdict = &regs[vm->callinfo_tail->kd_reg_offset];
+  mrbc_value *kdict = &regs[vm->callinfo_tail->n_args];
 
   if( mrbc_hash_size(kdict) != 0 ) {
     mrbc_hash_iterator ite = mrbc_hash_iterator_new(kdict);
@@ -1597,7 +1595,7 @@ static inline void op_karg( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_BB();
 
-  mrbc_value *kdict = &regs[vm->callinfo_tail->kd_reg_offset];
+  mrbc_value *kdict = &regs[vm->callinfo_tail->n_args];
   mrbc_sym sym_id = mrbc_irep_symbol_id( vm->cur_irep, b );
   mrbc_value v = mrbc_hash_remove_by_id( kdict, sym_id );
 
