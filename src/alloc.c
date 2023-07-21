@@ -54,6 +54,9 @@
 /***** Local headers ********************************************************/
 #include "alloc.h"
 #include "hal_selector.h"
+#if defined(MRBC_DEBUG)
+#include "console.h"
+#endif
 
 /***** Constant values ******************************************************/
 /*
@@ -324,12 +327,6 @@ static void add_free_block(MEMORY_POOL *pool, FREE_BLOCK *target)
     target->next_free->prev_free = target;
   }
   pool->free_blocks[index] = target;
-
-#if defined(MRBC_DEBUG)
-  SET_VM_ID( target, 0xff );
-  memset( (uint8_t *)target + sizeof(FREE_BLOCK) - sizeof(FREE_BLOCK *), 0xff,
-          BLOCK_SIZE(target) - sizeof(FREE_BLOCK) );
-#endif
 }
 
 
@@ -637,6 +634,11 @@ void mrbc_raw_free(void *ptr)
   // get target block
   FREE_BLOCK *target = (FREE_BLOCK *)((uint8_t *)ptr - sizeof(USED_BLOCK));
 
+#if defined(MRBC_DEBUG)
+  SET_VM_ID( target, 0xff );
+  memset( ptr, 0xff, BLOCK_SIZE(target) - sizeof(USED_BLOCK) );
+#endif
+
   // check next block, merge?
   FREE_BLOCK *next = PHYS_NEXT(target);
 
@@ -845,7 +847,6 @@ void mrbc_alloc_statistics( struct MRBC_ALLOC_STATISTICS *ret )
 
 
 #if defined(MRBC_DEBUG)
-#include "console.h"
 //================================================================
 /*! print memory block for debug.
 
