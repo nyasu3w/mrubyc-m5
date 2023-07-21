@@ -740,7 +740,7 @@ void * mrbc_raw_realloc(void *ptr, unsigned int size)
 unsigned int mrbc_alloc_usable_size(void *ptr)
 {
   USED_BLOCK *target = (USED_BLOCK *)((uint8_t *)ptr - sizeof(USED_BLOCK));
-  return (unsigned int)(target->size - sizeof(USED_BLOCK));
+  return (unsigned int)(BLOCK_SIZE(target) - sizeof(USED_BLOCK));
 }
 
 
