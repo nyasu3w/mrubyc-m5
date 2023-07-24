@@ -4,22 +4,38 @@ To make mruby/c sample programs, just `make` in top directory. `Makefile` genera
 
 ## libmrubyc.a
 
-`libmrubyc.a` is generated in `/src` directory.
+`libmrubyc.a` is generated in `/src` directory. `libmrubyc.a` contains the mruby/c VM.
 
 
 ## mruby/c executables
 
 Three mruby/c executables are generated in `/sample_c` directory.
+These executables introduce several approaches to running the mruby/c VM.
 
-`mrubyc` is a mruby/c VM for one mruby byte-code file. This program executes one mrb file.
+- `sample_include`<br>
+The mruby bytecode is internalized into the executable as a C array.
+This is an example of the simplest procedure to start the mruby/c VM.
+- `sample_no_scheduler`<br>
+This is an example of taking a single mruby bytecode (`.mrb` file) as an argument and executing it.
+- `sample_scheduler`<br>
+This is also an example of taking a single mruby bytecode (`.mrb` file) as an argument and executing it.
+Generates a task that executes bytecode.
+- `sample_concurrent`<br>
+This is an example that takes multiple mruby bytecodes as arguments and executes them concurrently.
+- `sample_myclass`<br>
+This is an example of defining mruby/c classes and methods in C.
 
-````
-mrubyc basic_sample01.mrb
-````
-`mrubyc_concurrent` is a mruby/c VM for multiple mruby byte-code file. This program executes several mrb files.
+## How to run your mruby bytecode
 
-````
-mrubyc_concurrent basic_sample01.mrb basic_sample02.mrb
-````
+First, mruby bytecode is generated from the mruby source code(`.rb` file). The mruby compiler(`mrbc`) is required for bytecode generation.
 
-`mrubyc_sample` is a single mruby/c executable file included sample01.c.
+```
+mrbc your_program.rb
+```
+
+Now you get the mruby bytecode(`your_program.mrb`).
+This bytecode is executed in the `sample_scheduler` program.
+
+```
+sample_scheduler your_program.mrb
+```

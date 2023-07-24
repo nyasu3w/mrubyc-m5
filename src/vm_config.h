@@ -108,5 +108,9 @@
 // #define MRBC_OUT_OF_MEMORY() mrbc_alloc_print_memory_pool(); hal_abort(0)
 // #define MRBC_ABORT_BY_EXCEPTION(vm) mrbc_p( &vm->exception ); hal_abort(0)
 
+#if defined(MRBC_SYMBOL_SEARCH_LINER)
+#warning "MRBC_SYMBOL_SEARCH_LINER will be removed in the future release (3.3 or 4.0). Use MRBC_SYMBOL_SEARCH_LINEAR instead."
+#define MRBC_SYMBOL_SEARCH_LINEAR
+#endif
 
 #endif // MRBC_SRC_VM_CONFIG_H_
