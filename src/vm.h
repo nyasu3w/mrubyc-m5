@@ -116,6 +116,7 @@ typedef struct CALLINFO {
   mrbc_class *target_class;	//!< copy from mrbc_vm.
 
   mrbc_class *own_class;	//!< class that owns method.
+  struct RHash *karg_keep;	//!< keyword argument backup for OP_ARGARY.
   mrbc_sym method_id;		//!< called method ID.
   uint8_t reg_offset;		//!< register offset after call.
   uint8_t n_args;		//!< num of arguments.

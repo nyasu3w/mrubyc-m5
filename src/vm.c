@@ -248,6 +248,7 @@ mrbc_callinfo * mrbc_push_callinfo( struct VM *vm, mrbc_sym method_id, int reg_o
   callinfo->target_class = vm->target_class;
 
   callinfo->own_class = 0;
+  callinfo->karg_keep = 0;
   callinfo->method_id = method_id;
   callinfo->reg_offset = reg_offset;
   callinfo->n_args = n_args;
@@ -273,6 +274,9 @@ void mrbc_pop_callinfo( struct VM *vm )
   mrbc_value *reg2 = vm->cur_regs + vm->cur_irep->nregs;
   while( reg1 < reg2 ) {
     mrbc_decref_empty( reg1++ );
+  }
+  if( callinfo->karg_keep ) {
+    mrbc_hash_delete( &(mrbc_value){.tt = MRBC_TT_HASH, .hash = callinfo->karg_keep} );
   }
 
   // copy callinfo to vm
@@ -1388,9 +1392,15 @@ static inline void op_argary( mrbc_vm *vm, mrbc_value *regs EXT )
   mrbc_value val = mrbc_array_new( vm, array_size );
   if( !val.array ) return;	// ENOMEM
 
-  for( int i = 0; i < array_size; i++ ) {
-    mrbc_array_push( &val, &reg0[i+1] );
-    mrbc_incref( &reg0[i+1] );
+  if( vm->callinfo_tail->karg_keep ) {
+    mrbc_value karg = {.tt = MRBC_TT_HASH, .hash = vm->callinfo_tail->karg_keep};
+    karg = mrbc_hash_dup(vm, &karg);
+    mrbc_array_push( &val, &karg );
+  } else {
+    for( int i = 1; i <= array_size; i++ ) {
+      mrbc_incref( &reg0[i] );
+      mrbc_array_push( &val, &reg0[i] );
+    }
   }
 
   mrbc_decref( &regs[a] );
@@ -1507,6 +1517,9 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
     if( a & (FLAG_DICT|FLAG_KW) ) {
       mrbc_decref(&regs[++i]);
       regs[i] = dict;
+      if( a & FLAG_KW ) {
+	vm->callinfo_tail->karg_keep = mrbc_hash_dup(vm, &dict).hash;
+      }
     }
     mrbc_decref(&regs[i+1]);
     regs[i+1] = proc;
