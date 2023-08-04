@@ -2560,10 +2560,7 @@ static inline void op_class( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_BB();
 
-  const char *class_name = mrbc_irep_symbol_cstr(vm->cur_irep, b);
-  mrbc_class *outer = (regs[a].tt == MRBC_TT_CLASS) ? regs[a].cls : 0;
   mrbc_class *super = (regs[a+1].tt == MRBC_TT_CLASS) ? regs[a+1].cls : 0;
-  mrbc_class *cls;
 
   // check unsupported pattern.
   if( super ) {
@@ -2574,6 +2571,17 @@ static inline void op_class( mrbc_vm *vm, mrbc_value *regs EXT )
       }
     }
   }
+
+  mrbc_class *outer = 0;
+
+  if( regs[a].tt == MRBC_TT_CLASS ) {
+    outer = regs[a].cls;
+  } else if( vm->cur_regs[0].tt == MRBC_TT_CLASS ) {
+    outer = vm->cur_regs[0].cls;
+  }
+
+  const char *class_name = mrbc_irep_symbol_cstr(vm->cur_irep, b);
+  mrbc_class *cls;
 
   // define a new class (or get an already defined class)
   if( outer ) {

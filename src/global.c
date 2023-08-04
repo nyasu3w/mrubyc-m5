@@ -36,33 +36,6 @@ static mrbc_kv_handle handle_global;	//!< for global variables.
 /***** Global variables *****************************************************/
 /***** Signal catching functions ********************************************/
 /***** Local functions ******************************************************/
-
-//================================================================
-/*! make internal use strings for class constant
-
-  @param  buf		output buffer.
-  @param  id1		parent class symbol id
-  @param  id2		target symbol id
-*/
-static void make_nested_symbol_s( char *buf, mrbc_sym id1, mrbc_sym id2 )
-{
-  static const int w = sizeof(mrbc_sym) * 2;
-  char *p = buf + w * 2;
-  *p = 0;
-
-  int i;
-  for( i = w; i > 0; i-- ) {
-    *--p = '0' + (id2 & 0x0f);
-    id2 >>= 4;
-  }
-
-  for( i = w; i > 0; i-- ) {
-    *--p = '0' + (id1 & 0x0f);
-    id1 >>= 4;
-  }
-}
-
-
 /***** Global functions *****************************************************/
 
 //================================================================
@@ -106,9 +79,6 @@ int mrbc_set_class_const( const struct RClass *cls, mrbc_sym sym_id, mrbc_value 
 
   make_nested_symbol_s( buf, cls->sym_id, sym_id );
   mrbc_sym id = mrbc_symbol( mrbc_symbol_new( 0, buf ));
-  if( v->tt == MRBC_TT_CLASS ) {
-    v->cls->sym_id = id;
-  }
 
   return mrbc_set_const( id, v );
 }
@@ -204,7 +174,7 @@ void mrbc_debug_dump_const( void )
 
     if( kv->sym_id < 0x100 ) continue;
 
-    mrbc_printf(" %04x:%s", kv->sym_id, s );
+    mrbc_printf(" %04x:\"%s\"", kv->sym_id, s );
     if( mrbc_is_nested_symid(kv->sym_id) ) {
       mrbc_printf("(");
       mrbc_print_symbol(kv->sym_id);
@@ -212,7 +182,11 @@ void mrbc_debug_dump_const( void )
     }
 
     if( kv->value.tt == MRBC_TT_CLASS ) {
-      mrbc_printf(" class\n");
+      const mrbc_class *cls = kv->value.cls;
+      mrbc_printf(" = Class(symid=$%x name=", cls->sym_id);
+      mrbc_print_symbol(cls->sym_id);
+      mrbc_printf(")\n");
+
       continue;
     }
 

@@ -276,6 +276,32 @@ mrbc_sym mrbc_search_symid( const char *str )
 
 
 //================================================================
+/*! make internal use strings for class constant
+
+  @param  buf		output buffer.
+  @param  id1		parent class symbol id
+  @param  id2		target symbol id
+*/
+void make_nested_symbol_s( char *buf, mrbc_sym id1, mrbc_sym id2 )
+{
+  static const int w = sizeof(mrbc_sym) * 2;
+  char *p = buf + w * 2;
+  *p = 0;
+
+  int i;
+  for( i = w; i > 0; i-- ) {
+    *--p = '0' + (id2 & 0x0f);
+    id2 >>= 4;
+  }
+
+  for( i = w; i > 0; i-- ) {
+    *--p = '0' + (id1 & 0x0f);
+    id1 >>= 4;
+  }
+}
+
+
+//================================================================
 /*! separate nested symbol ID
 
   @param	sym_id	symbol ID
