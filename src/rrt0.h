@@ -64,7 +64,7 @@ typedef struct RTcb {
   struct RTcb *next;
   uint8_t priority;
   uint8_t priority_preemption;
-  uint8_t timeslice;
+  volatile uint8_t timeslice;
   uint8_t state;	//!< enum MrbcTaskState
   uint8_t reason;	//!< SLEEP, MUTEX
 
