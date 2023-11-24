@@ -61,20 +61,21 @@ typedef struct RTcb {
 #if defined(MRBC_DEBUG)
   uint8_t type[4];		//!< set "TCB\0" for debug.
 #endif
-  struct RTcb *next;
-  uint8_t priority;
-  uint8_t priority_preemption;
-  volatile uint8_t timeslice;
-  uint8_t state;	//!< enum MrbcTaskState
-  uint8_t reason;	//!< SLEEP, MUTEX
+  struct RTcb *next;		//!< daisy chain in task queue.
+  uint8_t priority;		//!< task priority. initial value.
+  uint8_t priority_preemption;	//!< task priority. effective value.
+  volatile uint8_t timeslice;	//!< time slice counter.
+  uint8_t state;		//!< task state. defined in MrbcTaskState.
+  uint8_t reason;		//!< sub state. defined in MrbcTaskReason.
 
   union {
-    uint32_t wakeup_tick;
+    uint32_t wakeup_tick;	//!< wakeup time for sleep state.
     struct RMutex *mutex;
   };
-  struct VM vm;
-} mrbc_tcb;
 
+  struct VM vm;
+
+} mrbc_tcb;
 
 
 //================================================
@@ -92,7 +93,7 @@ typedef struct RMutex {
 /***** Global variables *****************************************************/
 /***** Function prototypes **************************************************/
 void mrbc_tick(void);
-void mrbc_init(uint8_t *ptr, unsigned int size);
+void mrbc_init(void *heap_ptr, unsigned int size);
 void mrbc_cleanup(void);
 mrbc_tcb *mrbc_tcb_new(int regs_size, enum MrbcTaskState task_state, int priority);
 mrbc_tcb *mrbc_create_task(const void *byte_code, mrbc_tcb *tcb);
@@ -107,7 +108,7 @@ mrbc_mutex *mrbc_mutex_init(mrbc_mutex *mutex);
 int mrbc_mutex_lock(mrbc_mutex *mutex, mrbc_tcb *tcb);
 int mrbc_mutex_unlock(mrbc_mutex *mutex, mrbc_tcb *tcb);
 int mrbc_mutex_trylock(mrbc_mutex *mutex, mrbc_tcb *tcb);
-void pq(mrbc_tcb *p_tcb);
+void pq(const mrbc_tcb *p_tcb);
 void pqall(void);
 
 

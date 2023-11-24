@@ -3,8 +3,8 @@
   Realtime multitask monitor for mruby/c
 
   <pre>
-  Copyright (C) 2015-2022 Kyushu Institute of Technology.
-  Copyright (C) 2015-2022 Shimane IT Open-Innovation Center.
+  Copyright (C) 2015-2023 Kyushu Institute of Technology.
+  Copyright (C) 2015-2023 Shimane IT Open-Innovation Center.
 
   This file is distributed under BSD 3-Clause License.
   </pre>
@@ -54,19 +54,19 @@ static volatile uint32_t tick_;
 
 /***** Global variables *****************************************************/
 /***** Signal catching functions ********************************************/
-/***** Local functions ******************************************************/
+/***** Functions ************************************************************/
 
 //================================================================
-/*! Insert to task queue
+/*! Insert task(TCB) to task queue
 
-  @param        Pointer of target TCB
+  @param  p_tcb	Pointer to target TCB
 
-  引数で指定されたタスク(TCB)を、状態別Queueに入れる。
-  TCBはフリーの状態でなければならない。（別なQueueに入っていてはならない）
-  Queueはpriority_preemption順にソート済みとなる。
-  挿入するTCBとQueueに同じpriority_preemption値がある場合は、同値の最後に挿入される。
-
- */
+  Put the task (TCB) into a queue by each state.
+  TCB must be free. (must not be in another queue)
+  The queue is sorted in priority_preemption order.
+  If the same priority_preemption value is in the TCB and queue,
+  it will be inserted at the end of the same value in queue.
+*/
 static void q_insert_task(mrbc_tcb *p_tcb)
 {
   mrbc_tcb **pp_q;
@@ -108,13 +108,10 @@ static void q_insert_task(mrbc_tcb *p_tcb)
 
 
 //================================================================
-/*! Delete from task queue
+/*! Delete task(TCB) from task queue
 
-  @param        Pointer of target TCB
-
-  Queueからタスク(TCB)を取り除く。
-
- */
+  @param  p_tcb	Pointer to target TCB
+*/
 static void q_delete_task(mrbc_tcb *p_tcb)
 {
   mrbc_tcb **pp_q;
@@ -151,7 +148,7 @@ static void q_delete_task(mrbc_tcb *p_tcb)
 
 
 //================================================================
-/*! 一定時間停止（cruby互換）
+/*! (method) sleep for a specified number of seconds (CRuby compatible)
 
 */
 static void c_sleep(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -191,7 +188,7 @@ static void c_sleep(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! 一定時間停止（ms単位）
+/*! (method) sleep for a specified number of milliseconds.
 
 */
 static void c_sleep_ms(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -205,7 +202,7 @@ static void c_sleep_ms(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! 実行権を手放す (BETA)
+/*! (method) relinquish control to other tasks. (BETA)
 
 */
 static void c_relinquish(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -217,7 +214,7 @@ static void c_relinquish(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! プライオリティー変更
+/*! (method) change task priority.
 
 */
 static void c_change_priority(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -229,7 +226,7 @@ static void c_change_priority(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! 実行停止 (BETA)
+/*! (method) suspend the task. (BETA)
 
 */
 static void c_suspend_task(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -246,7 +243,7 @@ static void c_suspend_task(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! 実行再開 (BETA)
+/*! (method) resume the task (BETA)
 
 */
 static void c_resume_task(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -257,7 +254,7 @@ static void c_resume_task(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! TCBを得る (BETA)
+/*! (method) get the TCB (BETA)
 
 */
 static void c_get_tcb(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -272,7 +269,7 @@ static void c_get_tcb(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! mutex constructor method
+/*! (method) mutex constructor
 
 */
 static void c_mutex_new(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -285,7 +282,7 @@ static void c_mutex_new(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! mutex lock method
+/*! (method) mutex lock
 
 */
 static void c_mutex_lock(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -299,7 +296,7 @@ static void c_mutex_lock(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! mutex unlock method
+/*! (method) mutex unlock
 
 */
 static void c_mutex_unlock(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -313,7 +310,7 @@ static void c_mutex_unlock(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! mutex trylock method
+/*! (method) mutex trylock
 
 */
 static void c_mutex_trylock(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -328,7 +325,7 @@ static void c_mutex_trylock(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! mutex locked? method
+/*! (method) mutex locked?
 
 */
 static void c_mutex_locked(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -343,7 +340,7 @@ static void c_mutex_locked(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! mutex owned? method
+/*! (method) mutex owned?
 
 */
 static void c_mutex_owned(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -358,7 +355,7 @@ static void c_mutex_owned(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! vm tick
+/*! (method) get tick counter
 */
 static void c_vm_tick(mrbc_vm *vm, mrbc_value v[], int argc)
 {
@@ -380,7 +377,7 @@ void mrbc_tick(void)
 
   tick_++;
 
-  // 実行中タスクのタイムスライス値を減らす
+  // Decrease the time slice value for running tasks.
   tcb = q_ready_;
   if((tcb != NULL) &&
      (tcb->state == TASKSTATE_RUNNING) &&
@@ -389,7 +386,7 @@ void mrbc_tick(void)
     if( tcb->timeslice == 0 ) tcb->vm.flag_preemption = 1;
   }
 
-  // 待ちタスクキューから、ウェイクアップすべきタスクを探す
+  // Find a wake up task in waiting task queue.
   tcb = q_waiting_;
   while( tcb != NULL ) {
     mrbc_tcb *t = tcb;
@@ -414,21 +411,19 @@ void mrbc_tick(void)
 }
 
 
-
 //================================================================
 /*! initialize
 
+  @param  heap_ptr	heap memory buffer.
+  @param  size		its size.
 */
-void mrbc_init(uint8_t *ptr, unsigned int size)
+void mrbc_init(void *heap_ptr, unsigned int size)
 {
   hal_init();
-  mrbc_init_alloc(ptr, size);
+  mrbc_init_alloc(heap_ptr, size);
   mrbc_init_global();
   mrbc_init_class();
 
-
-  // TODO 関数呼び出しが、c_XXX => mrbc_XXX の daisy chain になっている。
-  //      不要な複雑さかもしれない。要リファクタリング。
   mrbc_define_method(0, mrbc_class_object, "sleep",           c_sleep);
   mrbc_define_method(0, mrbc_class_object, "sleep_ms",        c_sleep_ms);
   mrbc_define_method(0, mrbc_class_object, "relinquish",      c_relinquish);
@@ -648,8 +643,10 @@ int mrbc_run(void)
 
 
 //================================================================
-/*! 実行一時停止
+/*! sleep for a specified number of milliseconds.
 
+  @param  tcb	target task.
+  @param  ms	sleep milliseconds.
 */
 void mrbc_sleep_ms(mrbc_tcb *tcb, uint32_t ms)
 {
@@ -668,32 +665,36 @@ void mrbc_sleep_ms(mrbc_tcb *tcb, uint32_t ms)
 
 
 //================================================================
-/*! 実行権を手放す
+/*! Relinquish control to other tasks.
 
+  @param  tcb	target task.
 */
 void mrbc_relinquish(mrbc_tcb *tcb)
 {
-  tcb->timeslice           = 0;
+  tcb->timeslice          = 0;
   tcb->vm.flag_preemption = 1;
 }
 
 
 //================================================================
-/*! プライオリティーの変更
-  TODO: No check, yet.
+/*! change task priority.
+
+  @param  tcb		target task.
+  @param  priority	priority value. between 1 and 255.
 */
 void mrbc_change_priority(mrbc_tcb *tcb, int priority)
 {
-  tcb->priority            = (uint8_t)priority;
-  tcb->priority_preemption = (uint8_t)priority;
+  tcb->priority            = priority;
+  tcb->priority_preemption = priority;
   tcb->timeslice           = 0;
-  tcb->vm.flag_preemption = 1;
+  tcb->vm.flag_preemption  = 1;
 }
 
 
 //================================================================
-/*! 実行停止
+/*! suspend the task.
 
+  @param  tcb		target task.
 */
 void mrbc_suspend_task(mrbc_tcb *tcb)
 {
@@ -708,8 +709,9 @@ void mrbc_suspend_task(mrbc_tcb *tcb)
 
 
 //================================================================
-/*! 実行再開
+/*! resume the task (BETA)
 
+  @param  tcb		target task.
 */
 void mrbc_resume_task(mrbc_tcb *tcb)
 {
@@ -731,6 +733,7 @@ void mrbc_resume_task(mrbc_tcb *tcb)
 //================================================================
 /*! mutex initialize
 
+  @param  mutex		pointer to mrbc_mutex or NULL.
 */
 mrbc_mutex * mrbc_mutex_init( mrbc_mutex *mutex )
 {
@@ -749,6 +752,8 @@ mrbc_mutex * mrbc_mutex_init( mrbc_mutex *mutex )
 //================================================================
 /*! mutex lock
 
+  @param  mutex		pointer to mutex.
+  @param  tcb		pointer to TCB.
 */
 int mrbc_mutex_lock( mrbc_mutex *mutex, mrbc_tcb *tcb )
 {
@@ -791,6 +796,8 @@ int mrbc_mutex_lock( mrbc_mutex *mutex, mrbc_tcb *tcb )
 //================================================================
 /*! mutex unlock
 
+  @param  mutex		pointer to mutex.
+  @param  tcb		pointer to TCB.
 */
 int mrbc_mutex_unlock( mrbc_mutex *mutex, mrbc_tcb *tcb )
 {
@@ -839,6 +846,8 @@ int mrbc_mutex_unlock( mrbc_mutex *mutex, mrbc_tcb *tcb )
 //================================================================
 /*! mutex trylock
 
+  @param  mutex		pointer to mutex.
+  @param  tcb		pointer to TCB.
 */
 int mrbc_mutex_trylock( mrbc_mutex *mutex, mrbc_tcb *tcb )
 {
@@ -871,9 +880,9 @@ int mrbc_mutex_trylock( mrbc_mutex *mutex, mrbc_tcb *tcb )
 /*! DEBUG print queue
 
  */
-void pq(mrbc_tcb *p_tcb)
+void pq(const mrbc_tcb *p_tcb)
 {
-  mrbc_tcb *p;
+  const mrbc_tcb *p;
 
   p = p_tcb;
   while( p != NULL ) {
