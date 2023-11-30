@@ -328,6 +328,36 @@ static void c_mutex_trylock(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
+/*! mutex locked? method
+
+*/
+static void c_mutex_locked(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_mutex *mutex = (mrbc_mutex *)v->instance->data;
+  if (mutex->lock == 0) {
+    SET_FALSE_RETURN();
+  } else {
+    SET_TRUE_RETURN();
+  }
+}
+
+
+//================================================================
+/*! mutex owned? method
+
+*/
+static void c_mutex_owned(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_mutex *mutex = (mrbc_mutex *)v->instance->data;
+  if (mutex->lock != 0 && mutex->tcb == VM2TCB(vm)) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
+}
+
+
+//================================================================
 /*! vm tick
 */
 static void c_vm_tick(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -414,6 +444,8 @@ void mrbc_init(uint8_t *ptr, unsigned int size)
   mrbc_define_method(0, c_mutex, "lock", c_mutex_lock);
   mrbc_define_method(0, c_mutex, "unlock", c_mutex_unlock);
   mrbc_define_method(0, c_mutex, "try_lock", c_mutex_trylock);
+  mrbc_define_method(0, c_mutex, "locked?", c_mutex_locked);
+  mrbc_define_method(0, c_mutex, "owned?", c_mutex_owned);
 
   mrbc_class *c_vm;
   c_vm = mrbc_define_class(0, "VM", mrbc_class_object);
