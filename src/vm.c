@@ -2780,7 +2780,7 @@ static inline void op_unsupported( mrbc_vm *vm, mrbc_value *regs EXT )
 /*! Fetch a bytecode and execute
 
   @param  vm	A pointer to VM.
-  @retval 0	(maybe) premption by timer.
+  @retval 0	(maybe) preemption by timer.
   @retval 1	program done.
   @retval 2	exception occurred.
 */
