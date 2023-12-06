@@ -3,8 +3,8 @@
   mruby bytecode executor.
 
   <pre>
-  Copyright (C) 2015-2023 Kyushu Institute of Technology.
-  Copyright (C) 2015-2023 Shimane IT Open-Innovation Center.
+  Copyright (C) 2015- Kyushu Institute of Technology.
+  Copyright (C) 2015- Shimane IT Open-Innovation Center.
 
   This file is distributed under BSD 3-Clause License.
 
@@ -2780,7 +2780,7 @@ static inline void op_unsupported( mrbc_vm *vm, mrbc_value *regs EXT )
 /*! Fetch a bytecode and execute
 
   @param  vm	A pointer to VM.
-  @retval 0	(maybe) premption by timer.
+  @retval 0	(maybe) preemption by timer.
   @retval 1	program done.
   @retval 2	exception occurred.
 */

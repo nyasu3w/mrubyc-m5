@@ -12,7 +12,7 @@ class ConstTest < MrubycTestCase
   end
 
   description 'Should raise NameError'
-  def name_erro_case
+  def name_error_case
     assert_equal 1, A::CONST
     b = A::B.new
     assert_raise(NameError) do
