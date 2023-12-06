@@ -1,5 +1,5 @@
 class MyAlias
-  # simple aliase
+  # simple alias
   def method1
     return "MyClass#method1"
   end

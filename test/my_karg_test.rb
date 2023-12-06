@@ -6,7 +6,7 @@ class MyKargTest < MrubycTestCase
   end
 
   description 'karg with initial value'
-  def karg_wiht_initial_value
+  def karg_with_initial_value
     assert_equal 1, @obj.with_initial_value
     assert_equal 2, @obj.with_initial_value(k: 2)
   end
