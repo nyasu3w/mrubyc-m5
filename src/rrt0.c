@@ -87,23 +87,19 @@ static void q_insert_task(mrbc_tcb *p_tcb)
      (p_tcb->priority_preemption < (*pp_q)->priority_preemption)) {
     p_tcb->next = *pp_q;
     *pp_q       = p_tcb;
-    assert(p_tcb->next != p_tcb);
     return;
   }
 
   // find insert point in sorted linked list.
   mrbc_tcb *p = *pp_q;
-  while( 1 ) {
-    if((p->next == NULL) ||
-       (p_tcb->priority_preemption < p->next->priority_preemption)) {
-      p_tcb->next = p->next;
-      p->next     = p_tcb;
-      assert(p->next != p);
-      return;
-    }
-
+  while( p->next != NULL ) {
+    if( p_tcb->priority_preemption < p->next->priority_preemption ) break;
     p = p->next;
   }
+
+  // insert tcb to queue.
+  p_tcb->next = p->next;
+  p->next     = p_tcb;
 }
 
 
@@ -126,8 +122,8 @@ static void q_delete_task(mrbc_tcb *p_tcb)
     assert(!"Wrong task state.");
     return;
   }
+  assert( *pp_q );
 
-  if( *pp_q == NULL ) return;
   if( *pp_q == p_tcb ) {
     *pp_q       = p_tcb->next;
     p_tcb->next = NULL;
@@ -144,6 +140,8 @@ static void q_delete_task(mrbc_tcb *p_tcb)
 
     p = p->next;
   }
+
+  assert(!"Not found target task in queue.");
 }
 
 
