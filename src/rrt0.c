@@ -29,6 +29,7 @@
 #include "symbol.h"
 #include "vm.h"
 #include "console.h"
+#include "c_string.h"
 #include "rrt0.h"
 #include "hal_selector.h"
 
@@ -146,225 +147,6 @@ static void q_delete_task(mrbc_tcb *p_tcb)
 
 
 //================================================================
-/*! (method) sleep for a specified number of seconds (CRuby compatible)
-
-*/
-static void c_sleep(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb = VM2TCB(vm);
-
-  if( argc == 0 ) {
-    mrbc_suspend_task(tcb);
-    return;
-  }
-
-  switch( mrbc_type(v[1]) ) {
-  case MRBC_TT_INTEGER:
-  {
-    mrbc_int_t sec;
-    sec = mrbc_integer(v[1]);
-    SET_INT_RETURN(sec);
-    mrbc_sleep_ms(tcb, sec * 1000);
-    break;
-  }
-
-#if MRBC_USE_FLOAT
-  case MRBC_TT_FLOAT:
-  {
-    mrbc_float_t sec;
-    sec = mrbc_float(v[1]);
-    SET_INT_RETURN(sec);
-    mrbc_sleep_ms(tcb, (mrbc_int_t)(sec * 1000));
-    break;
-  }
-#endif
-
-  default:
-    break;
-  }
-}
-
-
-//================================================================
-/*! (method) sleep for a specified number of milliseconds.
-
-*/
-static void c_sleep_ms(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb = VM2TCB(vm);
-
-  mrbc_int_t sec = mrbc_integer(v[1]);
-  SET_INT_RETURN(sec);
-  mrbc_sleep_ms(tcb, sec);
-}
-
-
-//================================================================
-/*! (method) relinquish control to other tasks. (BETA)
-
-*/
-static void c_relinquish(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb = VM2TCB(vm);
-
-  mrbc_relinquish(tcb);
-}
-
-
-//================================================================
-/*! (method) change task priority.
-
-*/
-static void c_change_priority(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb = VM2TCB(vm);
-
-  mrbc_change_priority(tcb, mrbc_integer(v[1]));
-}
-
-
-//================================================================
-/*! (method) suspend the task. (BETA)
-
-*/
-static void c_suspend_task(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  if( argc == 0 ) {
-    mrbc_tcb *tcb = VM2TCB(vm);
-    mrbc_suspend_task(tcb);	// suspend self.
-    return;
-  }
-
-  if( mrbc_type(v[1]) != MRBC_TT_HANDLE ) return;	// error.
-  mrbc_suspend_task( (mrbc_tcb *)(v[1].handle) );
-}
-
-
-//================================================================
-/*! (method) resume the task (BETA)
-
-*/
-static void c_resume_task(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  if( mrbc_type(v[1]) != MRBC_TT_HANDLE ) return;	// error.
-  mrbc_resume_task( (mrbc_tcb *)(v[1].handle) );
-}
-
-
-//================================================================
-/*! (method) get the TCB (BETA)
-
-*/
-static void c_get_tcb(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb = VM2TCB(vm);
-
-  mrbc_value value = {.tt = MRBC_TT_HANDLE};
-  value.handle = tcb;
-
-  SET_RETURN( value );
-}
-
-
-//================================================================
-/*! (method) mutex constructor
-
-*/
-static void c_mutex_new(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  *v = mrbc_instance_new(vm, v->cls, sizeof(mrbc_mutex));
-  if( !v->instance ) return;
-
-  mrbc_mutex_init( (mrbc_mutex *)(v->instance->data) );
-}
-
-
-//================================================================
-/*! (method) mutex lock
-
-*/
-static void c_mutex_lock(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  int r = mrbc_mutex_lock( (mrbc_mutex *)v->instance->data, VM2TCB(vm) );
-  if( r == 0 ) return;  // return self
-
-  // raise ThreadError
-  assert(!"Mutex recursive lock.");
-}
-
-
-//================================================================
-/*! (method) mutex unlock
-
-*/
-static void c_mutex_unlock(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  int r = mrbc_mutex_unlock( (mrbc_mutex *)v->instance->data, VM2TCB(vm) );
-  if( r == 0 ) return;  // return self
-
-  // raise ThreadError
-  assert(!"Mutex unlock error. not owner or not locked.");
-}
-
-
-//================================================================
-/*! (method) mutex trylock
-
-*/
-static void c_mutex_trylock(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  int r = mrbc_mutex_trylock( (mrbc_mutex *)v->instance->data, VM2TCB(vm) );
-  if( r == 0 ) {
-    SET_TRUE_RETURN();
-  } else {
-    SET_FALSE_RETURN();
-  }
-}
-
-
-//================================================================
-/*! (method) mutex locked?
-
-*/
-static void c_mutex_locked(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_mutex *mutex = (mrbc_mutex *)v->instance->data;
-  if (mutex->lock == 0) {
-    SET_FALSE_RETURN();
-  } else {
-    SET_TRUE_RETURN();
-  }
-}
-
-
-//================================================================
-/*! (method) mutex owned?
-
-*/
-static void c_mutex_owned(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_mutex *mutex = (mrbc_mutex *)v->instance->data;
-  if (mutex->lock != 0 && mutex->tcb == VM2TCB(vm)) {
-    SET_TRUE_RETURN();
-  } else {
-    SET_FALSE_RETURN();
-  }
-}
-
-
-//================================================================
-/*! (method) get tick counter
-*/
-static void c_vm_tick(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  SET_INT_RETURN(tick_);
-}
-
-
-
-/***** Global functions *****************************************************/
-
-//================================================================
 /*! Tick timer interrupt handler.
 
 */
@@ -406,60 +188,6 @@ void mrbc_tick(void)
       tcb = tcb->next;
     }
   }
-}
-
-
-//================================================================
-/*! initialize
-
-  @param  heap_ptr	heap memory buffer.
-  @param  size		its size.
-*/
-void mrbc_init(void *heap_ptr, unsigned int size)
-{
-  hal_init();
-  mrbc_init_alloc(heap_ptr, size);
-  mrbc_init_global();
-  mrbc_init_class();
-
-  mrbc_define_method(0, mrbc_class_object, "sleep",           c_sleep);
-  mrbc_define_method(0, mrbc_class_object, "sleep_ms",        c_sleep_ms);
-  mrbc_define_method(0, mrbc_class_object, "relinquish",      c_relinquish);
-  mrbc_define_method(0, mrbc_class_object, "change_priority", c_change_priority);
-  mrbc_define_method(0, mrbc_class_object, "suspend_task",    c_suspend_task);
-  mrbc_define_method(0, mrbc_class_object, "resume_task",     c_resume_task);
-  mrbc_define_method(0, mrbc_class_object, "get_tcb",	      c_get_tcb);
-
-
-  mrbc_class *c_mutex;
-  c_mutex = mrbc_define_class(0, "Mutex", mrbc_class_object);
-  mrbc_define_method(0, c_mutex, "new", c_mutex_new);
-  mrbc_define_method(0, c_mutex, "lock", c_mutex_lock);
-  mrbc_define_method(0, c_mutex, "unlock", c_mutex_unlock);
-  mrbc_define_method(0, c_mutex, "try_lock", c_mutex_trylock);
-  mrbc_define_method(0, c_mutex, "locked?", c_mutex_locked);
-  mrbc_define_method(0, c_mutex, "owned?", c_mutex_owned);
-
-  mrbc_class *c_vm;
-  c_vm = mrbc_define_class(0, "VM", mrbc_class_object);
-  mrbc_define_method(0, c_vm, "tick", c_vm_tick);
-}
-
-
-//================================================================
-/*! clenaup all resources.
-
-*/
-void mrbc_cleanup(void)
-{
-  mrbc_cleanup_vm();
-  mrbc_cleanup_symbol();
-  mrbc_cleanup_alloc();
-
-  q_dormant_ = 0;
-  q_ready_ = 0;
-  q_waiting_ = 0;
-  q_suspended_ = 0;
 }
 
 
@@ -542,8 +270,8 @@ mrbc_tcb * mrbc_create_task(const void *byte_code, mrbc_tcb *tcb)
 //================================================================
 /*! Start execution of dormant task.
 
-  @param	tcb	Task control block with parameter, or NULL.
-  @retval	int	zero / no error.
+  @param  tcb	Task control block with parameter, or NULL.
+  @retval int	zero / no error.
 */
 int mrbc_start_task(mrbc_tcb *tcb)
 {
@@ -869,6 +597,275 @@ int mrbc_mutex_trylock( mrbc_mutex *mutex, mrbc_tcb *tcb )
   return ret;
 }
 
+
+//================================================================
+/*! clenaup all resources.
+
+*/
+void mrbc_cleanup(void)
+{
+  mrbc_cleanup_vm();
+  mrbc_cleanup_symbol();
+  mrbc_cleanup_alloc();
+
+  q_dormant_ = 0;
+  q_ready_ = 0;
+  q_waiting_ = 0;
+  q_suspended_ = 0;
+}
+
+
+//================================================================
+/*! (method) sleep for a specified number of seconds (CRuby compatible)
+
+*/
+static void c_sleep(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb = VM2TCB(vm);
+
+  if( argc == 0 ) {
+    mrbc_suspend_task(tcb);
+    return;
+  }
+
+  switch( mrbc_type(v[1]) ) {
+  case MRBC_TT_INTEGER:
+  {
+    mrbc_int_t sec;
+    sec = mrbc_integer(v[1]);
+    SET_INT_RETURN(sec);
+    mrbc_sleep_ms(tcb, sec * 1000);
+    break;
+  }
+
+#if MRBC_USE_FLOAT
+  case MRBC_TT_FLOAT:
+  {
+    mrbc_float_t sec;
+    sec = mrbc_float(v[1]);
+    SET_INT_RETURN(sec);
+    mrbc_sleep_ms(tcb, (mrbc_int_t)(sec * 1000));
+    break;
+  }
+#endif
+
+  default:
+    break;
+  }
+}
+
+
+//================================================================
+/*! (method) sleep for a specified number of milliseconds.
+
+*/
+static void c_sleep_ms(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb = VM2TCB(vm);
+
+  mrbc_int_t sec = mrbc_integer(v[1]);
+  SET_INT_RETURN(sec);
+  mrbc_sleep_ms(tcb, sec);
+}
+
+
+//================================================================
+/*! (method) relinquish control to other tasks. (BETA)
+
+*/
+static void c_relinquish(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb = VM2TCB(vm);
+
+  mrbc_relinquish(tcb);
+}
+
+
+//================================================================
+/*! (method) change task priority.
+
+*/
+static void c_change_priority(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb = VM2TCB(vm);
+
+  mrbc_change_priority(tcb, mrbc_integer(v[1]));
+}
+
+
+//================================================================
+/*! (method) suspend the task. (BETA)
+
+*/
+static void c_suspend_task(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( argc == 0 ) {
+    mrbc_tcb *tcb = VM2TCB(vm);
+    mrbc_suspend_task(tcb);	// suspend self.
+    return;
+  }
+
+  if( mrbc_type(v[1]) != MRBC_TT_HANDLE ) return;	// error.
+  mrbc_suspend_task( (mrbc_tcb *)(v[1].handle) );
+}
+
+
+//================================================================
+/*! (method) resume the task (BETA)
+
+*/
+static void c_resume_task(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( mrbc_type(v[1]) != MRBC_TT_HANDLE ) return;	// error.
+  mrbc_resume_task( (mrbc_tcb *)(v[1].handle) );
+}
+
+
+//================================================================
+/*! (method) get the TCB (BETA)
+
+*/
+static void c_get_tcb(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb = VM2TCB(vm);
+
+  mrbc_value value = {.tt = MRBC_TT_HANDLE};
+  value.handle = tcb;
+
+  SET_RETURN( value );
+}
+
+
+//================================================================
+/*! (method) mutex constructor
+
+*/
+static void c_mutex_new(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  *v = mrbc_instance_new(vm, v->cls, sizeof(mrbc_mutex));
+  if( !v->instance ) return;
+
+  mrbc_mutex_init( (mrbc_mutex *)(v->instance->data) );
+}
+
+
+//================================================================
+/*! (method) mutex lock
+
+*/
+static void c_mutex_lock(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  int r = mrbc_mutex_lock( (mrbc_mutex *)v->instance->data, VM2TCB(vm) );
+  if( r == 0 ) return;  // return self
+
+  // raise ThreadError
+  assert(!"Mutex recursive lock.");
+}
+
+
+//================================================================
+/*! (method) mutex unlock
+
+*/
+static void c_mutex_unlock(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  int r = mrbc_mutex_unlock( (mrbc_mutex *)v->instance->data, VM2TCB(vm) );
+  if( r == 0 ) return;  // return self
+
+  // raise ThreadError
+  assert(!"Mutex unlock error. not owner or not locked.");
+}
+
+
+//================================================================
+/*! (method) mutex trylock
+
+*/
+static void c_mutex_trylock(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  int r = mrbc_mutex_trylock( (mrbc_mutex *)v->instance->data, VM2TCB(vm) );
+  if( r == 0 ) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
+}
+
+
+//================================================================
+/*! (method) mutex locked?
+
+*/
+static void c_mutex_locked(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_mutex *mutex = (mrbc_mutex *)v->instance->data;
+  if (mutex->lock == 0) {
+    SET_FALSE_RETURN();
+  } else {
+    SET_TRUE_RETURN();
+  }
+}
+
+
+//================================================================
+/*! (method) mutex owned?
+
+*/
+static void c_mutex_owned(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_mutex *mutex = (mrbc_mutex *)v->instance->data;
+  if (mutex->lock != 0 && mutex->tcb == VM2TCB(vm)) {
+    SET_TRUE_RETURN();
+  } else {
+    SET_FALSE_RETURN();
+  }
+}
+
+
+//================================================================
+/*! (method) get tick counter
+*/
+static void c_vm_tick(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  SET_INT_RETURN(tick_);
+}
+
+
+//================================================================
+/*! initialize
+
+  @param  heap_ptr	heap memory buffer.
+  @param  size		its size.
+*/
+void mrbc_init(void *heap_ptr, unsigned int size)
+{
+  hal_init();
+  mrbc_init_alloc(heap_ptr, size);
+  mrbc_init_global();
+  mrbc_init_class();
+
+  mrbc_define_method(0, mrbc_class_object, "sleep",           c_sleep);
+  mrbc_define_method(0, mrbc_class_object, "sleep_ms",        c_sleep_ms);
+  mrbc_define_method(0, mrbc_class_object, "relinquish",      c_relinquish);
+  mrbc_define_method(0, mrbc_class_object, "change_priority", c_change_priority);
+  mrbc_define_method(0, mrbc_class_object, "suspend_task",    c_suspend_task);
+  mrbc_define_method(0, mrbc_class_object, "resume_task",     c_resume_task);
+  mrbc_define_method(0, mrbc_class_object, "get_tcb",	      c_get_tcb);
+
+
+  mrbc_class *c_mutex;
+  c_mutex = mrbc_define_class(0, "Mutex", mrbc_class_object);
+  mrbc_define_method(0, c_mutex, "new", c_mutex_new);
+  mrbc_define_method(0, c_mutex, "lock", c_mutex_lock);
+  mrbc_define_method(0, c_mutex, "unlock", c_mutex_unlock);
+  mrbc_define_method(0, c_mutex, "try_lock", c_mutex_trylock);
+  mrbc_define_method(0, c_mutex, "locked?", c_mutex_locked);
+  mrbc_define_method(0, c_mutex, "owned?", c_mutex_owned);
+
+  mrbc_class *c_vm;
+  c_vm = mrbc_define_class(0, "VM", mrbc_class_object);
+  mrbc_define_method(0, c_vm, "tick", c_vm_tick);
+}
 
 
 
