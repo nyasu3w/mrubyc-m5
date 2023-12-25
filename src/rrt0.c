@@ -30,6 +30,7 @@
 #include "vm.h"
 #include "console.h"
 #include "c_string.h"
+#include "c_array.h"
 #include "rrt0.h"
 #include "hal_selector.h"
 
@@ -263,6 +264,49 @@ mrbc_tcb * mrbc_create_task(const void *byte_code, mrbc_tcb *tcb)
   q_insert_task(tcb);
   hal_enable_irq();
 
+  return tcb;
+}
+
+
+//================================================================
+/*! set the task name.
+
+  @param  tcb	target task.
+  @param  name	task name
+*/
+void mrbc_set_task_name(mrbc_tcb *tcb, const char *name)
+{
+  strncpy( tcb->name, name, MRBC_TASK_NAME_LEN );
+}
+
+
+//================================================================
+/*! find task by name
+
+  @param  name		task name
+  @return pointer to mrbc_tcb or NULL
+*/
+mrbc_tcb * mrbc_find_task(const char *name)
+{
+  mrbc_tcb *tcb;
+
+  hal_disable_irq();
+
+  for( tcb = q_ready_; tcb != NULL; tcb = tcb->next ) {
+    if( strcmp( tcb->name, name ) == 0 ) goto RETURN_TCB;
+  }
+  for( tcb = q_waiting_; tcb != NULL; tcb = tcb->next ) {
+    if( strcmp( tcb->name, name ) == 0 ) goto RETURN_TCB;
+  }
+  for( tcb = q_suspended_; tcb != NULL; tcb = tcb->next ) {
+    if( strcmp( tcb->name, name ) == 0 ) goto RETURN_TCB;
+  }
+  for( tcb = q_dormant_; tcb != NULL; tcb = tcb->next ) {
+    if( strcmp( tcb->name, name ) == 0 ) goto RETURN_TCB;
+  }
+
+ RETURN_TCB:
+  hal_enable_irq();
   return tcb;
 }
 
@@ -736,6 +780,110 @@ static void c_get_tcb(mrbc_vm *vm, mrbc_value v[], int argc)
 }
 
 
+
+/*
+  Task class
+*/
+//================================================================
+/*! (method) Task constructor
+
+  task = Task.new()                 # return self
+  task = Task.new("OtherTaskName")
+*/
+static void c_task_new(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  *v = mrbc_instance_new(vm, v->cls, sizeof(mrbc_tcb *));
+
+  if( argc == 0 ) {
+    *(mrbc_tcb **)v->instance->data = VM2TCB(vm);
+    return;
+  }
+
+  if( v[1].tt == MRBC_TT_STRING ) {
+    mrbc_tcb *tcb = mrbc_find_task( mrbc_string_cstr( &v[1] ) );
+    if( tcb ) {
+      *(mrbc_tcb **)v->instance->data = tcb;
+      return;
+    }
+  }
+
+  mrbc_raise( vm, MRBC_CLASS(ArgumentError), 0 );
+}
+
+
+//================================================================
+/*! (method) task list
+
+  Task.list() -> Array[String]
+*/
+static void c_task_list(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_value ret = mrbc_array_new(vm, 1);
+  mrbc_tcb *tcb;
+
+  hal_disable_irq();
+
+  for( tcb = q_ready_; tcb != NULL; tcb = tcb->next ) {
+    mrbc_value s = mrbc_string_new_cstr(vm, tcb->name);
+    mrbc_array_push( &ret, &s );
+  }
+  for( tcb = q_waiting_; tcb != NULL; tcb = tcb->next ) {
+    mrbc_value s = mrbc_string_new_cstr(vm, tcb->name);
+    mrbc_array_push( &ret, &s );
+  }
+  for( tcb = q_suspended_; tcb != NULL; tcb = tcb->next ) {
+    mrbc_value s = mrbc_string_new_cstr(vm, tcb->name);
+    mrbc_array_push( &ret, &s );
+  }
+  for( tcb = q_dormant_; tcb != NULL; tcb = tcb->next ) {
+    mrbc_value s = mrbc_string_new_cstr(vm, tcb->name);
+    mrbc_array_push( &ret, &s );
+  }
+
+  hal_enable_irq();
+
+  SET_RETURN(ret);
+}
+
+
+//================================================================
+/*! (method) name setter.
+*/
+static void c_task_set_name(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb;
+
+  if( v[0].tt == MRBC_TT_CLASS ) {
+    tcb = VM2TCB(vm);
+  } else {
+    tcb = *(mrbc_tcb **)v[0].instance->data;
+  }
+  mrbc_set_task_name( tcb, mrbc_string_cstr(&v[1]) );
+}
+
+
+//================================================================
+/*! (method) name getter
+*/
+static void c_task_name(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_value ret;
+
+  if( v[0].tt == MRBC_TT_CLASS ) {
+    ret = mrbc_string_new_cstr( vm, VM2TCB(vm)->name );
+  } else {
+    mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+    ret = mrbc_string_new_cstr(vm, tcb->name );
+  }
+
+  SET_RETURN(ret);
+}
+
+
+
+/*
+  Mutex class
+*/
 //================================================================
 /*! (method) mutex constructor
 
@@ -831,6 +979,7 @@ static void c_vm_tick(mrbc_vm *vm, mrbc_value v[], int argc)
 }
 
 
+
 //================================================================
 /*! initialize
 
@@ -852,9 +1001,15 @@ void mrbc_init(void *heap_ptr, unsigned int size)
   mrbc_define_method(0, mrbc_class_object, "resume_task",     c_resume_task);
   mrbc_define_method(0, mrbc_class_object, "get_tcb",	      c_get_tcb);
 
+  mrbc_class *c_task;
+  c_task = mrbc_define_class(0, "Task", 0);
+  mrbc_define_method(0, c_task, "new", c_task_new);
+  mrbc_define_method(0, c_task, "list", c_task_list);
+  mrbc_define_method(0, c_task, "name=", c_task_set_name);
+  mrbc_define_method(0, c_task, "name", c_task_name);
 
   mrbc_class *c_mutex;
-  c_mutex = mrbc_define_class(0, "Mutex", mrbc_class_object);
+  c_mutex = mrbc_define_class(0, "Mutex", 0);
   mrbc_define_method(0, c_mutex, "new", c_mutex_new);
   mrbc_define_method(0, c_mutex, "lock", c_mutex_lock);
   mrbc_define_method(0, c_mutex, "unlock", c_mutex_unlock);

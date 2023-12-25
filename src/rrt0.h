@@ -47,6 +47,10 @@ enum MrbcTaskReason {
 static const int MRBC_TASK_DEFAULT_PRIORITY = 128;
 static const int MRBC_TASK_DEFAULT_STATE = TASKSTATE_READY;
 
+#if !defined(MRBC_TASK_NAME_LEN)
+#define MRBC_TASK_NAME_LEN 15
+#endif
+
 
 /***** Macros ***************************************************************/
 /***** Typedefs *************************************************************/
@@ -67,6 +71,7 @@ typedef struct RTcb {
   volatile uint8_t timeslice;	//!< time slice counter.
   uint8_t state;		//!< task state. defined in MrbcTaskState.
   uint8_t reason;		//!< sub state. defined in MrbcTaskReason.
+  char name[MRBC_TASK_NAME_LEN+1]; //!< task name (optional)
 
   union {
     uint32_t wakeup_tick;	//!< wakeup time for sleep state.
@@ -93,10 +98,10 @@ typedef struct RMutex {
 /***** Global variables *****************************************************/
 /***** Function prototypes **************************************************/
 void mrbc_tick(void);
-void mrbc_init(void *heap_ptr, unsigned int size);
-void mrbc_cleanup(void);
 mrbc_tcb *mrbc_tcb_new(int regs_size, enum MrbcTaskState task_state, int priority);
 mrbc_tcb *mrbc_create_task(const void *byte_code, mrbc_tcb *tcb);
+void mrbc_set_task_name(mrbc_tcb *tcb, const char *name);
+mrbc_tcb *mrbc_find_task(const char *name);
 int mrbc_start_task(mrbc_tcb *tcb);
 int mrbc_run(void);
 void mrbc_sleep_ms(mrbc_tcb *tcb, uint32_t ms);
@@ -108,6 +113,8 @@ mrbc_mutex *mrbc_mutex_init(mrbc_mutex *mutex);
 int mrbc_mutex_lock(mrbc_mutex *mutex, mrbc_tcb *tcb);
 int mrbc_mutex_unlock(mrbc_mutex *mutex, mrbc_tcb *tcb);
 int mrbc_mutex_trylock(mrbc_mutex *mutex, mrbc_tcb *tcb);
+void mrbc_cleanup(void);
+void mrbc_init(void *heap_ptr, unsigned int size);
 void pq(const mrbc_tcb *p_tcb);
 void pqall(void);
 
