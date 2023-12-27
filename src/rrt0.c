@@ -814,30 +814,46 @@ static void c_task_new(mrbc_vm *vm, mrbc_value v[], int argc)
 //================================================================
 /*! (method) task list
 
+  Task.list() -> Array[Task]
+*/
+static void c_task_list2(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb* qlist[] = {q_dormant_, q_ready_, q_waiting_, q_suspended_};
+  mrbc_value ret = mrbc_array_new(vm, 1);
+
+  hal_disable_irq();
+
+  for( int i = 0; i < sizeof(qlist)/sizeof(mrbc_tcb*); i++ ) {
+    for( mrbc_tcb *tcb = qlist[i]; tcb != NULL; tcb = tcb->next ) {
+      mrbc_value task = mrbc_instance_new(vm, v->cls, sizeof(mrbc_tcb *));
+      *(mrbc_tcb **)task.instance->data = VM2TCB(vm);
+      mrbc_array_push( &ret, &task );
+    }
+  }
+
+  hal_enable_irq();
+
+  SET_RETURN(ret);
+}
+
+
+//================================================================
+/*! (method) task list
+
   Task.list() -> Array[String]
 */
 static void c_task_list(mrbc_vm *vm, mrbc_value v[], int argc)
 {
+  mrbc_tcb* qlist[] = {q_dormant_, q_ready_, q_waiting_, q_suspended_};
   mrbc_value ret = mrbc_array_new(vm, 1);
-  mrbc_tcb *tcb;
 
   hal_disable_irq();
 
-  for( tcb = q_ready_; tcb != NULL; tcb = tcb->next ) {
-    mrbc_value s = mrbc_string_new_cstr(vm, tcb->name);
-    mrbc_array_push( &ret, &s );
-  }
-  for( tcb = q_waiting_; tcb != NULL; tcb = tcb->next ) {
-    mrbc_value s = mrbc_string_new_cstr(vm, tcb->name);
-    mrbc_array_push( &ret, &s );
-  }
-  for( tcb = q_suspended_; tcb != NULL; tcb = tcb->next ) {
-    mrbc_value s = mrbc_string_new_cstr(vm, tcb->name);
-    mrbc_array_push( &ret, &s );
-  }
-  for( tcb = q_dormant_; tcb != NULL; tcb = tcb->next ) {
-    mrbc_value s = mrbc_string_new_cstr(vm, tcb->name);
-    mrbc_array_push( &ret, &s );
+  for( int i = 0; i < sizeof(qlist)/sizeof(mrbc_tcb*); i++ ) {
+    for( mrbc_tcb *tcb = qlist[i]; tcb != NULL; tcb = tcb->next ) {
+      mrbc_value s = mrbc_string_new_cstr(vm, tcb->name);
+      mrbc_array_push( &ret, &s );
+    }
   }
 
   hal_enable_irq();
@@ -851,6 +867,11 @@ static void c_task_list(mrbc_vm *vm, mrbc_value v[], int argc)
 */
 static void c_task_set_name(mrbc_vm *vm, mrbc_value v[], int argc)
 {
+  if( v[1].tt != MRBC_TT_STRING ) {
+    mrbc_raise( vm, MRBC_CLASS(ArgumentError), 0 );
+    return;
+  }
+
   mrbc_tcb *tcb;
 
   if( v[0].tt == MRBC_TT_CLASS ) {
@@ -868,6 +889,7 @@ static void c_task_set_name(mrbc_vm *vm, mrbc_value v[], int argc)
 static void c_task_name(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   mrbc_value ret;
+
 
   if( v[0].tt == MRBC_TT_CLASS ) {
     ret = mrbc_string_new_cstr( vm, VM2TCB(vm)->name );
@@ -1005,6 +1027,7 @@ void mrbc_init(void *heap_ptr, unsigned int size)
   c_task = mrbc_define_class(0, "Task", 0);
   mrbc_define_method(0, c_task, "new", c_task_new);
   mrbc_define_method(0, c_task, "list", c_task_list);
+  mrbc_define_method(0, c_task, "list2", c_task_list2);
   mrbc_define_method(0, c_task, "name=", c_task_set_name);
   mrbc_define_method(0, c_task, "name", c_task_name);
 
