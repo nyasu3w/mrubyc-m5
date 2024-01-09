@@ -40,8 +40,8 @@ enum MrbcTaskState {
 };
 
 enum MrbcTaskReason {
-  TASKREASON_SLEEP = 0x00,
-  TASKREASON_MUTEX = 0x01,
+  TASKREASON_SLEEP = 0x01,
+  TASKREASON_MUTEX = 0x02,
 };
 
 static const int MRBC_TASK_DEFAULT_PRIORITY = 128;

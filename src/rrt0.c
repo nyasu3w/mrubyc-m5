@@ -173,9 +173,11 @@ void mrbc_tick(void)
     mrbc_tcb *t = tcb;
     tcb = tcb->next;
 
-    if( t->reason == TASKREASON_SLEEP && t->wakeup_tick == tick_ ) {
+    if( t->reason == TASKREASON_SLEEP &&
+        (int32_t)(t->wakeup_tick - tick_) <= 0 ) {
       q_delete_task(t);
       t->state     = TASKSTATE_READY;
+      t->reason    = 0;
       t->timeslice = MRBC_TIMESLICE_TICK_COUNT;
       q_insert_task(t);
       flag_preemption = 1;
@@ -468,6 +470,10 @@ void mrbc_change_priority(mrbc_tcb *tcb, int priority)
 */
 void mrbc_suspend_task(mrbc_tcb *tcb)
 {
+  if( tcb->state != TASKSTATE_READY &&
+      tcb->state != TASKSTATE_RUNNING &&
+      tcb->state != TASKSTATE_WAITING ) return;
+
   hal_disable_irq();
   q_delete_task(tcb);
   tcb->state = TASKSTATE_SUSPENDED;
@@ -479,23 +485,30 @@ void mrbc_suspend_task(mrbc_tcb *tcb)
 
 
 //================================================================
-/*! resume the task (BETA)
+/*! resume the task
 
   @param  tcb		target task.
 */
 void mrbc_resume_task(mrbc_tcb *tcb)
 {
+  if( tcb->state != TASKSTATE_SUSPENDED ) return;
+
+  int flag_to_ready_state = (tcb->reason == 0);
+
   hal_disable_irq();
 
-  mrbc_tcb *t = q_ready_;
-  while( t != NULL ) {
-    if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
-    t = t->next;
+  if( flag_to_ready_state ) {
+    mrbc_tcb *t = q_ready_;
+    while( t != NULL ) {
+      if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
+      t = t->next;
+    }
   }
 
   q_delete_task(tcb);
-  tcb->state = TASKSTATE_READY;
+  tcb->state = flag_to_ready_state ? TASKSTATE_READY : TASKSTATE_WAITING;
   q_insert_task(tcb);
+
   hal_enable_irq();
 }
 
@@ -577,36 +590,45 @@ int mrbc_mutex_unlock( mrbc_mutex *mutex, mrbc_tcb *tcb )
   if( !mutex->lock ) return 1;
   if( mutex->tcb != tcb ) return 2;
 
-  // wakeup ONE waiting task.
-  int flag_preemption = 0;
   hal_disable_irq();
-  tcb = q_waiting_;
-  while( tcb != NULL ) {
-    if( tcb->reason == TASKREASON_MUTEX && tcb->mutex == mutex ) {
-      MRBC_MUTEX_TRACE("SW: TCB: %p\n", tcb );
-      mutex->tcb = tcb;
-      q_delete_task(tcb);
-      tcb->state = TASKSTATE_READY;
-      q_insert_task(tcb);
-      flag_preemption = 1;
-      break;
+
+  // wakeup ONE waiting task if exist.
+  mrbc_tcb *tcb1;
+  for( tcb1 = q_waiting_; tcb1 != NULL; tcb1 = tcb1->next ) {
+    if( tcb1->reason == TASKREASON_MUTEX && tcb1->mutex == mutex ) break;
+  }
+  if( tcb1 ) {
+    MRBC_MUTEX_TRACE("SW1: TCB: %p\n", tcb1 );
+    mutex->tcb = tcb1;
+
+    q_delete_task(tcb1);
+    tcb1->state = TASKSTATE_READY;
+    tcb1->reason = 0;
+    q_insert_task(tcb1);
+
+    for( tcb1 = q_ready_; tcb1 != NULL; tcb1 = tcb1->next ) {
+      if( tcb1->state == TASKSTATE_RUNNING ) tcb1->vm.flag_preemption = 1;
     }
-    tcb = tcb->next;
+    goto DONE;
   }
 
-  if( flag_preemption ) {
-    tcb = q_ready_;
-    while( tcb != NULL ) {
-      if( tcb->state == TASKSTATE_RUNNING ) tcb->vm.flag_preemption = 1;
-      tcb = tcb->next;
-    }
+  // find ONE mutex locked task in suspended queue.
+  for( tcb1 = q_suspended_; tcb1 != NULL; tcb1 = tcb1->next ) {
+    if( tcb1->reason == TASKREASON_MUTEX && tcb1->mutex == mutex ) break;
   }
-  else {
-    // unlock mutex
-    MRBC_MUTEX_TRACE("mutex unlock all.\n" );
-    mutex->lock = 0;
+  if( tcb1 ) {
+    MRBC_MUTEX_TRACE("SW2: TCB: %p\n", tcb1 );
+    mutex->tcb = tcb1;
+    tcb1->reason = 0;
+    goto DONE;
   }
 
+  // other case, unlock mutex
+  MRBC_MUTEX_TRACE("mutex unlock all.\n" );
+  mutex->lock = 0;
+  mutex->tcb = 0;
+
+ DONE:
   hal_enable_irq();
 
   return 0;
@@ -787,7 +809,7 @@ static void c_get_tcb(mrbc_vm *vm, mrbc_value v[], int argc)
 //================================================================
 /*! (method) Task constructor
 
-  task = Task.new()                 # return self
+  task = Task.new()                 # returns current task.
   task = Task.new("OtherTaskName")
 */
 static void c_task_new(mrbc_vm *vm, mrbc_value v[], int argc)
@@ -816,7 +838,7 @@ static void c_task_new(mrbc_vm *vm, mrbc_value v[], int argc)
 
   Task.list() -> Array[Task]
 */
-static void c_task_list2(mrbc_vm *vm, mrbc_value v[], int argc)
+static void c_task_list(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   mrbc_tcb* qlist[] = {q_dormant_, q_ready_, q_waiting_, q_suspended_};
   mrbc_value ret = mrbc_array_new(vm, 1);
@@ -838,11 +860,11 @@ static void c_task_list2(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! (method) task list
+/*! (method) task name list
 
   Task.list() -> Array[String]
 */
-static void c_task_list(mrbc_vm *vm, mrbc_value v[], int argc)
+static void c_task_name_list(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   mrbc_tcb* qlist[] = {q_dormant_, q_ready_, q_waiting_, q_suspended_};
   mrbc_value ret = mrbc_array_new(vm, 1);
@@ -890,7 +912,6 @@ static void c_task_name(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   mrbc_value ret;
 
-
   if( v[0].tt == MRBC_TT_CLASS ) {
     ret = mrbc_string_new_cstr( vm, VM2TCB(vm)->name );
   } else {
@@ -899,6 +920,36 @@ static void c_task_name(mrbc_vm *vm, mrbc_value v[], int argc)
   }
 
   SET_RETURN(ret);
+}
+
+
+//================================================================
+/*! (method) suspend task
+*/
+static void c_task_suspend(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb;
+
+  if( v[0].tt == MRBC_TT_CLASS ) {
+    tcb = VM2TCB(vm);
+  } else {
+    tcb = *(mrbc_tcb **)v[0].instance->data;
+  }
+
+  mrbc_suspend_task(tcb);
+}
+
+
+//================================================================
+/*! (method) resume task
+*/
+static void c_task_resume(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+
+  mrbc_resume_task(tcb);
 }
 
 
@@ -954,11 +1005,7 @@ static void c_mutex_unlock(mrbc_vm *vm, mrbc_value v[], int argc)
 static void c_mutex_trylock(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   int r = mrbc_mutex_trylock( (mrbc_mutex *)v->instance->data, VM2TCB(vm) );
-  if( r == 0 ) {
-    SET_TRUE_RETURN();
-  } else {
-    SET_FALSE_RETURN();
-  }
+  SET_BOOL_RETURN( r == 0 );
 }
 
 
@@ -969,11 +1016,7 @@ static void c_mutex_trylock(mrbc_vm *vm, mrbc_value v[], int argc)
 static void c_mutex_locked(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   mrbc_mutex *mutex = (mrbc_mutex *)v->instance->data;
-  if (mutex->lock == 0) {
-    SET_FALSE_RETURN();
-  } else {
-    SET_TRUE_RETURN();
-  }
+  SET_BOOL_RETURN( mutex->lock != 0 );
 }
 
 
@@ -984,11 +1027,7 @@ static void c_mutex_locked(mrbc_vm *vm, mrbc_value v[], int argc)
 static void c_mutex_owned(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   mrbc_mutex *mutex = (mrbc_mutex *)v->instance->data;
-  if (mutex->lock != 0 && mutex->tcb == VM2TCB(vm)) {
-    SET_TRUE_RETURN();
-  } else {
-    SET_FALSE_RETURN();
-  }
+  SET_BOOL_RETURN( mutex->lock != 0 && mutex->tcb == VM2TCB(vm) );
 }
 
 
@@ -1027,9 +1066,12 @@ void mrbc_init(void *heap_ptr, unsigned int size)
   c_task = mrbc_define_class(0, "Task", 0);
   mrbc_define_method(0, c_task, "new", c_task_new);
   mrbc_define_method(0, c_task, "list", c_task_list);
-  mrbc_define_method(0, c_task, "list2", c_task_list2);
+  mrbc_define_method(0, c_task, "name_list", c_task_name_list);
   mrbc_define_method(0, c_task, "name=", c_task_set_name);
   mrbc_define_method(0, c_task, "name", c_task_name);
+  mrbc_define_method(0, c_task, "suspend", c_task_suspend);
+  mrbc_define_method(0, c_task, "resume", c_task_resume);
+
 
   mrbc_class *c_mutex;
   c_mutex = mrbc_define_class(0, "Mutex", 0);
@@ -1057,6 +1099,9 @@ void pq(const mrbc_tcb *p_tcb)
 {
   const mrbc_tcb *p;
 
+  if( p_tcb == NULL ) return;
+
+  // TCB address
   p = p_tcb;
   while( p != NULL ) {
 #if defined(UINTPTR_MAX)
@@ -1068,6 +1113,15 @@ void pq(const mrbc_tcb *p_tcb)
   }
   mrbc_printf("\n");
 
+  // name
+  p = p_tcb;
+  while( p != NULL ) {
+    mrbc_printf("%-9.9s ", p->name[0] ? p->name : "(noname)" );
+    p = p->next;
+  }
+  mrbc_printf("\n");
+
+  // next pointer.
   p = p_tcb;
   while( p != NULL ) {
 #if defined(UINTPTR_MAX)
@@ -1079,6 +1133,7 @@ void pq(const mrbc_tcb *p_tcb)
   }
   mrbc_printf("\n");
 
+  // task priority.
   p = p_tcb;
   while( p != NULL ) {
     mrbc_printf(" pri:%3d  ", p->priority_preemption);
@@ -1086,20 +1141,27 @@ void pq(const mrbc_tcb *p_tcb)
   }
   mrbc_printf("\n");
 
+  // state
+  //  st:SsRr
+  //     ^ suspended -> S:suspended
+  //      ^ waiting  -> s:sleep m:mutex
+  //       ^ running -> R:running
+  //        ^ ready  -> r:ready
   p = p_tcb;
   while( p != NULL ) {
     mrbc_printf(" st:%c%c%c%c  ",
-                   (p->state & TASKSTATE_SUSPENDED)?'S':'-',
-                   (p->state & TASKSTATE_WAITING)?("sm"[p->reason]):'-',
-                   (p->state &(TASKSTATE_RUNNING & ~TASKSTATE_READY))?'R':'-',
-                   (p->state & TASKSTATE_READY)?'r':'-' );
+                (p->state & TASKSTATE_SUSPENDED)?'S':'-',
+                ("-sm"[p->reason]),
+                (p->state &(TASKSTATE_RUNNING & ~TASKSTATE_READY))?'R':'-',
+                (p->state & TASKSTATE_READY)?'r':'-' );
     p = p->next;
   }
   mrbc_printf("\n");
 
+  // timeslice
   p = p_tcb;
   while( p != NULL ) {
-    mrbc_printf(" tmsl:%2d ", p->timeslice);
+    mrbc_printf(" tmsl:%2d  ", p->timeslice);
     p = p->next;
   }
   mrbc_printf("\n");
@@ -1108,9 +1170,9 @@ void pq(const mrbc_tcb *p_tcb)
 
 void pqall(void)
 {
-//  mrbc_printf("<<<<< DORMANT >>>>>\n");	pq(q_dormant_);
-  mrbc_printf("<<<<< READY >>>>>\n");	pq(q_ready_);
-  mrbc_printf("<<<<< WAITING >>>>>\n");	pq(q_waiting_);
-  mrbc_printf("<<<<< SUSPENDED >>>>>\n");	pq(q_suspended_);
+  mrbc_printf("<<<<< DORMANT >>>>>\n");   pq(q_dormant_);
+  mrbc_printf("<<<<< READY >>>>>\n");     pq(q_ready_);
+  mrbc_printf("<<<<< WAITING >>>>>\n");   pq(q_waiting_);
+  mrbc_printf("<<<<< SUSPENDED >>>>>\n"); pq(q_suspended_);
 }
 #endif
