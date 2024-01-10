@@ -322,7 +322,7 @@ mrbc_tcb * mrbc_find_task(const char *name)
 int mrbc_start_task(mrbc_tcb *tcb)
 {
   if( tcb->state != TASKSTATE_DORMANT ) return -1;
-  tcb->timeslice           = MRBC_TIMESLICE_TICK_COUNT;
+  tcb->timeslice = MRBC_TIMESLICE_TICK_COUNT;
   tcb->priority_preemption = tcb->priority;
   mrbc_vm_begin(&tcb->vm);
 
@@ -365,20 +365,22 @@ int mrbc_run(void)
     tcb->state = TASKSTATE_RUNNING;	// to execute.
     int res = 0;
 
-#ifndef MRBC_NO_TIMER
+#if !defined(MRBC_NO_TIMER)
+    // Using hardware timer.
     tcb->vm.flag_preemption = 0;
     res = mrbc_vm_run(&tcb->vm);
 
 #else
-    while( tcb->timeslice > 0 ) {
-      tcb->vm.flag_preemption = 1;
-      res = mrbc_vm_run(&tcb->vm);
-      tcb->timeslice--;
+    // Emulate time slice preemption.
+    tcb->vm.flag_preemption = 1;
+    while( tcb->timeslice != 0 ) {
+      res = mrbc_vm_run( &tcb->vm );
       if( res != 0 ) break;
       if( tcb->state != TASKSTATE_RUNNING ) break;
+      tcb->timeslice--;
     }
     mrbc_tick();
-#endif /* ifndef MRBC_NO_TIMER */
+#endif
 
     // did the task done?
     if( res != 0 ) {
@@ -389,6 +391,18 @@ int mrbc_run(void)
       hal_enable_irq();
       if( tcb->vm.flag_permanence == 0 ) mrbc_vm_end(&tcb->vm);
       if( res != 1 ) ret = res;
+
+      // find task that called join.
+      for( mrbc_tcb *tcb1 = q_waiting_; tcb1 != NULL; tcb1 = tcb1->next ) {
+        if( tcb1->reason == TASKREASON_JOIN && tcb1->tcb_join == tcb ) {
+          hal_disable_irq();
+          q_delete_task(tcb1);
+          tcb1->state = TASKSTATE_READY;
+          tcb1->reason = 0;
+          q_insert_task(tcb1);
+          hal_enable_irq();
+        }
+      }
 
 #if MRBC_SCHEDULER_EXIT
       if( q_ready_ == NULL && q_waiting_ == NULL && q_suspended_ == NULL ) break;
@@ -531,6 +545,32 @@ void mrbc_terminate_task(mrbc_tcb *tcb)
 
   tcb->vm.flag_preemption = 1;
 }
+
+
+//================================================================
+/*! join the task.
+
+  @param  tcb		target task.
+  @param  tcb_join	join task.
+*/
+void mrbc_join_task(mrbc_tcb *tcb, const mrbc_tcb *tcb_join)
+{
+  if( tcb->state == TASKSTATE_DORMANT ) return;
+  if( tcb_join->state == TASKSTATE_DORMANT ) return;
+
+  hal_disable_irq();
+  q_delete_task(tcb);
+
+  tcb->state    = TASKSTATE_WAITING;
+  tcb->reason   = TASKREASON_JOIN;
+  tcb->tcb_join = tcb_join;
+
+  q_insert_task(tcb);
+  hal_enable_irq();
+
+  tcb->vm.flag_preemption = 1;
+}
+
 
 
 //================================================================
@@ -1002,6 +1042,22 @@ static void c_task_terminate(mrbc_vm *vm, mrbc_value v[], int argc)
 }
 
 
+//================================================================
+/*! (method) join task
+
+  task.join()
+*/
+static void c_task_join(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb_me = VM2TCB(vm);
+  mrbc_tcb *tcb_join = *(mrbc_tcb **)v[0].instance->data;
+
+  mrbc_join_task(tcb_me, tcb_join);
+}
+
+
 
 /*
   Mutex class
@@ -1121,6 +1177,7 @@ void mrbc_init(void *heap_ptr, unsigned int size)
   mrbc_define_method(0, c_task, "suspend", c_task_suspend);
   mrbc_define_method(0, c_task, "resume", c_task_resume);
   mrbc_define_method(0, c_task, "terminate", c_task_terminate);
+  mrbc_define_method(0, c_task, "join", c_task_join);
 
 
   mrbc_class *c_mutex;
@@ -1194,14 +1251,14 @@ void pq(const mrbc_tcb *p_tcb)
   // state
   //  st:SsRr
   //     ^ suspended -> S:suspended
-  //      ^ waiting  -> s:sleep m:mutex
+  //      ^ waiting  -> s:sleep m:mutex J:join
   //       ^ running -> R:running
   //        ^ ready  -> r:ready
   p = p_tcb;
   while( p != NULL ) {
     mrbc_printf(" st:%c%c%c%c  ",
                 (p->state & TASKSTATE_SUSPENDED)?'S':'-',
-                ("-sm"[p->reason]),
+                ("-sm-j"[p->reason]),
                 (p->state &(TASKSTATE_RUNNING & ~TASKSTATE_READY))?'R':'-',
                 (p->state & TASKSTATE_READY)?'r':'-' );
     p = p->next;

@@ -42,6 +42,7 @@ enum MrbcTaskState {
 enum MrbcTaskReason {
   TASKREASON_SLEEP = 0x01,
   TASKREASON_MUTEX = 0x02,
+  TASKREASON_JOIN  = 0x04,
 };
 
 static const int MRBC_TASK_DEFAULT_PRIORITY = 128;
@@ -77,6 +78,7 @@ typedef struct RTcb {
     uint32_t wakeup_tick;	//!< wakeup time for sleep state.
     struct RMutex *mutex;
   };
+  const struct RTcb *tcb_join;  //!< joined task.
 
   struct VM vm;
 
