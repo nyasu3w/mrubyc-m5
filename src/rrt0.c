@@ -470,9 +470,7 @@ void mrbc_change_priority(mrbc_tcb *tcb, int priority)
 */
 void mrbc_suspend_task(mrbc_tcb *tcb)
 {
-  if( tcb->state != TASKSTATE_READY &&
-      tcb->state != TASKSTATE_RUNNING &&
-      tcb->state != TASKSTATE_WAITING ) return;
+  if( tcb->state == TASKSTATE_SUSPENDED ) return;
 
   hal_disable_irq();
   q_delete_task(tcb);
@@ -510,6 +508,28 @@ void mrbc_resume_task(mrbc_tcb *tcb)
   q_insert_task(tcb);
 
   hal_enable_irq();
+}
+
+
+//================================================================
+/*! terminate the task.
+
+  @param  tcb		target task.
+  @note
+    This API simply ends the task.
+    note that this does not affect the lock status of mutex.
+*/
+void mrbc_terminate_task(mrbc_tcb *tcb)
+{
+  if( tcb->state == TASKSTATE_DORMANT ) return;
+
+  hal_disable_irq();
+  q_delete_task(tcb);
+  tcb->state = TASKSTATE_DORMANT;
+  q_insert_task(tcb);
+  hal_enable_irq();
+
+  tcb->vm.flag_preemption = 1;
 }
 
 
@@ -862,7 +882,7 @@ static void c_task_list(mrbc_vm *vm, mrbc_value v[], int argc)
 //================================================================
 /*! (method) task name list
 
-  Task.list() -> Array[String]
+  Task.name_list() -> Array[String]
 */
 static void c_task_name_list(mrbc_vm *vm, mrbc_value v[], int argc)
 {
@@ -886,6 +906,8 @@ static void c_task_name_list(mrbc_vm *vm, mrbc_value v[], int argc)
 
 //================================================================
 /*! (method) name setter.
+
+  Task.name = "MyName"
 */
 static void c_task_set_name(mrbc_vm *vm, mrbc_value v[], int argc)
 {
@@ -907,6 +929,9 @@ static void c_task_set_name(mrbc_vm *vm, mrbc_value v[], int argc)
 
 //================================================================
 /*! (method) name getter
+
+  Task.name() -> String    # get current task name
+  task.name() -> String
 */
 static void c_task_name(mrbc_vm *vm, mrbc_value v[], int argc)
 {
@@ -925,6 +950,9 @@ static void c_task_name(mrbc_vm *vm, mrbc_value v[], int argc)
 
 //================================================================
 /*! (method) suspend task
+
+  Task.suspend()        # suspend current task.
+  task.suspend()        # suspend other task.
 */
 static void c_task_suspend(mrbc_vm *vm, mrbc_value v[], int argc)
 {
@@ -942,6 +970,8 @@ static void c_task_suspend(mrbc_vm *vm, mrbc_value v[], int argc)
 
 //================================================================
 /*! (method) resume task
+
+  task.resume()
 */
 static void c_task_resume(mrbc_vm *vm, mrbc_value v[], int argc)
 {
@@ -950,6 +980,25 @@ static void c_task_resume(mrbc_vm *vm, mrbc_value v[], int argc)
   mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
 
   mrbc_resume_task(tcb);
+}
+
+
+//================================================================
+/*! (method) terminate task
+
+  task.terminate()
+*/
+static void c_task_terminate(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb;
+
+  if( v[0].tt == MRBC_TT_CLASS ) {
+    tcb = VM2TCB(vm);
+  } else {
+    tcb = *(mrbc_tcb **)v[0].instance->data;
+  }
+
+  mrbc_terminate_task(tcb);
 }
 
 
@@ -1071,6 +1120,7 @@ void mrbc_init(void *heap_ptr, unsigned int size)
   mrbc_define_method(0, c_task, "name", c_task_name);
   mrbc_define_method(0, c_task, "suspend", c_task_suspend);
   mrbc_define_method(0, c_task, "resume", c_task_resume);
+  mrbc_define_method(0, c_task, "terminate", c_task_terminate);
 
 
   mrbc_class *c_mutex;
