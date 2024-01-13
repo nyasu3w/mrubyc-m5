@@ -47,10 +47,12 @@
 /***** Typedefs *************************************************************/
 /***** Function prototypes **************************************************/
 /***** Local variables ******************************************************/
-static mrbc_tcb *q_dormant_;
-static mrbc_tcb *q_ready_;
-static mrbc_tcb *q_waiting_;
-static mrbc_tcb *q_suspended_;
+static const int num_task_queue_ = 4;
+static mrbc_tcb *task_queue_[num_task_queue_];
+#define q_dormant_ task_queue_[0]
+#define q_ready_ task_queue_[1]
+#define q_waiting_ task_queue_[2]
+#define q_suspended_ task_queue_[3]
 static volatile uint32_t tick_;
 
 
@@ -71,18 +73,11 @@ static volatile uint32_t tick_;
 */
 static void q_insert_task(mrbc_tcb *p_tcb)
 {
-  mrbc_tcb **pp_q;
-
-  switch( p_tcb->state ) {
-  case TASKSTATE_DORMANT: pp_q   = &q_dormant_; break;
-  case TASKSTATE_READY:
-  case TASKSTATE_RUNNING: pp_q   = &q_ready_; break;
-  case TASKSTATE_WAITING: pp_q   = &q_waiting_; break;
-  case TASKSTATE_SUSPENDED: pp_q = &q_suspended_; break;
-  default:
-    assert(!"Wrong task state.");
-    return;
-  }
+  // select target queue pointer.
+  //                    state value = 0  1  2  3  4  5  6  7  8
+  //                             /2   0, 0, 1, 1, 2, 2, 3, 3, 4
+  static const uint8_t conv_tbl[] = { 0,    1,    2,    0,    3 };
+  mrbc_tcb **pp_q = &task_queue_[ conv_tbl[ p_tcb->state / 2 ]];
 
   // case insert on top.
   if((*pp_q == NULL) ||
@@ -112,19 +107,11 @@ static void q_insert_task(mrbc_tcb *p_tcb)
 */
 static void q_delete_task(mrbc_tcb *p_tcb)
 {
-  mrbc_tcb **pp_q;
-
-  switch( p_tcb->state ) {
-  case TASKSTATE_DORMANT: pp_q   = &q_dormant_; break;
-  case TASKSTATE_READY:
-  case TASKSTATE_RUNNING: pp_q   = &q_ready_; break;
-  case TASKSTATE_WAITING: pp_q   = &q_waiting_; break;
-  case TASKSTATE_SUSPENDED: pp_q = &q_suspended_; break;
-  default:
-    assert(!"Wrong task state.");
-    return;
-  }
-  assert( *pp_q );
+  // select target queue pointer.
+  //                    state value = 0  1  2  3  4  5  6  7  8
+  //                             /2   0, 0, 1, 1, 2, 2, 3, 3, 4
+  static const uint8_t conv_tbl[] = { 0,    1,    2,    0,    3 };
+  mrbc_tcb **pp_q = &task_queue_[ conv_tbl[ p_tcb->state / 2 ]];
 
   if( *pp_q == p_tcb ) {
     *pp_q       = p_tcb->next;
@@ -291,20 +278,12 @@ void mrbc_set_task_name(mrbc_tcb *tcb, const char *name)
 mrbc_tcb * mrbc_find_task(const char *name)
 {
   mrbc_tcb *tcb;
-
   hal_disable_irq();
 
-  for( tcb = q_ready_; tcb != NULL; tcb = tcb->next ) {
-    if( strcmp( tcb->name, name ) == 0 ) goto RETURN_TCB;
-  }
-  for( tcb = q_waiting_; tcb != NULL; tcb = tcb->next ) {
-    if( strcmp( tcb->name, name ) == 0 ) goto RETURN_TCB;
-  }
-  for( tcb = q_suspended_; tcb != NULL; tcb = tcb->next ) {
-    if( strcmp( tcb->name, name ) == 0 ) goto RETURN_TCB;
-  }
-  for( tcb = q_dormant_; tcb != NULL; tcb = tcb->next ) {
-    if( strcmp( tcb->name, name ) == 0 ) goto RETURN_TCB;
+  for( int i = 0; i < num_task_queue_; i++ ) {
+    for( tcb = task_queue_[i]; tcb != NULL; tcb = tcb->next ) {
+      if( strcmp( tcb->name, name ) == 0 ) goto RETURN_TCB;
+    }
   }
 
  RETURN_TCB:
@@ -928,13 +907,12 @@ static void c_task_get(mrbc_vm *vm, mrbc_value v[], int argc)
 */
 static void c_task_list(mrbc_vm *vm, mrbc_value v[], int argc)
 {
-  mrbc_tcb* qlist[] = {q_dormant_, q_ready_, q_waiting_, q_suspended_};
   mrbc_value ret = mrbc_array_new(vm, 1);
 
   hal_disable_irq();
 
-  for( int i = 0; i < sizeof(qlist)/sizeof(mrbc_tcb*); i++ ) {
-    for( mrbc_tcb *tcb = qlist[i]; tcb != NULL; tcb = tcb->next ) {
+  for( int i = 0; i < num_task_queue_; i++ ) {
+    for( mrbc_tcb *tcb = task_queue_[i]; tcb != NULL; tcb = tcb->next ) {
       mrbc_value task = mrbc_instance_new(vm, v->cls, sizeof(mrbc_tcb *));
       *(mrbc_tcb **)task.instance->data = VM2TCB(vm);
       mrbc_array_push( &ret, &task );
@@ -954,13 +932,12 @@ static void c_task_list(mrbc_vm *vm, mrbc_value v[], int argc)
 */
 static void c_task_name_list(mrbc_vm *vm, mrbc_value v[], int argc)
 {
-  mrbc_tcb* qlist[] = {q_dormant_, q_ready_, q_waiting_, q_suspended_};
   mrbc_value ret = mrbc_array_new(vm, 1);
 
   hal_disable_irq();
 
-  for( int i = 0; i < sizeof(qlist)/sizeof(mrbc_tcb*); i++ ) {
-    for( mrbc_tcb *tcb = qlist[i]; tcb != NULL; tcb = tcb->next ) {
+  for( int i = 0; i < num_task_queue_; i++ ) {
+    for( mrbc_tcb *tcb = task_queue_[i]; tcb != NULL; tcb = tcb->next ) {
       mrbc_value s = mrbc_string_new_cstr(vm, tcb->name);
       mrbc_array_push( &ret, &s );
     }
