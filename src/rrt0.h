@@ -30,10 +30,17 @@ extern "C" {
 //================================================
 /*!@brief
   Task state
+
+ (Bit mapped)
+  0 0 0 0 0 0 0 0
+                ^ Running
+              ^ Ready
+            ^ Waiting
+          ^ Suspended
 */
 enum MrbcTaskState {
   TASKSTATE_DORMANT   = 0x00,	//!< Domant
-  TASKSTATE_READY     = 0x01,	//!< Ready
+  TASKSTATE_READY     = 0x02,	//!< Ready
   TASKSTATE_RUNNING   = 0x03,	//!< Running
   TASKSTATE_WAITING   = 0x04,	//!< Waiting
   TASKSTATE_SUSPENDED = 0x08,	//!< Suspended

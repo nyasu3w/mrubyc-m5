@@ -1286,6 +1286,9 @@ void mrbc_init(void *heap_ptr, unsigned int size)
 //================================================================
 /*! DEBUG print queue
 
+  (examples)
+  void pqall(void);
+  mrbc_define_method(0,0,"pqall", (mrbc_func_t)pqall);
  */
 void pq(const mrbc_tcb *p_tcb)
 {
@@ -1337,15 +1340,15 @@ void pq(const mrbc_tcb *p_tcb)
   //  st:SsRr
   //     ^ suspended -> S:suspended
   //      ^ waiting  -> s:sleep m:mutex J:join
-  //       ^ running -> R:running
-  //        ^ ready  -> r:ready
+  //       ^ ready   -> R:ready
+  //        ^ running-> r:running
   p = p_tcb;
   while( p != NULL ) {
     mrbc_printf(" st:%c%c%c%c  ",
-                (p->state & TASKSTATE_SUSPENDED)?'S':'-',
-                ("-sm-j"[p->reason]),
-                (p->state &(TASKSTATE_RUNNING & ~TASKSTATE_READY))?'R':'-',
-                (p->state & TASKSTATE_READY)?'r':'-' );
+        (p->state & TASKSTATE_SUSPENDED)?'S':'-',
+        (p->state & TASKSTATE_WAITING)?("XsmXj"[p->reason]):"X-"[p->reason == 0],
+        (p->state & 0x02)?'R':'-',
+        (p->state & 0x01)?'r':'-' );
     p = p->next;
   }
   mrbc_printf("\n");
@@ -1358,7 +1361,6 @@ void pq(const mrbc_tcb *p_tcb)
   }
   mrbc_printf("\n");
 }
-
 
 void pqall(void)
 {
