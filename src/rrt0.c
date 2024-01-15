@@ -1269,47 +1269,37 @@ void mrbc_init(void *heap_ptr, unsigned int size)
  */
 void pq(const mrbc_tcb *p_tcb)
 {
-  const mrbc_tcb *p;
-
   if( p_tcb == NULL ) return;
 
   // TCB address
-  p = p_tcb;
-  while( p != NULL ) {
+  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
 #if defined(UINTPTR_MAX)
     mrbc_printf("%08x  ", (uint32_t)(uintptr_t)p);
 #else
     mrbc_printf("%08x  ", (uint32_t)p);
 #endif
-    p = p->next;
   }
   mrbc_printf("\n");
 
   // name
-  p = p_tcb;
-  while( p != NULL ) {
+  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
     mrbc_printf("%-9.9s ", p->name[0] ? p->name : "(noname)" );
-    p = p->next;
   }
   mrbc_printf("\n");
 
   // next pointer.
-  p = p_tcb;
-  while( p != NULL ) {
+  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
 #if defined(UINTPTR_MAX)
     mrbc_printf(" nx:%04x  ", (uint16_t)(uintptr_t)p->next);
 #else
     mrbc_printf(" nx:%04x  ", (uint16_t)p->next);
 #endif
-    p = p->next;
   }
   mrbc_printf("\n");
 
   // task priority.
-  p = p_tcb;
-  while( p != NULL ) {
+  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
     mrbc_printf(" pri:%3d  ", p->priority_preemption);
-    p = p->next;
   }
   mrbc_printf("\n");
 
@@ -1319,22 +1309,23 @@ void pq(const mrbc_tcb *p_tcb)
   //      ^ waiting  -> s:sleep m:mutex J:join
   //       ^ ready   -> R:ready
   //        ^ running-> r:running
-  p = p_tcb;
-  while( p != NULL ) {
+  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
+#if 1
+    mrbc_tcb t = *p;
     mrbc_printf(" st:%c%c%c%c  ",
-        (p->state & TASKSTATE_SUSPENDED)?'S':'-',
-        (p->state & TASKSTATE_WAITING)?("XsmXj"[p->reason]):"X-"[p->reason == 0],
-        (p->state & 0x02)?'R':'-',
-        (p->state & 0x01)?'r':'-' );
-    p = p->next;
+        (t.state & TASKSTATE_SUSPENDED)?'S':'-',
+        (t.state & TASKSTATE_WAITING)?("XsmXj"[t.reason]):"X-"[t.reason == 0],
+        (t.state & 0x02)?'R':'-',
+        (t.state & 0x01)?'r':'-' );
+#else
+    mrbc_printf(" st:%04b  ", p->state);
+#endif
   }
   mrbc_printf("\n");
 
   // timeslice
-  p = p_tcb;
-  while( p != NULL ) {
+  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
     mrbc_printf(" tmsl:%2d  ", p->timeslice);
-    p = p->next;
   }
   mrbc_printf("\n");
 }
