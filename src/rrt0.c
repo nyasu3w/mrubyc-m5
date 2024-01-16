@@ -1274,32 +1274,22 @@ void pq(const mrbc_tcb *p_tcb)
   // TCB address
   for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
 #if defined(UINTPTR_MAX)
-    mrbc_printf("%08x  ", (uint32_t)(uintptr_t)p);
+    mrbc_printf("$%08x   ", (uint32_t)(uintptr_t)p);
 #else
-    mrbc_printf("%08x  ", (uint32_t)p);
+    mrbc_printf("$%08x   ", (uint32_t)p);
 #endif
   }
   mrbc_printf("\n");
 
   // name
   for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
-    mrbc_printf("%-9.9s ", p->name[0] ? p->name : "(noname)" );
-  }
-  mrbc_printf("\n");
-
-  // next pointer.
-  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
-#if defined(UINTPTR_MAX)
-    mrbc_printf(" nx:%04x  ", (uint16_t)(uintptr_t)p->next);
-#else
-    mrbc_printf(" nx:%04x  ", (uint16_t)p->next);
-#endif
+    mrbc_printf("%-11.11s ", p->name[0] ? p->name : "(noname)" );
   }
   mrbc_printf("\n");
 
   // task priority.
   for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
-    mrbc_printf(" pri:%3d  ", p->priority_preemption);
+    mrbc_printf(" pri:%3d    ", p->priority_preemption);
   }
   mrbc_printf("\n");
 
@@ -1312,20 +1302,21 @@ void pq(const mrbc_tcb *p_tcb)
   for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
 #if 1
     mrbc_tcb t = *p;
-    mrbc_printf(" st:%c%c%c%c  ",
+    mrbc_printf(" st:%c%c%c%c    ",
         (t.state & TASKSTATE_SUSPENDED)?'S':'-',
-        (t.state & TASKSTATE_WAITING)?("XsmXj"[t.reason]):"X-"[t.reason == 0],
+        (t.state & TASKSTATE_WAITING)?("!sm!j"[t.reason]):"!-"[t.reason == 0],
         (t.state & 0x02)?'R':'-',
         (t.state & 0x01)?'r':'-' );
 #else
-    mrbc_printf(" st:%04b  ", p->state);
+    mrbc_printf(" st:%04b    ", p->state);
 #endif
   }
   mrbc_printf("\n");
 
-  // timeslice
+  // timeslice, vm->flag_preemption
   for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
-    mrbc_printf(" tmsl:%2d  ", p->timeslice);
+    mrbc_tcb t = *p;
+    mrbc_printf(" ts,fp:%2d,%d ", t.timeslice, t.vm.flag_preemption);
   }
   mrbc_printf("\n");
 }
