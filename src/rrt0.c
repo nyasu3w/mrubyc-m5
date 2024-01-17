@@ -1116,6 +1116,25 @@ static void c_task_set_priority(mrbc_vm *vm, mrbc_value v[], int argc)
 }
 
 
+//================================================================
+/*! (method) status
+
+  task.status() -> String
+*/
+static void c_task_status(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  static const char *status_name[] =
+    { "DORMANT", "READY", "WAITING", "", "SUSPENDED" };
+
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  const mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+  mrbc_value ret = mrbc_string_new_cstr( vm, status_name[tcb->state / 2] );
+
+  SET_RETURN(ret);
+}
+
+
 /*
   Mutex class
 */
@@ -1240,6 +1259,7 @@ void mrbc_init(void *heap_ptr, unsigned int size)
   mrbc_define_method(0, c_task, "pass", c_task_pass);
   mrbc_define_method(0, c_task, "priority", c_task_priority);
   mrbc_define_method(0, c_task, "priority=", c_task_set_priority);
+  mrbc_define_method(0, c_task, "status", c_task_status);
 
 
   mrbc_class *c_mutex;
