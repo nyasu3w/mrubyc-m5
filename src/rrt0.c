@@ -79,7 +79,7 @@ static void q_insert_task(mrbc_tcb *p_tcb)
   static const uint8_t conv_tbl[] = { 0,    1,    2,    0,    3 };
   mrbc_tcb **pp_q = &task_queue_[ conv_tbl[ p_tcb->state / 2 ]];
 
-  // case insert on top.
+  // in case of insert on top.
   if((*pp_q == NULL) ||
      (p_tcb->priority_preemption < (*pp_q)->priority_preemption)) {
     p_tcb->next = *pp_q;
@@ -147,9 +147,7 @@ void mrbc_tick(void)
 
   // Decrease the time slice value for running tasks.
   tcb = q_ready_;
-  if((tcb != NULL) &&
-     (tcb->state == TASKSTATE_RUNNING) &&
-     (tcb->timeslice > 0)) {
+  if( (tcb != NULL) && (tcb->timeslice != 0) ) {
     tcb->timeslice--;
     if( tcb->timeslice == 0 ) tcb->vm.flag_preemption = 1;
   }
@@ -165,17 +163,14 @@ void mrbc_tick(void)
       q_delete_task(t);
       t->state     = TASKSTATE_READY;
       t->reason    = 0;
-      t->timeslice = MRBC_TIMESLICE_TICK_COUNT;
       q_insert_task(t);
       flag_preemption = 1;
     }
   }
 
   if( flag_preemption ) {
-    tcb = q_ready_;
-    while( tcb != NULL ) {
+    for( tcb = q_ready_; tcb != NULL; tcb = tcb->next ) {
       if( tcb->state == TASKSTATE_RUNNING ) tcb->vm.flag_preemption = 1;
-      tcb = tcb->next;
     }
   }
 }
@@ -231,7 +226,6 @@ mrbc_tcb * mrbc_create_task(const void *byte_code, mrbc_tcb *tcb)
   if( !tcb ) tcb = mrbc_tcb_new( MAX_REGS_SIZE, MRBC_TASK_DEFAULT_STATE, MRBC_TASK_DEFAULT_PRIORITY );
   if( !tcb ) return NULL;	// ENOMEM
 
-  tcb->timeslice = MRBC_TIMESLICE_TICK_COUNT;
   tcb->priority_preemption = tcb->priority;
 
   // assign VM ID
@@ -251,6 +245,11 @@ mrbc_tcb * mrbc_create_task(const void *byte_code, mrbc_tcb *tcb)
 
   hal_disable_irq();
   q_insert_task(tcb);
+  if( tcb->state & TASKSTATE_READY ) {
+    for( mrbc_tcb *t = q_ready_; t != NULL; t = t->next ) {
+      if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
+    }
+  }
   hal_enable_irq();
 
   return tcb;
@@ -301,16 +300,13 @@ mrbc_tcb * mrbc_find_task(const char *name)
 int mrbc_start_task(mrbc_tcb *tcb)
 {
   if( tcb->state != TASKSTATE_DORMANT ) return -1;
-  tcb->timeslice = MRBC_TIMESLICE_TICK_COUNT;
   tcb->priority_preemption = tcb->priority;
   mrbc_vm_begin(&tcb->vm);
 
   hal_disable_irq();
 
-  mrbc_tcb *t = q_ready_;
-  while( t != NULL ) {
+  for( mrbc_tcb *t = q_ready_; t != NULL; t = t->next ) {
     if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
-    t = t->next;
   }
 
   q_delete_task(tcb);
@@ -341,20 +337,23 @@ int mrbc_run(void)
       continue;
     }
 
-    tcb->state = TASKSTATE_RUNNING;	// to execute.
-    int res = 0;
+    if( tcb->state != TASKSTATE_RUNNING ) {
+      tcb->state = TASKSTATE_RUNNING;           // to execute.
+      tcb->timeslice = MRBC_TIMESLICE_TICK_COUNT;
+    }
 
 #if !defined(MRBC_NO_TIMER)
     // Using hardware timer.
     tcb->vm.flag_preemption = 0;
-    res = mrbc_vm_run(&tcb->vm);
+    int ret_vm_run = mrbc_vm_run(&tcb->vm);
 
 #else
     // Emulate time slice preemption.
+    int ret_vm_run = 0;
     tcb->vm.flag_preemption = 1;
     while( tcb->timeslice != 0 ) {
-      res = mrbc_vm_run( &tcb->vm );
-      if( res != 0 ) break;
+      ret_vm_run = mrbc_vm_run( &tcb->vm );
+      if( ret_vm_run != 0 ) break;
       if( tcb->state != TASKSTATE_RUNNING ) break;
       tcb->timeslice--;
     }
@@ -362,14 +361,14 @@ int mrbc_run(void)
 #endif
 
     // did the task done?
-    if( res != 0 ) {
+    if( ret_vm_run != 0 ) {
       hal_disable_irq();
       q_delete_task(tcb);
       tcb->state = TASKSTATE_DORMANT;
       q_insert_task(tcb);
       hal_enable_irq();
-      if( tcb->vm.flag_permanence == 0 ) mrbc_vm_end(&tcb->vm);
-      if( res != 1 ) ret = res;
+      if( ! tcb->vm.flag_permanence ) mrbc_vm_end(&tcb->vm);
+      if( ret_vm_run != 1 ) ret = ret_vm_run;
 
       // find task that called join.
       for( mrbc_tcb *tcb1 = q_waiting_; tcb1 != NULL; tcb1 = tcb1->next ) {
@@ -382,7 +381,6 @@ int mrbc_run(void)
           hal_enable_irq();
         }
       }
-
 #if MRBC_SCHEDULER_EXIT
       if( q_ready_ == NULL && q_waiting_ == NULL && q_suspended_ == NULL ) break;
 #endif
@@ -390,17 +388,13 @@ int mrbc_run(void)
     }
 
     // switch task.
-    hal_disable_irq();
     if( tcb->state == TASKSTATE_RUNNING ) {
       tcb->state = TASKSTATE_READY;
-
-      if( tcb->timeslice == 0 ) {
-        q_delete_task(tcb);
-        tcb->timeslice = MRBC_TIMESLICE_TICK_COUNT;
-        q_insert_task(tcb); // insert task on queue last.
-      }
+      hal_disable_irq();
+      q_delete_task(tcb);       // insert task on queue last.
+      q_insert_task(tcb);
+      hal_enable_irq();
     }
-    hal_enable_irq();
   }
 
   return ret;
@@ -417,7 +411,6 @@ void mrbc_sleep_ms(mrbc_tcb *tcb, uint32_t ms)
 {
   hal_disable_irq();
   q_delete_task(tcb);
-  tcb->timeslice   = 0;
   tcb->state       = TASKSTATE_WAITING;
   tcb->reason      = TASKREASON_SLEEP;
   tcb->wakeup_tick = tick_ + (ms / MRBC_TICK_UNIT) + 1;
@@ -451,13 +444,22 @@ void mrbc_change_priority(mrbc_tcb *tcb, int priority)
 {
   tcb->priority            = priority;
   tcb->priority_preemption = priority;
-  tcb->timeslice           = 0;
-  tcb->vm.flag_preemption  = 1;
+
+  hal_disable_irq();
+  q_delete_task(tcb);       // reorder task queue according to priority.
+  q_insert_task(tcb);
+
+  if( tcb->state & TASKSTATE_READY ) {
+    for( mrbc_tcb *t = q_ready_; t != NULL; t = t->next ) {
+      if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
+    }
+  }
+  hal_enable_irq();
 }
 
 
 //================================================================
-/*! suspend the task.
+/*! Suspend the task.
 
   @param  tcb		target task.
 */
@@ -489,10 +491,8 @@ void mrbc_resume_task(mrbc_tcb *tcb)
   hal_disable_irq();
 
   if( flag_to_ready_state ) {
-    mrbc_tcb *t = q_ready_;
-    while( t != NULL ) {
+    for( mrbc_tcb *t = q_ready_; t != NULL; t = t->next ) {
       if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
-      t = t->next;
     }
   }
 
@@ -645,8 +645,8 @@ int mrbc_mutex_unlock( mrbc_mutex *mutex, mrbc_tcb *tcb )
     tcb1->reason = 0;
     q_insert_task(tcb1);
 
-    for( tcb1 = q_ready_; tcb1 != NULL; tcb1 = tcb1->next ) {
-      if( tcb1->state == TASKSTATE_RUNNING ) tcb1->vm.flag_preemption = 1;
+    for( mrbc_tcb *t = q_ready_; t != NULL; t = t->next ) {
+      if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
     }
     goto DONE;
   }
@@ -846,40 +846,13 @@ static void c_get_tcb(mrbc_vm *vm, mrbc_value v[], int argc)
   Task class
 */
 //================================================================
-/*! (method) Task constructor
+/*! (method) get task
 
-  task = Task.new()                 # returns current task.
-  task = Task.new("OtherTaskName")
-*/
-static void c_task_new(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  *v = mrbc_instance_new(vm, v->cls, sizeof(mrbc_tcb *));
-
-  if( argc == 0 ) {
-    *(mrbc_tcb **)v->instance->data = VM2TCB(vm);
-    return;
-  }
-
-  if( v[1].tt == MRBC_TT_STRING ) {
-    mrbc_tcb *tcb = mrbc_find_task( mrbc_string_cstr( &v[1] ) );
-    if( tcb ) {
-      *(mrbc_tcb **)v->instance->data = tcb;
-      return;
-    }
-  }
-
-  mrbc_raise( vm, MRBC_CLASS(ArgumentError), 0 );
-}
-
-
-//================================================================
-/*! (method) get task  // TODO test now.
-
-  Task.get("TaskName") -> Task
+  Task.get("TaskName") -> Task|nil
 */
 static void c_task_get(mrbc_vm *vm, mrbc_value v[], int argc)
 {
-  if( v[0].tt != MRBC_TT_CLASS ) return;
+  if( v[0].tt != MRBC_TT_CLASS ) goto RETURN;
 
   *v = mrbc_instance_new(vm, v->cls, sizeof(mrbc_tcb *));
 
@@ -896,6 +869,7 @@ static void c_task_get(mrbc_vm *vm, mrbc_value v[], int argc)
     }
   }
 
+ RETURN:
   SET_NIL_RETURN();
 }
 
@@ -1245,7 +1219,6 @@ void mrbc_init(void *heap_ptr, unsigned int size)
 
   mrbc_class *c_task;
   c_task = mrbc_define_class(0, "Task", 0);
-  mrbc_define_method(0, c_task, "new", c_task_new);
   mrbc_define_method(0, c_task, "get", c_task_get);
   mrbc_define_method(0, c_task, "current", c_task_get);
   mrbc_define_method(0, c_task, "list", c_task_list);
@@ -1343,9 +1316,11 @@ void pq(const mrbc_tcb *p_tcb)
 
 void pqall(void)
 {
+  hal_disable_irq();
   mrbc_printf("<<<<< DORMANT >>>>>\n");   pq(q_dormant_);
   mrbc_printf("<<<<< READY >>>>>\n");     pq(q_ready_);
   mrbc_printf("<<<<< WAITING >>>>>\n");   pq(q_waiting_);
   mrbc_printf("<<<<< SUSPENDED >>>>>\n"); pq(q_suspended_);
+  hal_enable_irq();
 }
 #endif
