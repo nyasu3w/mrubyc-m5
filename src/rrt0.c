@@ -107,9 +107,7 @@ static void q_insert_task(mrbc_tcb *p_tcb)
 */
 static void q_delete_task(mrbc_tcb *p_tcb)
 {
-  // select target queue pointer.
-  //                    state value = 0  1  2  3  4  5  6  7  8
-  //                             /2   0, 0, 1, 1, 2, 2, 3, 3, 4
+  // select target queue pointer. (same as q_insert_task)
   static const uint8_t conv_tbl[] = { 0,    1,    2,    0,    3 };
   mrbc_tcb **pp_q = &task_queue_[ conv_tbl[ p_tcb->state / 2 ]];
 
@@ -324,10 +322,9 @@ int mrbc_start_task(mrbc_tcb *tcb)
 */
 int mrbc_run(void)
 {
-  int ret = 1;
-
+  int ret = 0;
 #if MRBC_SCHEDULER_EXIT
-  if( q_ready_ == NULL && q_waiting_ == NULL && q_suspended_ == NULL ) return 0;
+  if( !q_ready_ && !q_waiting_ && !q_suspended_ ) return ret;
 #endif
 
   while( 1 ) {
@@ -337,38 +334,41 @@ int mrbc_run(void)
       continue;
     }
 
-    if( tcb->state != TASKSTATE_RUNNING ) {
-      tcb->state = TASKSTATE_RUNNING;           // to execute.
-      tcb->timeslice = MRBC_TIMESLICE_TICK_COUNT;
-    }
+    /*
+      run the task.
+    */
+    tcb->state = TASKSTATE_RUNNING;   // to execute.
+    tcb->timeslice = MRBC_TIMESLICE_TICK_COUNT;
 
 #if !defined(MRBC_NO_TIMER)
     // Using hardware timer.
     tcb->vm.flag_preemption = 0;
     int ret_vm_run = mrbc_vm_run(&tcb->vm);
-
 #else
     // Emulate time slice preemption.
-    int ret_vm_run = 0;
+    int ret_vm_run;
     tcb->vm.flag_preemption = 1;
     while( tcb->timeslice != 0 ) {
       ret_vm_run = mrbc_vm_run( &tcb->vm );
+      tcb->timeslice--;
       if( ret_vm_run != 0 ) break;
       if( tcb->state != TASKSTATE_RUNNING ) break;
-      tcb->timeslice--;
     }
     mrbc_tick();
 #endif
 
-    // did the task done?
+    /*
+      did the task done?
+    */
     if( ret_vm_run != 0 ) {
       hal_disable_irq();
       q_delete_task(tcb);
       tcb->state = TASKSTATE_DORMANT;
       q_insert_task(tcb);
       hal_enable_irq();
+
       if( ! tcb->vm.flag_permanence ) mrbc_vm_end(&tcb->vm);
-      if( ret_vm_run != 1 ) ret = ret_vm_run;
+      if( ret_vm_run != 1 ) ret = ret_vm_run;   // for debug info.
 
       // find task that called join.
       for( mrbc_tcb *tcb1 = q_waiting_; tcb1 != NULL; tcb1 = tcb1->next ) {
@@ -382,22 +382,24 @@ int mrbc_run(void)
         }
       }
 #if MRBC_SCHEDULER_EXIT
-      if( q_ready_ == NULL && q_waiting_ == NULL && q_suspended_ == NULL ) break;
+      if( !q_ready_ && !q_waiting_ && !q_suspended_ ) return ret;
 #endif
       continue;
     }
 
-    // switch task.
+    /*
+      Switch task.
+    */
     if( tcb->state == TASKSTATE_RUNNING ) {
       tcb->state = TASKSTATE_READY;
+
       hal_disable_irq();
       q_delete_task(tcb);       // insert task on queue last.
       q_insert_task(tcb);
       hal_enable_irq();
     }
+    continue;
   }
-
-  return ret;
 }
 
 
