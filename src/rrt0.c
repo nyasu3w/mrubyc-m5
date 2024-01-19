@@ -54,6 +54,7 @@ static mrbc_tcb *task_queue_[num_task_queue_];
 #define q_waiting_ task_queue_[2]
 #define q_suspended_ task_queue_[3]
 static volatile uint32_t tick_;
+static volatile uint32_t wakeup_tick_ = (1 << 16); // no significant meaning.
 
 
 /***** Global variables *****************************************************/
@@ -138,39 +139,45 @@ static void q_delete_task(mrbc_tcb *p_tcb)
 */
 void mrbc_tick(void)
 {
-  mrbc_tcb *tcb;
-  int flag_preemption = 0;
-
   tick_++;
 
   // Decrease the time slice value for running tasks.
-  tcb = q_ready_;
+  mrbc_tcb *tcb = q_ready_;
   if( (tcb != NULL) && (tcb->timeslice != 0) ) {
     tcb->timeslice--;
     if( tcb->timeslice == 0 ) tcb->vm.flag_preemption = 1;
   }
 
-  // Find a wake up task in waiting task queue.
-  tcb = q_waiting_;
-  while( tcb != NULL ) {
-    mrbc_tcb *t = tcb;
-    tcb = tcb->next;
+  // Check the wakeup tick.
+  if( (int32_t)(wakeup_tick_ - tick_) < 0 ) {
+    int flag_preemption = 0;
+    wakeup_tick_ = tick_ + (1 << 16);
 
-    if( t->reason == TASKREASON_SLEEP &&
-        (int32_t)(t->wakeup_tick - tick_) <= 0 ) {
-      q_delete_task(t);
-      t->state     = TASKSTATE_READY;
-      t->reason    = 0;
-      q_insert_task(t);
-      flag_preemption = 1;
+    // Find a wake up task in waiting task queue.
+    tcb = q_waiting_;
+    while( tcb != NULL ) {
+      mrbc_tcb *t = tcb;
+      tcb = tcb->next;
+      if( t->reason != TASKREASON_SLEEP ) continue;
+
+      if( (int32_t)(t->wakeup_tick - tick_) < 0 ) {
+        q_delete_task(t);
+        t->state  = TASKSTATE_READY;
+        t->reason = 0;
+        q_insert_task(t);
+        flag_preemption = 1;
+      } else if( (int32_t)(t->wakeup_tick - wakeup_tick_) < 0 ) {
+        wakeup_tick_ = t->wakeup_tick;
+      }
+    }
+
+    if( flag_preemption ) {
+      for( tcb = q_ready_; tcb != NULL; tcb = tcb->next ) {
+        if( tcb->state == TASKSTATE_RUNNING ) tcb->vm.flag_preemption = 1;
+      }
     }
   }
 
-  if( flag_preemption ) {
-    for( tcb = q_ready_; tcb != NULL; tcb = tcb->next ) {
-      if( tcb->state == TASKSTATE_RUNNING ) tcb->vm.flag_preemption = 1;
-    }
-  }
 }
 
 
@@ -415,8 +422,12 @@ void mrbc_sleep_ms(mrbc_tcb *tcb, uint32_t ms)
   q_delete_task(tcb);
   tcb->state       = TASKSTATE_WAITING;
   tcb->reason      = TASKREASON_SLEEP;
-  tcb->wakeup_tick = tick_ + (ms / MRBC_TICK_UNIT) + 1;
-  if( ms % MRBC_TICK_UNIT ) tcb->wakeup_tick++;
+  tcb->wakeup_tick = tick_ + (ms / MRBC_TICK_UNIT) + !!(ms % MRBC_TICK_UNIT);
+
+  if( (int32_t)(tcb->wakeup_tick - wakeup_tick_) < 0 ) {
+    wakeup_tick_ = tcb->wakeup_tick;
+  }
+
   q_insert_task(tcb);
   hal_enable_irq();
 
