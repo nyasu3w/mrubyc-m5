@@ -12,9 +12,9 @@ MRUBY_TAG = $(shell grep MRUBY_VERSION mrblib/global.rb | sed 's/MRUBY_VERSION *
 USER_ID = $(shell id -u)
 
 
+.PHONY: all mrblib mrubyc_lib mrubyc_bin
 all: mrubyc_lib mrubyc_bin
 
-.PHONY: mrblib
 mrblib:
 	cd mrblib ; $(MAKE) distclean all
 
@@ -25,6 +25,7 @@ mrubyc_lib:
 mrubyc_bin:
 	cd sample_c ; $(MAKE) all
 
+.PHONY: clean clean_all
 clean:
 	cd mrblib ; $(MAKE) clean
 	cd src ; $(MAKE) clean
