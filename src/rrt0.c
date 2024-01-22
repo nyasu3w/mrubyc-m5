@@ -47,12 +47,12 @@
 /***** Typedefs *************************************************************/
 /***** Function prototypes **************************************************/
 /***** Local variables ******************************************************/
-static const int num_task_queue_ = 4;
-static mrbc_tcb *task_queue_[num_task_queue_];
-#define q_dormant_ task_queue_[0]
-#define q_ready_ task_queue_[1]
-#define q_waiting_ task_queue_[2]
-#define q_suspended_ task_queue_[3]
+#define NUM_TASK_QUEUE 4
+static mrbc_tcb *task_queue_[NUM_TASK_QUEUE];
+#define q_dormant_   (task_queue_[0])
+#define q_ready_     (task_queue_[1])
+#define q_waiting_   (task_queue_[2])
+#define q_suspended_ (task_queue_[3])
 static volatile uint32_t tick_;
 static volatile uint32_t wakeup_tick_ = (1 << 16); // no significant meaning.
 
@@ -284,7 +284,7 @@ mrbc_tcb * mrbc_find_task(const char *name)
   mrbc_tcb *tcb;
   hal_disable_irq();
 
-  for( int i = 0; i < num_task_queue_; i++ ) {
+  for( int i = 0; i < NUM_TASK_QUEUE; i++ ) {
     for( tcb = task_queue_[i]; tcb != NULL; tcb = tcb->next ) {
       if( strcmp( tcb->name, name ) == 0 ) goto RETURN_TCB;
     }
@@ -898,7 +898,7 @@ static void c_task_list(mrbc_vm *vm, mrbc_value v[], int argc)
 
   hal_disable_irq();
 
-  for( int i = 0; i < num_task_queue_; i++ ) {
+  for( int i = 0; i < NUM_TASK_QUEUE; i++ ) {
     for( mrbc_tcb *tcb = task_queue_[i]; tcb != NULL; tcb = tcb->next ) {
       mrbc_value task = mrbc_instance_new(vm, v->cls, sizeof(mrbc_tcb *));
       *(mrbc_tcb **)task.instance->data = VM2TCB(vm);
@@ -923,7 +923,7 @@ static void c_task_name_list(mrbc_vm *vm, mrbc_value v[], int argc)
 
   hal_disable_irq();
 
-  for( int i = 0; i < num_task_queue_; i++ ) {
+  for( int i = 0; i < NUM_TASK_QUEUE; i++ ) {
     for( mrbc_tcb *tcb = task_queue_[i]; tcb != NULL; tcb = tcb->next ) {
       mrbc_value s = mrbc_string_new_cstr(vm, tcb->name);
       mrbc_array_push( &ret, &s );
