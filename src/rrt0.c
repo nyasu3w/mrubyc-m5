@@ -60,7 +60,6 @@ static volatile uint32_t wakeup_tick_ = (1 << 16); // no significant meaning.
 /***** Global variables *****************************************************/
 /***** Signal catching functions ********************************************/
 /***** Functions ************************************************************/
-
 //================================================================
 /*! Insert task(TCB) to task queue
 
@@ -134,6 +133,17 @@ static void q_delete_task(mrbc_tcb *p_tcb)
 
 
 //================================================================
+/*! preempt running task
+*/
+inline static void preempt_running_task(void)
+{
+  for( mrbc_tcb *t = q_ready_; t != NULL; t = t->next ) {
+    if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
+  }
+}
+
+
+//================================================================
 /*! Tick timer interrupt handler.
 
 */
@@ -171,11 +181,7 @@ void mrbc_tick(void)
       }
     }
 
-    if( flag_preemption ) {
-      for( tcb = q_ready_; tcb != NULL; tcb = tcb->next ) {
-        if( tcb->state == TASKSTATE_RUNNING ) tcb->vm.flag_preemption = 1;
-      }
-    }
+    if( flag_preemption ) preempt_running_task();
   }
 
 }
@@ -244,17 +250,11 @@ mrbc_tcb * mrbc_create_task(const void *byte_code, mrbc_tcb *tcb)
     mrbc_vm_close( &tcb->vm );
     return NULL;
   }
-  if( tcb->state != TASKSTATE_DORMANT ) {
-    mrbc_vm_begin( &tcb->vm );
-  }
+  mrbc_vm_begin( &tcb->vm );
 
   hal_disable_irq();
   q_insert_task(tcb);
-  if( tcb->state & TASKSTATE_READY ) {
-    for( mrbc_tcb *t = q_ready_; t != NULL; t = t->next ) {
-      if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
-    }
-  }
+  if( tcb->state & TASKSTATE_READY ) preempt_running_task();
   hal_enable_irq();
 
   return tcb;
@@ -269,7 +269,13 @@ mrbc_tcb * mrbc_create_task(const void *byte_code, mrbc_tcb *tcb)
 */
 void mrbc_set_task_name(mrbc_tcb *tcb, const char *name)
 {
-  strncpy( tcb->name, name, MRBC_TASK_NAME_LEN );
+  /* (note)
+   this is `strncpy( tcb->name, name, MRBC_TASK_NAME_LEN );`
+   for to avoid link error when compiling for PIC32 with XC32 v4.21
+  */
+  for( int i = 0; i < MRBC_TASK_NAME_LEN; i++ ) {
+    if( (tcb->name[i] = *name++) == 0 ) break;
+  }
 }
 
 
@@ -299,24 +305,23 @@ mrbc_tcb * mrbc_find_task(const char *name)
 //================================================================
 /*! Start execution of dormant task.
 
-  @param  tcb	Task control block with parameter, or NULL.
+  @param  tcb	target task.
   @retval int	zero / no error.
 */
 int mrbc_start_task(mrbc_tcb *tcb)
 {
   if( tcb->state != TASKSTATE_DORMANT ) return -1;
-  tcb->priority_preemption = tcb->priority;
-  mrbc_vm_begin(&tcb->vm);
 
   hal_disable_irq();
 
-  for( mrbc_tcb *t = q_ready_; t != NULL; t = t->next ) {
-    if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
-  }
+  preempt_running_task();
 
   q_delete_task(tcb);
   tcb->state = TASKSTATE_READY;
+  tcb->reason = 0;
+  tcb->priority_preemption = tcb->priority;
   q_insert_task(tcb);
+
   hal_enable_irq();
 
   return 0;
@@ -462,11 +467,8 @@ void mrbc_change_priority(mrbc_tcb *tcb, int priority)
   q_delete_task(tcb);       // reorder task queue according to priority.
   q_insert_task(tcb);
 
-  if( tcb->state & TASKSTATE_READY ) {
-    for( mrbc_tcb *t = q_ready_; t != NULL; t = t->next ) {
-      if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
-    }
-  }
+  if( tcb->state & TASKSTATE_READY ) preempt_running_task();
+
   hal_enable_irq();
 }
 
@@ -503,11 +505,7 @@ void mrbc_resume_task(mrbc_tcb *tcb)
 
   hal_disable_irq();
 
-  if( flag_to_ready_state ) {
-    for( mrbc_tcb *t = q_ready_; t != NULL; t = t->next ) {
-      if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
-    }
-  }
+  if( flag_to_ready_state ) preempt_running_task();
 
   q_delete_task(tcb);
   tcb->state = flag_to_ready_state ? TASKSTATE_READY : TASKSTATE_WAITING;
@@ -658,9 +656,7 @@ int mrbc_mutex_unlock( mrbc_mutex *mutex, mrbc_tcb *tcb )
     tcb1->reason = 0;
     q_insert_task(tcb1);
 
-    for( mrbc_tcb *t = q_ready_; t != NULL; t = t->next ) {
-      if( t->state == TASKSTATE_RUNNING ) t->vm.flag_preemption = 1;
-    }
+    preempt_running_task();
     goto DONE;
   }
 
@@ -1122,6 +1118,7 @@ static void c_task_status(mrbc_vm *vm, mrbc_value v[], int argc)
 }
 
 
+
 /*
   Mutex class
 */
@@ -1292,6 +1289,18 @@ void pq(const mrbc_tcb *p_tcb)
     mrbc_printf("%-11.11s ", p->name[0] ? p->name : "(noname)" );
   }
   mrbc_printf("\n");
+
+#if 0
+  // next ptr
+  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
+#if defined(UINTPTR_MAX)
+    mrbc_printf(" next:%04x  ", (uint16_t)(uintptr_t)p->next);
+#else
+    mrbc_printf(" next:%04x  ", (uint16_t)p->next);
+#endif
+  }
+  mrbc_printf("\n");
+#endif
 
   // task priority.
   for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {

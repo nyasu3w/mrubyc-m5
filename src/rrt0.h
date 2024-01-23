@@ -118,6 +118,8 @@ void mrbc_relinquish(mrbc_tcb *tcb);
 void mrbc_change_priority(mrbc_tcb *tcb, int priority);
 void mrbc_suspend_task(mrbc_tcb *tcb);
 void mrbc_resume_task(mrbc_tcb *tcb);
+void mrbc_terminate_task(mrbc_tcb *tcb);
+void mrbc_join_task(mrbc_tcb *tcb, const mrbc_tcb *tcb_join);
 mrbc_mutex *mrbc_mutex_init(mrbc_mutex *mutex);
 int mrbc_mutex_lock(mrbc_mutex *mutex, mrbc_tcb *tcb);
 int mrbc_mutex_unlock(mrbc_mutex *mutex, mrbc_tcb *tcb);
