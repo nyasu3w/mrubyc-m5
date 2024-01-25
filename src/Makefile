@@ -10,18 +10,19 @@
 include hal_selector.mk
 
 TARGET = libmrubyc.a
-CFLAGS += -Wall -Wpointer-arith -g  # -std=c99 -pedantic -pedantic-errors
+CFLAGS += -Wall -g   #-std=c99 -pedantic -pedantic-errors
 SRCS = $(HAL_DIR)/hal.c alloc.c c_array.c c_hash.c c_math.c c_numeric.c \
 	c_object.c c_range.c c_string.c class.c console.c error.c global.c \
 	keyvalue.c load.c mrblib.c rrt0.c symbol.c value.c vm.c
 OBJS = $(SRCS:.c=.o)
 
-
+.PHONY: all
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(AR) $(ARFLAGS) $@ $?
 
+.PHONY: clean clean_all autogen check_depend
 clean:
 	@rm -f $(TARGET) $(OBJS) *~
 
@@ -45,12 +46,12 @@ AUTOGEN_SYMBOL_TABLE = _autogen_builtin_symbol.h
 AUTOGEN_METHOD_TABLE = _autogen_class_array.h _autogen_class_exception.h \
 	_autogen_class_float.h _autogen_class_hash.h _autogen_class_integer.h \
 	_autogen_class_math.h _autogen_class_object.h _autogen_class_range.h \
-	_autogen_class_string.h _autogen_class_symbol.h
+	_autogen_class_string.h _autogen_class_symbol.h _autogen_class_rrt0.h
 
 #
 # un-comment below, if you need add and/or delete method in builtin class.
 #
-#AUTOGEN_METHOD_SRCS = c_array.c c_hash.c c_math.c c_numeric.c c_object.c c_range.c c_string.c error.c
+#AUTOGEN_METHOD_SRCS = c_array.c c_hash.c c_math.c c_numeric.c c_object.c c_range.c c_string.c error.c rrt0.c
 
 $(AUTOGEN_SYMBOL_TABLE): $(AUTOGEN_METHOD_TABLE)
 	$(MAKE_SYMBOL_TABLE) --path-c . --path-rb ../mrblib -o $(AUTOGEN_SYMBOL_TABLE)
@@ -75,6 +76,8 @@ _autogen_class_symbol.h:	$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) symbol.c
 _autogen_class_exception.h:	$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) error.c
+_autogen_class_rrt0.h:		$(AUTOGEN_METHOD_SRCS)
+	$(MAKE_METHOD_TABLE) rrt0.c
 
 
 # File dependencies.
@@ -121,7 +124,8 @@ load.o: load.c vm_config.h vm.h value.h class.h keyvalue.h error.h \
 mrblib.o: mrblib.c
 rrt0.o: rrt0.c vm_config.h alloc.h load.h value.h class.h keyvalue.h \
   error.h global.h symbol.h _autogen_builtin_symbol.h vm.h console.h \
-  rrt0.h hal_selector.h $(HAL_DIR)/hal.h
+  c_string.h c_array.h rrt0.h hal_selector.h $(HAL_DIR)/hal.h \
+  _autogen_class_rrt0.h
 symbol.o: symbol.c vm_config.h _autogen_builtin_symbol.h alloc.h value.h \
   symbol.h class.h keyvalue.h error.h c_string.h c_array.h console.h \
   _autogen_class_symbol.h

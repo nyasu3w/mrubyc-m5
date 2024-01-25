@@ -1072,6 +1072,27 @@ static void c_task_status(mrbc_vm *vm, mrbc_value v[], int argc)
 }
 
 
+/* MRBC_AUTOGEN_METHOD_TABLE
+
+  CLASS("Task")
+  FILE("_autogen_class_rrt0.h")
+
+  METHOD( "get", c_task_get )
+  METHOD( "current", c_task_get )
+  METHOD( "list", c_task_list )
+  METHOD( "name_list", c_task_name_list )
+  METHOD( "name=", c_task_set_name )
+  METHOD( "name", c_task_name )
+  METHOD( "suspend", c_task_suspend )
+  METHOD( "resume", c_task_resume )
+  METHOD( "terminate", c_task_terminate )
+  METHOD( "join", c_task_join )
+  METHOD( "pass", c_task_pass )
+  METHOD( "priority=", c_task_set_priority )
+  METHOD( "priority", c_task_priority )
+  METHOD( "status", c_task_status )
+*/
+
 
 /*
   Mutex class
@@ -1150,6 +1171,21 @@ static void c_mutex_owned(mrbc_vm *vm, mrbc_value v[], int argc)
 }
 
 
+/* MRBC_AUTOGEN_METHOD_TABLE
+
+  CLASS("Mutex")
+  APPEND("_autogen_class_rrt0.h")
+
+  METHOD( "new", c_mutex_new  )
+  METHOD( "lock", c_mutex_lock  )
+  METHOD( "unlock", c_mutex_unlock  )
+  METHOD( "try_lock", c_mutex_trylock  )
+  METHOD( "locked?", c_mutex_locked  )
+  METHOD( "owned?", c_mutex_owned  )
+*/
+
+
+
 //================================================================
 /*! (method) get tick counter
 */
@@ -1157,6 +1193,15 @@ static void c_vm_tick(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   SET_INT_RETURN(tick_);
 }
+
+/* MRBC_AUTOGEN_METHOD_TABLE
+
+  CLASS("VM")
+  APPEND("_autogen_class_rrt0.h")
+
+  METHOD( "tick", c_vm_tick )
+*/
+#include "_autogen_class_rrt0.h"
 
 
 
@@ -1173,38 +1218,17 @@ void mrbc_init(void *heap_ptr, unsigned int size)
   mrbc_init_global();
   mrbc_init_class();
 
+  mrbc_value cls = {.tt = MRBC_TT_CLASS, .cls = MRBC_CLASS(Task)};
+  mrbc_set_const( MRBC_SYM(Task), &cls );
+
+  cls.cls = MRBC_CLASS(Mutex);
+  mrbc_set_const( MRBC_SYM(Mutex), &cls );
+
+  cls.cls = MRBC_CLASS(VM);
+  mrbc_set_const( MRBC_SYM(VM), &cls );
+
   mrbc_define_method(0, mrbc_class_object, "sleep", c_sleep);
   mrbc_define_method(0, mrbc_class_object, "sleep_ms", c_sleep_ms);
-
-  mrbc_class *c_task;
-  c_task = mrbc_define_class(0, "Task", 0);
-  mrbc_define_method(0, c_task, "get", c_task_get);
-  mrbc_define_method(0, c_task, "current", c_task_get);
-  mrbc_define_method(0, c_task, "list", c_task_list);
-  mrbc_define_method(0, c_task, "name_list", c_task_name_list);
-  mrbc_define_method(0, c_task, "name=", c_task_set_name);
-  mrbc_define_method(0, c_task, "name", c_task_name);
-  mrbc_define_method(0, c_task, "suspend", c_task_suspend);
-  mrbc_define_method(0, c_task, "resume", c_task_resume);
-  mrbc_define_method(0, c_task, "terminate", c_task_terminate);
-  mrbc_define_method(0, c_task, "join", c_task_join);
-  mrbc_define_method(0, c_task, "pass", c_task_pass);
-  mrbc_define_method(0, c_task, "priority=", c_task_set_priority);
-  mrbc_define_method(0, c_task, "priority", c_task_priority);
-  mrbc_define_method(0, c_task, "status", c_task_status);
-
-  mrbc_class *c_mutex;
-  c_mutex = mrbc_define_class(0, "Mutex", 0);
-  mrbc_define_method(0, c_mutex, "new", c_mutex_new);
-  mrbc_define_method(0, c_mutex, "lock", c_mutex_lock);
-  mrbc_define_method(0, c_mutex, "unlock", c_mutex_unlock);
-  mrbc_define_method(0, c_mutex, "try_lock", c_mutex_trylock);
-  mrbc_define_method(0, c_mutex, "locked?", c_mutex_locked);
-  mrbc_define_method(0, c_mutex, "owned?", c_mutex_owned);
-
-  mrbc_class *c_vm;
-  c_vm = mrbc_define_class(0, "VM", mrbc_class_object);
-  mrbc_define_method(0, c_vm, "tick", c_vm_tick);
 }
 
 
