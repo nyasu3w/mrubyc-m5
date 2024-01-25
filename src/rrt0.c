@@ -783,73 +783,6 @@ static void c_sleep_ms(mrbc_vm *vm, mrbc_value v[], int argc)
 }
 
 
-//================================================================
-/*! (method) relinquish control to other tasks. (BETA)
-
-*/
-static void c_relinquish(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb = VM2TCB(vm);
-
-  mrbc_relinquish(tcb);
-}
-
-
-//================================================================
-/*! (method) change task priority.
-
-*/
-static void c_change_priority(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb = VM2TCB(vm);
-
-  mrbc_change_priority(tcb, mrbc_integer(v[1]));
-}
-
-
-//================================================================
-/*! (method) suspend the task. (BETA)
-
-*/
-static void c_suspend_task(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  if( argc == 0 ) {
-    mrbc_tcb *tcb = VM2TCB(vm);
-    mrbc_suspend_task(tcb);	// suspend self.
-    return;
-  }
-
-  if( mrbc_type(v[1]) != MRBC_TT_HANDLE ) return;	// error.
-  mrbc_suspend_task( (mrbc_tcb *)(v[1].handle) );
-}
-
-
-//================================================================
-/*! (method) resume the task (BETA)
-
-*/
-static void c_resume_task(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  if( mrbc_type(v[1]) != MRBC_TT_HANDLE ) return;	// error.
-  mrbc_resume_task( (mrbc_tcb *)(v[1].handle) );
-}
-
-
-//================================================================
-/*! (method) get the TCB (BETA)
-
-*/
-static void c_get_tcb(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb = VM2TCB(vm);
-
-  mrbc_value value = {.tt = MRBC_TT_HANDLE};
-  value.handle = tcb;
-
-  SET_RETURN( value );
-}
-
-
 
 /*
   Task class
@@ -857,28 +790,33 @@ static void c_get_tcb(mrbc_vm *vm, mrbc_value v[], int argc)
 //================================================================
 /*! (method) get task
 
+  Task.get()           -> Task
   Task.get("TaskName") -> Task|nil
 */
 static void c_task_get(mrbc_vm *vm, mrbc_value v[], int argc)
 {
-  if( v[0].tt != MRBC_TT_CLASS ) goto RETURN;
+  mrbc_tcb *tcb = NULL;
 
-  *v = mrbc_instance_new(vm, v->cls, sizeof(mrbc_tcb *));
+  if( v[0].tt != MRBC_TT_CLASS ) goto RETURN_NIL;
 
+  // in case of Task.get()
   if( argc == 0 ) {
-    *(mrbc_tcb **)v->instance->data = VM2TCB(vm);
-    return;
+    tcb = VM2TCB(vm);
   }
 
-  if( v[1].tt == MRBC_TT_STRING ) {
-    mrbc_tcb *tcb = mrbc_find_task( mrbc_string_cstr( &v[1] ) );
-    if( tcb ) {
-      *(mrbc_tcb **)v->instance->data = tcb;
-      return;
-    }
+  // in case of Task.get("TasName")
+  else if( v[1].tt == MRBC_TT_STRING ) {
+    tcb = mrbc_find_task( mrbc_string_cstr( &v[1] ) );
   }
 
- RETURN:
+  if( tcb ) {
+    mrbc_value ret = mrbc_instance_new(vm, v->cls, sizeof(mrbc_tcb *));
+    *(mrbc_tcb **)ret.instance->data = tcb;
+    SET_RETURN(ret);
+    return;             // normal return.
+  }
+
+ RETURN_NIL:
   SET_NIL_RETURN();
 }
 
@@ -1056,34 +994,26 @@ static void c_task_pass(mrbc_vm *vm, mrbc_value v[], int argc)
   if( v[0].tt != MRBC_TT_CLASS ) return;
 
   mrbc_tcb *tcb = VM2TCB(vm);
-
   mrbc_relinquish(tcb);
-}
-
-
-//================================================================
-/*! (method) task priority getter
-
-  task.priority() -> Integer
-*/
-static void c_task_priority(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  if( v[0].tt == MRBC_TT_CLASS ) return;
-
-  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
-
-  SET_INT_RETURN( tcb->priority );
 }
 
 
 //================================================================
 /*! (method) task priority setter
 
+  Task.priority = n  # n = 0(high) .. 255(low)
   task.priority = n
 */
 static void c_task_set_priority(mrbc_vm *vm, mrbc_value v[], int argc)
 {
-  if( v[0].tt == MRBC_TT_CLASS ) return;
+  mrbc_tcb *tcb;
+
+  if( v[0].tt == MRBC_TT_CLASS ) {
+    tcb = VM2TCB(vm);
+  } else {
+    tcb = *(mrbc_tcb **)v[0].instance->data;
+  }
+
   if( v[1].tt != MRBC_TT_INTEGER ) {
     mrbc_raise( vm, MRBC_CLASS(ArgumentError), 0 );
     return;
@@ -1094,8 +1024,26 @@ static void c_task_set_priority(mrbc_vm *vm, mrbc_value v[], int argc)
     return;
   }
 
-  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
   mrbc_change_priority( tcb, n );
+}
+
+
+//================================================================
+/*! (method) task priority getter
+
+  task.priority() -> Integer
+*/
+static void c_task_priority(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb;
+
+  if( v[0].tt == MRBC_TT_CLASS ) {
+    tcb = VM2TCB(vm);
+  } else {
+    tcb = *(mrbc_tcb **)v[0].instance->data;
+  }
+
+  SET_INT_RETURN( tcb->priority );
 }
 
 
@@ -1107,12 +1055,18 @@ static void c_task_set_priority(mrbc_vm *vm, mrbc_value v[], int argc)
 static void c_task_status(mrbc_vm *vm, mrbc_value v[], int argc)
 {
   static const char *status_name[] =
-    { "DORMANT", "READY", "WAITING", "", "SUSPENDED" };
+    { "DORMANT", "READY", "WAITING ", "", "SUSPENDED" };
+  static const char *reason_name[] =
+    { "", "SLEEP", "MUTEX", "", "JOIN" };
 
   if( v[0].tt == MRBC_TT_CLASS ) return;
 
   const mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
   mrbc_value ret = mrbc_string_new_cstr( vm, status_name[tcb->state / 2] );
+
+  if( tcb->state == TASKSTATE_WAITING ) {
+    mrbc_string_append_cstr( &ret, reason_name[tcb->reason] );
+  }
 
   SET_RETURN(ret);
 }
@@ -1219,13 +1173,8 @@ void mrbc_init(void *heap_ptr, unsigned int size)
   mrbc_init_global();
   mrbc_init_class();
 
-  mrbc_define_method(0, mrbc_class_object, "sleep",           c_sleep);
-  mrbc_define_method(0, mrbc_class_object, "sleep_ms",        c_sleep_ms);
-  mrbc_define_method(0, mrbc_class_object, "relinquish",      c_relinquish);
-  mrbc_define_method(0, mrbc_class_object, "change_priority", c_change_priority);
-  mrbc_define_method(0, mrbc_class_object, "suspend_task",    c_suspend_task);
-  mrbc_define_method(0, mrbc_class_object, "resume_task",     c_resume_task);
-  mrbc_define_method(0, mrbc_class_object, "get_tcb",	      c_get_tcb);
+  mrbc_define_method(0, mrbc_class_object, "sleep", c_sleep);
+  mrbc_define_method(0, mrbc_class_object, "sleep_ms", c_sleep_ms);
 
   mrbc_class *c_task;
   c_task = mrbc_define_class(0, "Task", 0);
@@ -1240,10 +1189,9 @@ void mrbc_init(void *heap_ptr, unsigned int size)
   mrbc_define_method(0, c_task, "terminate", c_task_terminate);
   mrbc_define_method(0, c_task, "join", c_task_join);
   mrbc_define_method(0, c_task, "pass", c_task_pass);
-  mrbc_define_method(0, c_task, "priority", c_task_priority);
   mrbc_define_method(0, c_task, "priority=", c_task_set_priority);
+  mrbc_define_method(0, c_task, "priority", c_task_priority);
   mrbc_define_method(0, c_task, "status", c_task_status);
-
 
   mrbc_class *c_mutex;
   c_mutex = mrbc_define_class(0, "Mutex", 0);
@@ -1262,7 +1210,6 @@ void mrbc_init(void *heap_ptr, unsigned int size)
 
 
 #ifdef MRBC_DEBUG
-
 //================================================================
 /*! DEBUG print queue
 
