@@ -2922,7 +2922,6 @@ int mrbc_vm_run( struct VM *vm )
 
 
     // Handle exception
-    vm->flag_preemption = 0;
     const mrbc_irep_catch_handler *handler;
 
     while( 1 ) {
@@ -2945,5 +2944,6 @@ int mrbc_vm_run( struct VM *vm )
   JUMP_TO_HANDLER:
     // jump to handler (rescue or ensure).
     vm->inst = vm->cur_irep->inst + bin_to_uint32(handler->target);
+    vm->flag_preemption = 1;
   }
 }
