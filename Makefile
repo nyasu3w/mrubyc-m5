@@ -27,7 +27,6 @@ mrubyc_bin:
 
 .PHONY: clean clean_all
 clean:
-	cd mrblib ; $(MAKE) clean
 	cd src ; $(MAKE) clean
 	cd sample_c ; $(MAKE) clean
 
@@ -35,23 +34,7 @@ clean:
 clean_all: clean
 	cd src ; $(MAKE) clean_all
 
-package: clean
-	@LANG=C ;\
-	TARGET="mruby-c_`head -n1 Version`" ;\
-	if [ -n "$$MRUBYC_VERSION" ] ;\
-		then TARGET="mruby-c_$$MRUBYC_VERSION" ;\
-	fi ;\
-	echo Making \"$$TARGET.tgz\" ;\
-	mkdir -p pkg/$$TARGET ;\
-	cp -Rp src doc sample_c sample_ruby auto_test README.md Makefile pkg/$$TARGET ;\
-	cd pkg ;\
-	tar cfz ../$$TARGET.tgz $$TARGET ;\
-	cd .. ;\
-	rm -Rf pkg ;\
-	echo Done.
-
 .PHONY: test setup_test check_tag debug_test
-
 test: test_arm test_host
 
 test_arm:
