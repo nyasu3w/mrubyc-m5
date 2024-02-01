@@ -15,7 +15,7 @@
 #define MRBC_SRC_MRUBYC_H_
 
 #include "vm_config.h"
-#include "hal_selector.h"
+#include "hal.h"
 
 #include "value.h"
 #include "vm.h"

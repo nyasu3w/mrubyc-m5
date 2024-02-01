@@ -10,9 +10,9 @@
 include ../src/hal_selector.mk
 
 TARGETS = sample_scheduler sample_no_scheduler sample_include sample_concurrent sample_myclass
-CFLAGS += -I../src -Wall -Wpointer-arith -g
+CFLAGS += -I../src -Wall -g
 LDFLAGS +=
-LIBMRUBYC = ../src/libmrubyc.a
+LIBMRUBYC = ../build/libmrubyc.a
 
 %: %.c
 	$(CC) -I../src $(CFLAGS) $(LDFLAGS) -o $@ $^
