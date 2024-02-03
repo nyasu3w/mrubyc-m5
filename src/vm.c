@@ -2919,6 +2919,7 @@ int mrbc_vm_run( struct VM *vm )
 #endif
     if( !vm->flag_preemption ) continue;	// execute next ope code.
     if( !mrbc_israised(vm) ) return vm->flag_stop; // normal return.
+    vm->flag_preemption = 0;
 
 
     // Handle exception
@@ -2944,6 +2945,5 @@ int mrbc_vm_run( struct VM *vm )
   JUMP_TO_HANDLER:
     // jump to handler (rescue or ensure).
     vm->inst = vm->cur_irep->inst + bin_to_uint32(handler->target);
-    vm->flag_preemption = 1;
   }
 }
