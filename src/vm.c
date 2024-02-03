@@ -730,21 +730,21 @@ static inline void op_getconst( mrbc_vm *vm, mrbc_value *regs EXT )
   // search in my class, then search nested outer class.
   mrbc_class *cls1 = cls;
   while( 1 ) {
-    v = mrbc_get_class_const(cls, sym_id);
+    v = mrbc_get_class_const(cls1, sym_id);
     if( v != NULL ) goto DONE;
+    if( !mrbc_is_nested_symid(cls1->sym_id) ) break;
 
-    if( !mrbc_is_nested_symid(cls->sym_id) ) break;
     mrbc_sym outer_id;
-    mrbc_separate_nested_symid( cls->sym_id, &outer_id, 0 );
-    cls = mrbc_get_const( outer_id )->cls;
+    mrbc_separate_nested_symid( cls1->sym_id, &outer_id, 0 );
+    cls1 = mrbc_get_const( outer_id )->cls;
   }
 
   // search in super class.
-  cls = cls1->super;
-  while( cls->sym_id != MRBC_SYM(Object) ) {
-    v = mrbc_get_class_const(cls, sym_id);
+  cls1 = cls->super;
+  while( cls1 ) {
+    v = mrbc_get_class_const(cls1, sym_id);
     if( v != NULL ) goto DONE;
-    cls = cls->super;
+    cls1 = cls1->super;
   }
 
  TOP_LEVEL:
