@@ -287,7 +287,7 @@ void mrbc_set_task_name(mrbc_tcb *tcb, const char *name)
 */
 mrbc_tcb * mrbc_find_task(const char *name)
 {
-  mrbc_tcb *tcb;
+  mrbc_tcb *tcb = 0;
   hal_disable_irq();
 
   for( int i = 0; i < NUM_TASK_QUEUE; i++ ) {
