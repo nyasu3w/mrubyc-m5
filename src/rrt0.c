@@ -32,7 +32,7 @@
 #include "c_string.h"
 #include "c_array.h"
 #include "rrt0.h"
-#include "hal_selector.h"
+#include "hal.h"
 
 
 /***** Macros ***************************************************************/

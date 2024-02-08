@@ -25,7 +25,7 @@
 //@endcond
 
 /***** Local headers ********************************************************/
-#include "hal_selector.h"
+#include "hal.h"
 #include "alloc.h"
 #include "value.h"
 #include "symbol.h"

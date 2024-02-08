@@ -10,11 +10,12 @@ your_project % tree -d
 |   |-- mrblib
 |   |-- sample_c
 |   |-- src
-|   |   |-- hal_esp32
-|   |   |-- hal_pic24
-|   |   |-- hal_posix
-|   |   `-- hal_psoc5lp
-|   
+|   |-- hal
+|   |   |-- esp32
+|   |   |-- pic24
+|   |   |-- posix
+|   |   `-- psoc5lp
+|
 |-- your_src
 |   |-- hal.h
 |   |-- hal.c
@@ -29,7 +30,7 @@ cd mrubyc/src
 MRBC_USE_HAL=../../your_src make
 ```
 
-and you can compile your code and link it with libmrubyc.a. 
+and you can compile your code and link it with libmrubyc.a.
 
 ```
 cd your_src
