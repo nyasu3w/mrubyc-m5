@@ -2762,6 +2762,7 @@ static inline void op_stop( mrbc_vm *vm, mrbc_value *regs EXT )
 
   vm->flag_preemption = 1;
   vm->flag_stop = 1;
+  vm->inst--;           // to not proceed beyond OP_STOP.
 }
 
 
