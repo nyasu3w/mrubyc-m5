@@ -183,7 +183,6 @@ void mrbc_tick(void)
 
     if( flag_preemption ) preempt_running_task();
   }
-
 }
 
 
@@ -1246,36 +1245,36 @@ void pq(const mrbc_tcb *p_tcb)
   if( p_tcb == NULL ) return;
 
   // TCB address
-  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
+  for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
 #if defined(UINTPTR_MAX)
-    mrbc_printf("$%08x   ", (uint32_t)(uintptr_t)p);
+    mrbc_printf("$%08x   ", (uint32_t)(uintptr_t)t);
 #else
-    mrbc_printf("$%08x   ", (uint32_t)p);
+    mrbc_printf("$%08x   ", (uint32_t)t);
 #endif
   }
   mrbc_printf("\n");
 
-  // name
-  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
-    mrbc_printf("%-11.11s ", p->name[0] ? p->name : "(noname)" );
+  // vm_id, name
+  for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
+    mrbc_printf("%d:%-9.9s ", t->vm.vm_id, t->name[0] ? t->name : "(noname)" );
   }
   mrbc_printf("\n");
 
 #if 0
   // next ptr
-  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
+  for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
 #if defined(UINTPTR_MAX)
-    mrbc_printf(" next:%04x  ", (uint16_t)(uintptr_t)p->next);
+    mrbc_printf(" next:%04x  ", (uint16_t)(uintptr_t)t->next);
 #else
-    mrbc_printf(" next:%04x  ", (uint16_t)p->next);
+    mrbc_printf(" next:%04x  ", (uint16_t)t->next);
 #endif
   }
   mrbc_printf("\n");
 #endif
 
   // task priority.
-  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
-    mrbc_printf(" pri:%3d    ", p->priority_preemption);
+  for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
+    mrbc_printf(" pri:%3d    ", t->priority_preemption);
   }
   mrbc_printf("\n");
 
@@ -1285,14 +1284,14 @@ void pq(const mrbc_tcb *p_tcb)
   //      ^ waiting  -> s:sleep m:mutex J:join
   //       ^ ready   -> R:ready
   //        ^ running-> r:running
-  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
+  for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
 #if 1
-    mrbc_tcb t = *p;
+    mrbc_tcb t1 = *t;               // Copy the value at this timing.
     mrbc_printf(" st:%c%c%c%c    ",
-        (t.state & TASKSTATE_SUSPENDED)?'S':'-',
-        (t.state & TASKSTATE_WAITING)?("!sm!j"[t.reason]):"!-"[t.reason == 0],
-        (t.state & 0x02)?'R':'-',
-        (t.state & 0x01)?'r':'-' );
+        (t1.state & TASKSTATE_SUSPENDED)?'S':'-',
+        (t1.state & TASKSTATE_WAITING)?("!sm!j"[t1.reason]):"!-"[t1.reason == 0],
+        (t1.state & 0x02)?'R':'-',
+        (t1.state & 0x01)?'r':'-' );
 #else
     mrbc_printf(" st:%04b    ", p->state);
 #endif
@@ -1300,9 +1299,8 @@ void pq(const mrbc_tcb *p_tcb)
   mrbc_printf("\n");
 
   // timeslice, vm->flag_preemption
-  for( const mrbc_tcb *p = p_tcb; p; p = p->next ) {
-    mrbc_tcb t = *p;
-    mrbc_printf(" ts,fp:%2d,%d ", t.timeslice, t.vm.flag_preemption);
+  for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
+    mrbc_printf(" ts:%2d fp:%d ", t->timeslice, t->vm.flag_preemption);
   }
   mrbc_printf("\n");
 }
