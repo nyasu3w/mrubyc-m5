@@ -6,14 +6,14 @@ sample_myclass
 sample_no_scheduler
 mrbc
 
-build
-
+# build directory
+build/
 
 # Object files
 *.o
 *.a
 
-# Mruby bytecode
+# mruby bytecode
 *.mrb
 
 # backup file
@@ -25,4 +25,4 @@ build
 *.dSYM
 
 # doxygen output
-html
+html/
