@@ -160,6 +160,8 @@ extern struct RClass mrbc_class_ZeroDivisionError;
 /***** Function prototypes **************************************************/
 mrbc_class *mrbc_define_class(struct VM *vm, const char *name, mrbc_class *super);
 mrbc_class *mrbc_define_class_under(struct VM *vm, const mrbc_class *outer, const char *name, mrbc_class *super);
+mrbc_class *mrbc_define_module(struct VM *vm, const char *name);
+mrbc_class *mrbc_define_module_under(struct VM *vm, const mrbc_class *outer, const char *name);
 void mrbc_define_method(struct VM *vm, mrbc_class *cls, const char *name, mrbc_func_t cfunc);
 mrbc_value mrbc_instance_new(struct VM *vm, mrbc_class *cls, int size);
 void mrbc_instance_delete(mrbc_value *v);
@@ -194,7 +196,8 @@ static inline mrbc_class *find_class_by_object(const mrbc_value *obj)
   mrbc_class *cls = mrbc_class_tbl[ mrbc_type(*obj) ];
   if( !cls ) {
     switch( mrbc_type(*obj) ) {
-    case MRBC_TT_CLASS:		cls = obj->cls;			break;
+    case MRBC_TT_CLASS:		// fall through.
+    case MRBC_TT_MODULE:	cls = obj->cls;			break;
     case MRBC_TT_OBJECT:	cls = obj->instance->cls;	break;
     case MRBC_TT_EXCEPTION:	cls = obj->exception->cls;	break;
     default:

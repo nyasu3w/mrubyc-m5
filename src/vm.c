@@ -359,24 +359,6 @@ mrbc_vm * mrbc_vm_open( struct VM *vm )
 
 
 //================================================================
-/*! Close the VM.
-
-  @param  vm  Pointer to VM
-*/
-void mrbc_vm_close( struct VM *vm )
-{
-  // free vm id.
-  int idx = (vm->vm_id-1) >> 4;
-  int bit = 1 << ((vm->vm_id-1) & 0x0f);
-  free_vm_bitmap[idx] &= ~bit;
-
-  // free irep and vm
-  if( vm->top_irep ) mrbc_irep_free( vm->top_irep );
-  if( vm->flag_need_memfree ) mrbc_raw_free(vm);
-}
-
-
-//================================================================
 /*! VM initializer.
 
   @param  vm  Pointer to VM
@@ -435,6 +417,24 @@ void mrbc_vm_end( struct VM *vm )
   mrbc_global_clear_vm_id();
   mrbc_free_all(vm);
 #endif
+}
+
+
+//================================================================
+/*! Close the VM.
+
+  @param  vm  Pointer to VM
+*/
+void mrbc_vm_close( struct VM *vm )
+{
+  // free vm id.
+  int idx = (vm->vm_id-1) >> 4;
+  int bit = 1 << ((vm->vm_id-1) & 0x0f);
+  free_vm_bitmap[idx] &= ~bit;
+
+  // free irep and vm
+  if( vm->top_irep ) mrbc_irep_free( vm->top_irep );
+  if( vm->flag_need_memfree ) mrbc_raw_free(vm);
 }
 
 
@@ -2598,6 +2598,40 @@ static inline void op_class( mrbc_vm *vm, mrbc_value *regs EXT )
 
 
 //================================================================
+/*! OP_MODULE
+
+  R[a] = newmodule(R[a],Syms[b])
+*/
+static inline void op_module( mrbc_vm *vm, mrbc_value *regs EXT )
+{
+  FETCH_BB();
+
+  mrbc_class *outer = 0;
+
+  if( regs[a].tt == MRBC_TT_CLASS || regs[a].tt == MRBC_TT_MODULE ) {
+    outer = regs[a].cls;
+  } else if( vm->cur_regs[0].tt == MRBC_TT_CLASS || vm->cur_regs[0].tt == MRBC_TT_MODULE ) {
+    outer = vm->cur_regs[0].cls;
+  }
+
+  const char *module_name = mrbc_irep_symbol_cstr(vm->cur_irep, b);
+  mrbc_class *cls;
+
+  // define a new module (or get an already defined class)
+  if( outer ) {
+    cls = mrbc_define_module_under(vm, outer, module_name);
+  } else {
+    cls = mrbc_define_module(vm, module_name);
+  }
+
+  // (note)
+  //  regs[a] was set to Class, Module or NIL by compiler. So, no need to release.
+  regs[a].tt = MRBC_TT_MODULE;
+  regs[a].cls = cls;
+}
+
+
+//================================================================
 /*! OP_EXEC
 
   R[a] = blockexec(R[a],Irep[b])
@@ -2605,7 +2639,7 @@ static inline void op_class( mrbc_vm *vm, mrbc_value *regs EXT )
 static inline void op_exec( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_BB();
-  assert( regs[a].tt == MRBC_TT_CLASS );
+  assert( regs[a].tt == MRBC_TT_CLASS || regs[a].tt == MRBC_TT_MODULE );
 
   // prepare callinfo
   mrbc_push_callinfo(vm, 0, a, 0);
@@ -2628,7 +2662,7 @@ static inline void op_def( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_BB();
 
-  assert( regs[a].tt == MRBC_TT_CLASS );
+  assert( regs[a].tt == MRBC_TT_CLASS || regs[a].tt == MRBC_TT_MODULE );
   assert( regs[a+1].tt == MRBC_TT_PROC );
 
   mrbc_class *cls = regs[a].cls;
@@ -2892,7 +2926,7 @@ int mrbc_vm_run( struct VM *vm )
     case OP_RANGE_EXC:  op_range_exc  (vm, regs EXT); break;
     case OP_OCLASS:     op_oclass     (vm, regs EXT); break;
     case OP_CLASS:      op_class      (vm, regs EXT); break;
-    case OP_MODULE:     op_unsupported(vm, regs EXT); break; // not implemented.
+    case OP_MODULE:     op_module     (vm, regs EXT); break;
     case OP_EXEC:       op_exec       (vm, regs EXT); break;
     case OP_DEF:        op_def        (vm, regs EXT); break;
     case OP_ALIAS:      op_alias      (vm, regs EXT); break;
