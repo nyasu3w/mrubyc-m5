@@ -186,7 +186,14 @@ void mrbc_debug_dump_const( void )
       mrbc_printf(" = Class(symid=$%x name=", cls->sym_id);
       mrbc_print_symbol(cls->sym_id);
       mrbc_printf(")\n");
+      continue;
+    }
 
+    if( kv->value.tt == MRBC_TT_MODULE ) {
+      const mrbc_class *cls = kv->value.cls;
+      mrbc_printf(" = Module(symid=$%x name=", cls->sym_id);
+      mrbc_print_symbol(cls->sym_id);
+      mrbc_printf(")\n");
       continue;
     }
 

@@ -158,7 +158,7 @@ struct RObject {
     mrbc_float_t d;		// MRBC_TT_FLOAT
 #endif
     struct RBasic *obj;		// use inc/dec ref only.
-    struct RClass *cls;		// MRBC_TT_CLASS
+    struct RClass *cls;		// MRBC_TT_CLASS, MRBC_TT_MODULE
     struct RInstance *instance;	// MRBC_TT_OBJECT
     struct RProc *proc;		// MRBC_TT_PROC
     struct RArray *array;	// MRBC_TT_ARRAY
