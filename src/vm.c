@@ -730,21 +730,21 @@ static inline void op_getconst( mrbc_vm *vm, mrbc_value *regs EXT )
   // search in my class, then search nested outer class.
   mrbc_class *cls1 = cls;
   while( 1 ) {
-    v = mrbc_get_class_const(cls, sym_id);
+    v = mrbc_get_class_const(cls1, sym_id);
     if( v != NULL ) goto DONE;
+    if( !mrbc_is_nested_symid(cls1->sym_id) ) break;
 
-    if( !mrbc_is_nested_symid(cls->sym_id) ) break;
     mrbc_sym outer_id;
-    mrbc_separate_nested_symid( cls->sym_id, &outer_id, 0 );
-    cls = mrbc_get_const( outer_id )->cls;
+    mrbc_separate_nested_symid( cls1->sym_id, &outer_id, 0 );
+    cls1 = mrbc_get_const( outer_id )->cls;
   }
 
   // search in super class.
-  cls = cls1->super;
-  while( cls->sym_id != MRBC_SYM(Object) ) {
-    v = mrbc_get_class_const(cls, sym_id);
+  cls1 = cls->super;
+  while( cls1 ) {
+    v = mrbc_get_class_const(cls1, sym_id);
     if( v != NULL ) goto DONE;
-    cls = cls->super;
+    cls1 = cls1->super;
   }
 
  TOP_LEVEL:
@@ -2762,6 +2762,7 @@ static inline void op_stop( mrbc_vm *vm, mrbc_value *regs EXT )
 
   vm->flag_preemption = 1;
   vm->flag_stop = 1;
+  vm->inst--;           // to not proceed beyond OP_STOP.
 }
 
 
@@ -2919,6 +2920,7 @@ int mrbc_vm_run( struct VM *vm )
 #endif
     if( !vm->flag_preemption ) continue;	// execute next ope code.
     if( !mrbc_israised(vm) ) return vm->flag_stop; // normal return.
+    vm->flag_preemption = 0;
 
 
     // Handle exception
@@ -2944,6 +2946,5 @@ int mrbc_vm_run( struct VM *vm )
   JUMP_TO_HANDLER:
     // jump to handler (rescue or ensure).
     vm->inst = vm->cur_irep->inst + bin_to_uint32(handler->target);
-    vm->flag_preemption = 1;
   }
 }

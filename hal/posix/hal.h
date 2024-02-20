@@ -86,7 +86,7 @@ inline static int hal_write(int fd, const void *buf, int nbytes)
 
 //================================================================
 /*!@brief
-  Flush write baffer
+  Flush write buffer
 
   @param  fd    dummy, but 1.
 */
