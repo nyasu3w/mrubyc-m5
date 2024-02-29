@@ -353,8 +353,8 @@ int mrbc_run(void)
 
 #if !defined(MRBC_NO_TIMER)
     // Using hardware timer.
-    tcb->vm.flag_preemption = 0;
     int ret_vm_run = mrbc_vm_run(&tcb->vm);
+    tcb->vm.flag_preemption = 0;
 #else
     // Emulate time slice preemption.
     int ret_vm_run;
@@ -436,6 +436,42 @@ void mrbc_sleep_ms(mrbc_tcb *tcb, uint32_t ms)
   hal_enable_irq();
 
   tcb->vm.flag_preemption = 1;
+}
+
+
+//================================================================
+/*! wake up the task.
+
+  @param  tcb		target task.
+*/
+void mrbc_wakeup_task(mrbc_tcb *tcb)
+{
+  switch( tcb->state ) {
+  case TASKSTATE_SUSPENDED:
+    mrbc_resume_task( tcb );    // for sleep without arguments.
+    break;
+
+  case TASKSTATE_WAITING:
+    if( tcb->reason != TASKREASON_SLEEP ) break;
+
+    hal_disable_irq();
+    q_delete_task(tcb);
+    tcb->state = TASKSTATE_READY;
+    tcb->reason = 0;
+    q_insert_task(tcb);
+
+    for( mrbc_tcb *t = q_waiting_; t != NULL; t = t->next ) {
+      if( t->reason != TASKREASON_SLEEP ) continue;
+      if( (int32_t)(t->wakeup_tick - wakeup_tick_) < 0 ) {
+        wakeup_tick_ = t->wakeup_tick;
+      }
+    }
+    hal_enable_irq();
+    break;
+
+  default:
+    break;
+  }
 }
 
 
