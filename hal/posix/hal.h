@@ -42,6 +42,8 @@
 #define MRBC_TIMESLICE_TICK_COUNT 3
 #endif
 
+#define MRBC_OUT_OF_MEMORY() mrbc_out_of_memory_posix()
+
 
 /***** Typedefs *************************************************************/
 /***** Global variables *****************************************************/
@@ -66,6 +68,7 @@ void hal_disable_irq(void);
 #endif
 
 void hal_abort(const char *s);
+void mrbc_out_of_memory_posix( void );
 
 
 /***** Inline functions *****************************************************/
