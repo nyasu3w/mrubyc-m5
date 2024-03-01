@@ -775,7 +775,7 @@ static inline void op_setconst( mrbc_vm *vm, mrbc_value *regs EXT )
   mrbc_sym sym_id = mrbc_irep_symbol_id(vm->cur_irep, b);
 
   mrbc_incref(&regs[a]);
-  if( mrbc_type(regs[0]) == MRBC_TT_CLASS ) {
+  if( regs[0].tt == MRBC_TT_CLASS || regs[0].tt == MRBC_TT_MODULE ) {
     mrbc_set_class_const(regs[0].cls, sym_id, &regs[a]);
   } else {
     mrbc_set_const(sym_id, &regs[a]);
@@ -2560,7 +2560,19 @@ static inline void op_class( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_BB();
 
-  mrbc_class *super = (regs[a+1].tt == MRBC_TT_CLASS) ? regs[a+1].cls : 0;
+  mrbc_class *super;
+
+  switch( regs[a+1].tt ) {
+  case MRBC_TT_CLASS:
+    super = regs[a+1].cls;
+    break;
+  case MRBC_TT_NIL:
+    super = 0;
+    break;
+  default:
+    mrbc_raise(vm, MRBC_CLASS(TypeError), "superclass must be a Class");
+    return;
+  }
 
   // check unsupported pattern.
   if( super ) {
@@ -2574,9 +2586,9 @@ static inline void op_class( mrbc_vm *vm, mrbc_value *regs EXT )
 
   mrbc_class *outer = 0;
 
-  if( regs[a].tt == MRBC_TT_CLASS ) {
+  if( regs[a].tt == MRBC_TT_CLASS || regs[a].tt == MRBC_TT_MODULE ) {
     outer = regs[a].cls;
-  } else if( vm->cur_regs[0].tt == MRBC_TT_CLASS ) {
+  } else if( vm->cur_regs[0].tt == MRBC_TT_CLASS || vm->cur_regs[0].tt == MRBC_TT_MODULE ) {
     outer = vm->cur_regs[0].cls;
   }
 
