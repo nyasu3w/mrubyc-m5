@@ -184,9 +184,13 @@ def write_file( all_symbols )
   file.puts "#if defined(MRBC_DEFINE_SYMBOL_TABLE)"
   file.puts "static const char *builtin_symbols[] = {"
   all_symbols.each_with_index {|s,i|
-    s1 = %!  "#{s}",!
-    s1 << "\t" * ([3 - s1.size / 8, 1].max)
-    s1 << "// MRBC_SYMID_#{rename_for_symbol(s)} = #{i}(0x#{i.to_s(16)})"
+    if i == 0
+      s1 = "  0,\t\t\t// (ERROR or RESERVED)"
+    else
+      s1 = %!  "#{s}",!
+      s1 << "\t" * ([3 - s1.size / 8, 1].max)
+      s1 << "// MRBC_SYMID_#{rename_for_symbol(s)} = #{i}(0x#{i.to_s(16)})"
+    end
     file.puts s1
   }
   file.puts "};"
@@ -195,6 +199,7 @@ def write_file( all_symbols )
 
   file.puts "enum {"
   all_symbols.each_with_index {|s,i|
+    next if i == 0
     file.puts "  MRBC_SYMID_#{rename_for_symbol(s)} = #{i},"
   }
   file.puts "};"

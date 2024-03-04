@@ -4,7 +4,7 @@
 
 #if defined(MRBC_DEFINE_SYMBOL_TABLE)
 static const char *builtin_symbols[] = {
-  "",			// MRBC_SYMID_ = 0(0x0)
+  0,			// (ERROR or RESERVED)
   "!",			// MRBC_SYMID_NOT = 1(0x1)
   "!=",			// MRBC_SYMID_NOT_EQ = 2(0x2)
   "%",			// MRBC_SYMID_MOD = 3(0x3)
@@ -219,7 +219,6 @@ static const char *builtin_symbols[] = {
 #endif
 
 enum {
-  MRBC_SYMID_ = 0,
   MRBC_SYMID_NOT = 1,
   MRBC_SYMID_NOT_EQ = 2,
   MRBC_SYMID_MOD = 3,
