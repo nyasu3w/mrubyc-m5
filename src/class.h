@@ -43,8 +43,13 @@ extern "C" {
 typedef struct RClass {
   mrbc_sym sym_id;		//!< class name's symbol ID
   int16_t num_builtin_method;	//!< num of built-in method.
+  unsigned int flag_module : 1; //!< is module?
+  unsigned int flag_alias : 1;  //!< is alias class?
   struct RClass *super;		//!< pointer to super class.
-  struct RMethod *method_link;	//!< pointer to method link.
+  union {
+    struct RMethod *method_link;//!< pointer to method link.
+    struct RClass *aliased;     //!< aliased class or module.
+  };
 #if defined(MRBC_DEBUG)
   const char *name;
 #endif

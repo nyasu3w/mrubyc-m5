@@ -99,13 +99,17 @@ mrbc_class * mrbc_define_class(struct VM *vm, const char *name, mrbc_class *supe
   mrbc_class *cls = mrbc_raw_alloc_no_free( sizeof(mrbc_class) );
   if( !cls ) return cls;	// ENOMEM
 
-  cls->sym_id = sym_id;
-  cls->num_builtin_method = 0;
-  cls->super = super ? super : mrbc_class_object;
-  cls->method_link = 0;
+  *cls = (mrbc_class){
+    .sym_id = sym_id,
+    .num_builtin_method = 0,
+    .flag_module = 0,
+    .flag_alias = 0,
+    .super = super ? super : mrbc_class_object,
+    .method_link = 0,
 #if defined(MRBC_DEBUG)
-  cls->name = name;
+    .name = name,
 #endif
+  };
 
   // register to global constant
   mrbc_set_const( sym_id, &(mrbc_value){.tt = MRBC_TT_CLASS, .cls = cls});
@@ -148,13 +152,17 @@ mrbc_class * mrbc_define_class_under(struct VM *vm, const mrbc_class *outer, con
   char buf[sizeof(mrbc_sym)*4+1];
   make_nested_symbol_s( buf, outer->sym_id, sym_id );
 
-  cls->sym_id = mrbc_symbol( mrbc_symbol_new( vm, buf ));
-  cls->num_builtin_method = 0;
-  cls->super = super ? super : mrbc_class_object;
-  cls->method_link = 0;
+  *cls = (mrbc_class){
+    .sym_id = mrbc_symbol( mrbc_symbol_new( vm, buf )),
+    .num_builtin_method = 0,
+    .flag_module = 0,
+    .flag_alias = 0,
+    .super = super ? super : mrbc_class_object,
+    .method_link = 0,
 #if defined(MRBC_DEBUG)
-  cls->name = name;
+    .name = name,
 #endif
+  };
 
   // register to global constant
   mrbc_set_class_const( outer, sym_id,
@@ -191,13 +199,17 @@ mrbc_class * mrbc_define_module(struct VM *vm, const char *name)
   mrbc_class *cls = mrbc_raw_alloc_no_free( sizeof(mrbc_class) );
   if( !cls ) return cls;	// ENOMEM
 
-  cls->sym_id = sym_id;
-  cls->num_builtin_method = 0;
-  cls->super = mrbc_class_object;
-  cls->method_link = 0;
+  *cls = (mrbc_class){
+    .sym_id = sym_id,
+    .num_builtin_method = 0,
+    .flag_module = 1,
+    .flag_alias = 0,
+    .super = 0,
+    .method_link = 0,
 #if defined(MRBC_DEBUG)
-  cls->name = name;
+    .name = name,
 #endif
+  };
 
   // register to global constant
   mrbc_set_const( sym_id, &(mrbc_value){.tt = MRBC_TT_MODULE, .cls = cls});
@@ -239,13 +251,17 @@ mrbc_class * mrbc_define_module_under(struct VM *vm, const mrbc_class *outer, co
   char buf[sizeof(mrbc_sym)*4+1];
   make_nested_symbol_s( buf, outer->sym_id, sym_id );
 
-  cls->sym_id = mrbc_symbol( mrbc_symbol_new( vm, buf ));
-  cls->num_builtin_method = 0;
-  cls->super = mrbc_class_object;
-  cls->method_link = 0;
+  *cls = (mrbc_class){
+    .sym_id = mrbc_symbol( mrbc_symbol_new( vm, buf )),
+    .num_builtin_method = 0,
+    .flag_module = 1,
+    .flag_alias = 0,
+    .super = 0,
+    .method_link = 0,
 #if defined(MRBC_DEBUG)
-  cls->name = name;
+    .name = name,
 #endif
+  };
 
   // register to global constant
   mrbc_set_class_const( outer, sym_id,
@@ -442,13 +458,17 @@ int mrbc_obj_is_kind_of( const mrbc_value *obj, const mrbc_class *cls )
 /*! find method
 
   @param  r_method	pointer to mrbc_method to return values.
-  @param  cls		search class.
-  @param  sym_id	symbol id.
+  @param  cls		search class or module.
+  @param  sym_id	search symbol id.
   @return		pointer to method or NULL.
 */
 mrbc_method * mrbc_find_method( mrbc_method *r_method, mrbc_class *cls, mrbc_sym sym_id )
 {
-  do {
+  mrbc_class *mod_nest[3];
+  int mod_nest_idx = 0;
+  int flag_module = cls->flag_module;
+
+  while( 1 ) {
     mrbc_method *method;
     for( method = cls->method_link; method != 0; method = method->next ) {
       if( method->sym_id == sym_id ) {
@@ -484,7 +504,34 @@ mrbc_method * mrbc_find_method( mrbc_method *r_method, mrbc_class *cls, mrbc_sym
 
   NEXT:
     cls = cls->super;
-  } while( cls != 0 );
+    if( cls == 0 ) {
+      // does not have super class.
+      if( mod_nest_idx == 0 ) {
+        if( flag_module ) {
+          cls = mrbc_class_object;
+          flag_module = 0;
+          continue;
+        }
+        break;
+      }
+
+      // rewind the module search nest.
+      cls = mod_nest[--mod_nest_idx];
+    }
+
+    // is the next alias?
+    if( cls->flag_alias ) {
+      // save the super for include nesting of modules.
+      if( cls->super ) {
+        if( mod_nest_idx >= (sizeof(mod_nest) / sizeof(mrbc_class *)) ) {
+          mrbc_printf("Warning: Module nest exceeds upper limit.\n");
+          break;
+        }
+        mod_nest[mod_nest_idx++] = cls->super;
+      }
+      cls = cls->aliased;
+    }
+  }  // loop next.
 
   return 0;
 }
@@ -626,6 +673,7 @@ void mrbc_init_class(void)
 {
   extern const uint8_t mrblib_bytecode[];
   void mrbc_init_class_math(void);
+
   mrbc_value cls = {.tt = MRBC_TT_CLASS};
 
   cls.cls = MRBC_CLASS(Object);

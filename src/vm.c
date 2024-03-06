@@ -798,7 +798,7 @@ static inline void op_getmcnst( mrbc_vm *vm, mrbc_value *regs EXT )
 
   while( !(v = mrbc_get_class_const(cls, sym_id)) ) {
     cls = cls->super;
-    if( cls->sym_id == MRBC_SYM(Object) ) {
+    if( !cls ) {
       mrbc_raisef( vm, MRBC_CLASS(NameError), "uninitialized constant %s::%s",
 	mrbc_symid_to_str( regs[a].cls->sym_id ), mrbc_symid_to_str( sym_id ));
       return;
