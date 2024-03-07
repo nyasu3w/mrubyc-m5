@@ -658,7 +658,7 @@ int mrbc_run_mrblib(const void *bytecode)
 void mrbc_init_class(void)
 {
   extern const uint8_t mrblib_bytecode[];
-  void mrbc_init_class_math(void);
+  void mrbc_init_module_math(void);
 
   mrbc_value cls = {.tt = MRBC_TT_CLASS};
 
@@ -703,9 +703,9 @@ void mrbc_init_class(void)
   mrbc_set_const( MRBC_SYM(Hash), &cls );
 
 #if MRBC_USE_MATH
-  cls.cls = MRBC_CLASS(Math);
-  mrbc_set_const( MRBC_SYM(Math), &cls );
-  mrbc_init_class_math();
+  mrbc_value math = {.tt = MRBC_TT_MODULE, .cls = MRBC_CLASS(Math) };
+  mrbc_set_const( MRBC_SYM(Math), &math );
+  mrbc_init_module_math();
 #endif
 
   cls.cls = MRBC_CLASS(Exception);

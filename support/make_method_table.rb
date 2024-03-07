@@ -43,12 +43,21 @@ def write_file( param )
   end
 
   param[:classes].each {|cls|
-    file.puts "\n/*===== #{cls[:class]} class =====*/"
+    if cls[:class]
+      type = :class
+    elsif cls[:module]
+      type = :module
+    else
+      raise
+    end
+    cls_name = cls[type]
+
+    file.puts "\n/*===== #{cls_name} #{type} =====*/"
     if cls[:methods]
       cls[:methods].sort_by! {|m| m[:name] }    # sort by method name
 
       # write method symbol table.
-      file.puts "static const mrbc_sym method_symbols_#{cls[:class]}[] = {"
+      file.puts "static const mrbc_sym method_symbols_#{cls_name}[] = {"
       cls[:methods].each {|m|
         file.puts m[:if_exp].join("\n")  if m[:if_exp]
         file.puts "  MRBC_SYM(#{rename_for_symbol(m[:name])}),"
@@ -57,7 +66,7 @@ def write_file( param )
       file.puts "};\n\n"
 
       # write method function table.
-      file.puts "static const mrbc_func_t method_functions_#{cls[:class]}[] = {"
+      file.puts "static const mrbc_func_t method_functions_#{cls_name}[] = {"
       cls[:methods].each {|m|
         file.puts m[:if_exp].join("\n")  if m[:if_exp]
         file.puts "  #{m[:func]},"
@@ -68,26 +77,33 @@ def write_file( param )
 
     # write class struct.
     struct_name = cls[:methods] ? "RBuiltinClass" : "RClass"
-    file.puts "struct #{struct_name} mrbc_class_#{cls[:class]} = {"
-    file.puts "  .sym_id = MRBC_SYM(#{cls[:class]}),"
-    n = cls[:methods] ? "sizeof(method_symbols_#{cls[:class]}) / sizeof(mrbc_sym)" : 0
+    file.puts "struct #{struct_name} mrbc_class_#{cls_name} = {"
+    file.puts "  .sym_id = MRBC_SYM(#{cls_name}),"
+    if type == :module
+      file.puts "  .flag_module = 1,"
+    end
+    n = cls[:methods] ? "sizeof(method_symbols_#{cls_name}) / sizeof(mrbc_sym)" : 0
     file.puts "  .num_builtin_method = #{n},"
-    sp = case cls[:super]
-         when nil
-           "MRBC_CLASS(Object)"
-         when /^[A-Z][A-Za-z0-9]+$/
-           "MRBC_CLASS(#{cls[:super]})"
-         else
-           cls[:super]
-         end
+    if type == :class
+      sp = case cls[:super]
+           when nil
+             "MRBC_CLASS(Object)"
+           when /^[A-Z][A-Za-z0-9]+$/
+             "MRBC_CLASS(#{cls[:super]})"
+           else
+             cls[:super]
+           end
+    else
+      sp = "0"
+    end
     file.puts "  .super = #{sp},"
     file.puts "  .method_link = 0,"
     file.puts "#if defined(MRBC_DEBUG)"
-    file.puts "  .name = \"#{cls[:class]}\","
+    file.puts "  .name = \"#{cls_name}\","
     file.puts "#endif"
     if cls[:methods]
-      file.puts "  .method_symbols = method_symbols_#{cls[:class]},"
-      file.puts "  .method_functions = method_functions_#{cls[:class]},"
+      file.puts "  .method_symbols = method_symbols_#{cls_name},"
+      file.puts "  .method_functions = method_functions_#{cls_name},"
     end
     file.puts "};"
   }

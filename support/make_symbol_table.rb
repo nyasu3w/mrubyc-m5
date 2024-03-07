@@ -101,8 +101,14 @@ def fetch_builtin_symbol_c( filename )
       exit 1 if !param
 
       param[:classes].each {|cls|
-        vp("Found class #{cls[:class]}, #{cls[:methods].to_a.size } methods.")
-        ret << cls[:class]
+        if cls[:class]
+          vp("Found class #{cls[:class]}, #{cls[:methods].to_a.size } methods.")
+        elsif cls[:module]
+          vp("Found module #{cls[:module]}, #{cls[:methods].to_a.size } methods.")
+        else
+          raise "Not fund CLASS or MODULE declare"
+        end
+        ret << (cls[:class] || cls[:module])
         cls[:methods].to_a.each {|m| ret << m[:name] }
       }
     end
@@ -142,12 +148,12 @@ def _parse_rb_sexp( s_exp, res )
         res << s_exp2[idx+1]
       end
 
-    when :class
+    when :class, :module
       s_exp1.each {|s_exp2|
         next if !s_exp2.is_a?(Array)
 
         if s_exp2[0] == :const_ref && s_exp2[1][0] == :@const
-          vp("Found class #{s_exp2[1][1]}")
+          vp("Found #{s_exp1[0]} #{s_exp2[1][1]}")
           res << s_exp2[1][1]
         elsif s_exp2[0] == :bodystmt
           _parse_rb_sexp( s_exp2[1], res )
