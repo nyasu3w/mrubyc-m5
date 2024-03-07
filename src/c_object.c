@@ -558,7 +558,6 @@ static void c_object_include(struct VM *vm, mrbc_value v[], int argc)
 
     *alias = (mrbc_class){
       .sym_id = module->sym_id,
-      .num_builtin_method = 0,
       .flag_module = 1,
       .flag_alias = 1,
       .super = self->super,

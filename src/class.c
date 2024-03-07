@@ -101,11 +101,7 @@ mrbc_class * mrbc_define_class(struct VM *vm, const char *name, mrbc_class *supe
 
   *cls = (mrbc_class){
     .sym_id = sym_id,
-    .num_builtin_method = 0,
-    .flag_module = 0,
-    .flag_alias = 0,
     .super = super ? super : mrbc_class_object,
-    .method_link = 0,
 #if defined(MRBC_DEBUG)
     .name = name,
 #endif
@@ -154,11 +150,7 @@ mrbc_class * mrbc_define_class_under(struct VM *vm, const mrbc_class *outer, con
 
   *cls = (mrbc_class){
     .sym_id = mrbc_symbol( mrbc_symbol_new( vm, buf )),
-    .num_builtin_method = 0,
-    .flag_module = 0,
-    .flag_alias = 0,
     .super = super ? super : mrbc_class_object,
-    .method_link = 0,
 #if defined(MRBC_DEBUG)
     .name = name,
 #endif
@@ -201,11 +193,8 @@ mrbc_class * mrbc_define_module(struct VM *vm, const char *name)
 
   *cls = (mrbc_class){
     .sym_id = sym_id,
-    .num_builtin_method = 0,
     .flag_module = 1,
-    .flag_alias = 0,
     .super = 0,
-    .method_link = 0,
 #if defined(MRBC_DEBUG)
     .name = name,
 #endif
@@ -253,11 +242,8 @@ mrbc_class * mrbc_define_module_under(struct VM *vm, const mrbc_class *outer, co
 
   *cls = (mrbc_class){
     .sym_id = mrbc_symbol( mrbc_symbol_new( vm, buf )),
-    .num_builtin_method = 0,
     .flag_module = 1,
-    .flag_alias = 0,
     .super = 0,
-    .method_link = 0,
 #if defined(MRBC_DEBUG)
     .name = name,
 #endif
@@ -755,5 +741,5 @@ void mrbc_init_class(void)
   cls.cls = MRBC_CLASS(ZeroDivisionError);
   mrbc_set_const( MRBC_SYM(ZeroDivisionError), &cls );
 
-  // mrbc_run_mrblib(mrblib_bytecode);
+  mrbc_run_mrblib(mrblib_bytecode);
 }
