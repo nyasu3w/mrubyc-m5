@@ -105,10 +105,6 @@ mrbc_value * mrbc_get_const( mrbc_sym sym_id )
 */
 mrbc_value * mrbc_get_class_const( const struct RClass *cls, mrbc_sym sym_id )
 {
-  if( cls->sym_id == MRBC_SYM(Object) ) {
-    return mrbc_kv_get( &handle_const, sym_id );  // ::CONST case.
-  }
-
   char buf[sizeof(mrbc_sym)*4+1];
 
   make_nested_symbol_s( buf, cls->sym_id, sym_id );

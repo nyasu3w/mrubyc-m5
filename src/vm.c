@@ -717,49 +717,41 @@ static inline void op_getconst( mrbc_vm *vm, mrbc_value *regs EXT )
   FETCH_BB();
 
   mrbc_sym sym_id = mrbc_irep_symbol_id(vm->cur_irep, b);
-  mrbc_class *cls = NULL;
-  mrbc_value *v;
-
-  if( vm->target_class->sym_id != MRBC_SYM(Object) ) {
-    cls = vm->target_class;		// References in class definitions.
-  } else if( vm->callinfo_tail ) {
-    cls = vm->callinfo_tail->own_class;	// References in methods.
-  }
-  if( !cls ) goto TOP_LEVEL;
+  mrbc_class *self_cls = find_class_by_object( mrbc_get_self(vm, regs) );
+  mrbc_value *ret;
 
   // search in my class, then search nested outer class.
-  mrbc_class *cls1 = cls;
+  mrbc_class *cls = self_cls;
   while( 1 ) {
-    v = mrbc_get_class_const(cls1, sym_id);
-    if( v != NULL ) goto DONE;
-    if( !mrbc_is_nested_symid(cls1->sym_id) ) break;
+    ret = mrbc_get_class_const(cls, sym_id);
+    if( ret ) goto DONE;
+    if( !mrbc_is_nested_symid(cls->sym_id) ) break;
 
     mrbc_sym outer_id;
-    mrbc_separate_nested_symid( cls1->sym_id, &outer_id, 0 );
-    cls1 = mrbc_get_const( outer_id )->cls;
+    mrbc_separate_nested_symid( cls->sym_id, &outer_id, 0 );
+    cls = mrbc_get_const( outer_id )->cls;
   }
 
   // search in super class.
-  cls1 = cls->super;
-  while( cls1 ) {
-    v = mrbc_get_class_const(cls1, sym_id);
-    if( v != NULL ) goto DONE;
-    cls1 = cls1->super;
+  cls = self_cls->super;
+  while( cls ) {
+    ret = mrbc_get_class_const(cls, sym_id);
+    if( ret ) goto DONE;
+    cls = cls->super;
   }
 
- TOP_LEVEL:
   // is top level constant definition?
-  v = mrbc_get_const(sym_id);
-  if( v == NULL ) {
+  ret = mrbc_get_const(sym_id);
+  if( ret == NULL ) {
     mrbc_raisef( vm, MRBC_CLASS(NameError),
 		 "uninitialized constant %s", mrbc_symid_to_str(sym_id));
     return;
   }
 
  DONE:
-  mrbc_incref(v);
+  mrbc_incref(ret);
   mrbc_decref(&regs[a]);
-  regs[a] = *v;
+  regs[a] = *ret;
 }
 
 
@@ -794,9 +786,20 @@ static inline void op_getmcnst( mrbc_vm *vm, mrbc_value *regs EXT )
 
   mrbc_sym sym_id = mrbc_irep_symbol_id(vm->cur_irep, b);
   mrbc_class *cls = regs[a].cls;
-  mrbc_value *v;
+  mrbc_value *ret;
 
-  while( !(v = mrbc_get_class_const(cls, sym_id)) ) {
+  // ::CONST case
+  if( cls->sym_id == MRBC_SYM(Object) ) {
+    ret = mrbc_get_const(sym_id);
+    if( ret == NULL ) {
+      mrbc_raisef( vm, MRBC_CLASS(NameError), "uninitialized constant %s::%s",
+                   "", mrbc_symid_to_str( sym_id ));
+      return;
+    }
+    goto DONE;
+  }
+
+  while( !(ret = mrbc_get_class_const(cls, sym_id)) ) {
     cls = cls->super;
     if( !cls ) {
       mrbc_raisef( vm, MRBC_CLASS(NameError), "uninitialized constant %s::%s",
@@ -805,9 +808,10 @@ static inline void op_getmcnst( mrbc_vm *vm, mrbc_value *regs EXT )
     }
   }
 
-  mrbc_incref(v);
+ DONE:
+  mrbc_incref(ret);
   mrbc_decref(&regs[a]);
-  regs[a] = *v;
+  regs[a] = *ret;
 }
 
 
