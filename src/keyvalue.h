@@ -100,6 +100,15 @@ static inline int mrbc_kv_size(const mrbc_kv_handle *kvh)
 
 //================================================================
 /*! iterator constructor
+
+<b>Code example</b>
+@code
+  mrbc_kv_iterator ite = mrbc_kv_iterator_new( kv_handle );
+  while( mrbc_kv_i_has_next( &ite ) ) {
+    const mrbc_kv *kv = mrbc_kv_i_next( &ite );
+    // using kv->sym_id and kv->value.
+  }
+@endcode
 */
 static inline mrbc_kv_iterator mrbc_kv_iterator_new( const mrbc_kv_handle *h )
 {
