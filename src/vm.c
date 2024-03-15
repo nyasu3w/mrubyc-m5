@@ -394,6 +394,7 @@ void mrbc_vm_begin( struct VM *vm )
   vm->flag_stop = 0;
 
   // set self to reg[0], others nil
+  mrbc_decref( &vm->regs[0] );
   vm->regs[0] = mrbc_instance_new(vm, mrbc_class_object, 0);
   if( vm->regs[0].instance == NULL ) return;	// ENOMEM
   for( int i = 1; i < vm->regs_size; i++ ) {
@@ -420,7 +421,7 @@ void mrbc_vm_end( struct VM *vm )
   assert( vm->ret_blk == 0 );
 
   int n_used = 0;
-  for( int i = 0; i < vm->regs_size; i++ ) {
+  for( int i = 1; i < vm->regs_size; i++ ) {
     //mrbc_printf("vm->regs[%d].tt = %d\n", i, mrbc_type(vm->regs[i]));
     if( mrbc_type(vm->regs[i]) != MRBC_TT_NIL ) n_used = i;
     mrbc_decref_empty(&vm->regs[i]);

@@ -378,7 +378,7 @@ int mrbc_run(void)
       q_insert_task(tcb);
       hal_enable_irq();
 
-      if( ! tcb->vm.flag_permanence ) mrbc_vm_end(&tcb->vm);
+      mrbc_vm_end( &tcb->vm );
       if( ret_vm_run != 1 ) ret = ret_vm_run;   // for debug info.
 
       // find task that called join.
@@ -950,90 +950,6 @@ static void c_task_name(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! (method) suspend task
-
-  Task.suspend()        # suspend current task.
-  task.suspend()        # suspend other task.
-*/
-static void c_task_suspend(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb;
-
-  if( v[0].tt == MRBC_TT_CLASS ) {
-    tcb = VM2TCB(vm);
-  } else {
-    tcb = *(mrbc_tcb **)v[0].instance->data;
-  }
-
-  mrbc_suspend_task(tcb);
-}
-
-
-//================================================================
-/*! (method) resume task
-
-  task.resume()
-*/
-static void c_task_resume(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  if( v[0].tt == MRBC_TT_CLASS ) return;
-
-  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
-
-  mrbc_resume_task(tcb);
-}
-
-
-//================================================================
-/*! (method) terminate task
-
-  task.terminate()
-*/
-static void c_task_terminate(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb;
-
-  if( v[0].tt == MRBC_TT_CLASS ) {
-    tcb = VM2TCB(vm);
-  } else {
-    tcb = *(mrbc_tcb **)v[0].instance->data;
-  }
-
-  mrbc_terminate_task(tcb);
-}
-
-
-//================================================================
-/*! (method) join task
-
-  task.join()
-*/
-static void c_task_join(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  if( v[0].tt == MRBC_TT_CLASS ) return;
-
-  mrbc_tcb *tcb_me = VM2TCB(vm);
-  mrbc_tcb *tcb_join = *(mrbc_tcb **)v[0].instance->data;
-
-  mrbc_join_task(tcb_me, tcb_join);
-}
-
-
-//================================================================
-/*! (method) task pass
-
-  Task.pass()
-*/
-static void c_task_pass(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  if( v[0].tt != MRBC_TT_CLASS ) return;
-
-  mrbc_tcb *tcb = VM2TCB(vm);
-  mrbc_relinquish(tcb);
-}
-
-
-//================================================================
 /*! (method) task priority setter
 
   Task.priority = n  # n = 0(high) .. 255(low)
@@ -1107,6 +1023,220 @@ static void c_task_status(mrbc_vm *vm, mrbc_value v[], int argc)
 }
 
 
+//================================================================
+/*! (method) suspend task
+
+  Task.suspend()        # suspend current task.
+  task.suspend()        # suspend other task.
+*/
+static void c_task_suspend(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb;
+
+  if( v[0].tt == MRBC_TT_CLASS ) {
+    tcb = VM2TCB(vm);
+  } else {
+    tcb = *(mrbc_tcb **)v[0].instance->data;
+  }
+
+  mrbc_suspend_task(tcb);
+}
+
+
+//================================================================
+/*! (method) resume task
+
+  task.resume()
+*/
+static void c_task_resume(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+
+  mrbc_resume_task(tcb);
+}
+
+
+//================================================================
+/*! (method) terminate task
+
+  task.terminate()
+*/
+static void c_task_terminate(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb;
+
+  if( v[0].tt == MRBC_TT_CLASS ) {
+    tcb = VM2TCB(vm);
+  } else {
+    tcb = *(mrbc_tcb **)v[0].instance->data;
+  }
+
+  mrbc_terminate_task(tcb);
+}
+
+
+//================================================================
+/*! (method) raises an exception in the task.
+
+  task.raise()
+  task.raise( RangeError.new("message here!") )
+*/
+static void c_task_raise(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+  mrbc_vm *vm1 = &tcb->vm;
+  mrbc_value exc;
+
+  if( argc == 0 ) {
+    exc = mrbc_exception_new( vm1, MRBC_CLASS(RuntimeError), 0, 0 );
+  } else if( v[1].tt == MRBC_TT_EXCEPTION ) {
+    exc = v[1];
+    mrbc_incref(&exc);
+  } else {
+    mrbc_raise( vm, MRBC_CLASS(ArgumentError), 0 );
+    return;
+  }
+
+  mrbc_decref(&vm1->exception);
+  vm1->exception = exc;
+  vm1->flag_preemption = 2;
+
+  if( tcb->state == TASKSTATE_WAITING && tcb->reason == TASKREASON_SLEEP ) {
+    void mrbc_wakeup_task(mrbc_tcb *tcb);
+    mrbc_wakeup_task( tcb );
+  }
+}
+
+
+//================================================================
+/*! (method) Waits for task to complete.
+
+  task.join() -> Task
+*/
+static void c_task_join(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb_me = VM2TCB(vm);
+  mrbc_tcb *tcb_join = *(mrbc_tcb **)v[0].instance->data;
+
+  mrbc_join_task(tcb_me, tcb_join);
+}
+
+
+//================================================================
+/*! (method) returns task termination value.
+
+  task.value
+*/
+static void c_task_value(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+
+  if( tcb->state != TASKSTATE_DORMANT ) {
+    mrbc_raise(vm, 0, "task must be end");
+    return;
+  }
+
+  mrbc_incref( &tcb->vm.regs[0] );
+  SET_RETURN( tcb->vm.regs[0] );
+}
+
+
+//================================================================
+/*! (method) pass execution to another task.
+
+  Task.pass()
+*/
+static void c_task_pass(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt != MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb = VM2TCB(vm);
+  mrbc_relinquish(tcb);
+}
+
+
+//================================================================
+/*! (method) create a task dynamically.
+
+  Task.create( byte_code, regs_size = nil ) -> Task
+*/
+static void c_task_create(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  const char *byte_code;
+  int regs_size = MAX_REGS_SIZE;
+
+  // check argument.
+  if( v[0].tt != MRBC_TT_CLASS ) goto ERROR_ARGUMENT;
+
+  if( argc >= 1 && v[1].tt != MRBC_TT_STRING ) goto ERROR_ARGUMENT;
+  mrbc_incref( &v[1] );
+  byte_code = mrbc_string_cstr(&v[1]);
+
+  if( argc >= 2 ) {
+    if( v[2].tt != MRBC_TT_INTEGER ) goto ERROR_ARGUMENT;
+    regs_size = mrbc_integer(v[2]);
+  }
+
+  // create TCB
+  mrbc_tcb *tcb = mrbc_tcb_new( regs_size, TASKSTATE_DORMANT, MRBC_TASK_DEFAULT_PRIORITY );
+  if( !tcb ) {
+    mrbc_raise( vm, MRBC_CLASS(NoMemoryError), 0 );
+    return;
+  }
+  tcb->vm.flag_permanence = 1;
+
+  if( !mrbc_create_task( byte_code, tcb ) ) return;
+
+  // create Instance
+  mrbc_value ret = mrbc_instance_new(vm, v->cls, sizeof(mrbc_tcb *));
+  *(mrbc_tcb **)ret.instance->data = tcb;
+  SET_RETURN( ret );
+  return;
+
+ ERROR_ARGUMENT:
+  mrbc_raise( vm, MRBC_CLASS(ArgumentError), 0 );
+}
+
+
+//================================================================
+/*! (method) start execution for a task.
+
+  task.run
+*/
+static void c_task_run(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+  if( tcb->state != TASKSTATE_DORMANT ) return;
+
+  mrbc_start_task(tcb);
+}
+
+
+//================================================================
+/*! (method) reset the task execution state.
+
+  task.rewind
+*/
+static void c_task_rewind(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+  if( tcb->state != TASKSTATE_DORMANT ) return;
+
+  mrbc_vm_begin( &tcb->vm );
+}
+
+
 /* MRBC_AUTOGEN_METHOD_TABLE
 
   CLASS("Task")
@@ -1118,14 +1248,22 @@ static void c_task_status(mrbc_vm *vm, mrbc_value v[], int argc)
   METHOD( "name_list", c_task_name_list )
   METHOD( "name=", c_task_set_name )
   METHOD( "name", c_task_name )
-  METHOD( "suspend", c_task_suspend )
-  METHOD( "resume", c_task_resume )
-  METHOD( "terminate", c_task_terminate )
-  METHOD( "join", c_task_join )
-  METHOD( "pass", c_task_pass )
   METHOD( "priority=", c_task_set_priority )
   METHOD( "priority", c_task_priority )
   METHOD( "status", c_task_status )
+
+  METHOD( "suspend", c_task_suspend )
+  METHOD( "resume", c_task_resume )
+  METHOD( "terminate", c_task_terminate )
+  METHOD( "raise", c_task_raise )
+
+  METHOD( "join", c_task_join )
+  METHOD( "value", c_task_value )
+  METHOD( "pass", c_task_pass )
+
+  METHOD( "create", c_task_create )
+  METHOD( "run", c_task_run )
+  METHOD( "rewind", c_task_rewind )
 */
 
 
