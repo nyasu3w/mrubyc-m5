@@ -1,5 +1,5 @@
 #
-# Object, mrubyc class library
+# mrubyc class library
 #
 #  Copyright (C) 2015- Kyushu Institute of Technology.
 #  Copyright (C) 2015- Shimane IT Open-Innovation Center.

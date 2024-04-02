@@ -12,17 +12,16 @@ class Hash
   #
   # each
   #
-  def each
+  def each(&block)
     keys = self.keys
     len = length
     i = 0
     while i < len
       key = keys[i]
-      yield( key, self[key] )
+      block.call [key, self[key]]
       i += 1
     end
 
     return self
   end
-
 end
