@@ -774,6 +774,7 @@ static void c_object_to_s(struct VM *vm, mrbc_value v[], int argc)
   METHOD( "attr_reader",c_object_attr_reader )
   METHOD( "attr_accessor", c_object_attr_accessor )
   METHOD( "include",    c_object_include )
+  METHOD( "extend",     c_object_include )
 
 #if MRBC_USE_STRING
   METHOD( "sprintf",	c_object_sprintf )
