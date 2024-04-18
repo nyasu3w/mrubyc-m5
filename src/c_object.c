@@ -378,23 +378,25 @@ static void c_object_object_id(struct VM *vm, mrbc_value v[], int argc)
 static void c_object_instance_methods(struct VM *vm, mrbc_value v[], int argc)
 {
   // TODO: check argument.
+  if( v[0].tt != MRBC_TT_CLASS ) return;
 
   // temporary code for operation check.
-  mrbc_printf("[");
-  int flag_first = 1;
+  mrbc_value ret = mrbc_array_new( vm, 0 );
+  const struct RBuiltinClass *cls = (const struct RBuiltinClass *)(v[0].cls);
 
-  mrbc_class *cls = find_class_by_object( v );
-  mrbc_method *method = cls->method_link;
+  // builtin method.
+  for( int i = 0; i < cls->num_builtin_method; i++ ) {
+    mrbc_array_push( &ret, &mrbc_symbol_value(cls->method_symbols[i]) );
+  }
+
+  // non builtin method.
+  const mrbc_method *method = cls->method_link;
   while( method ) {
-    mrbc_printf("%s:%s", (flag_first ? "" : ", "),
-		mrbc_symid_to_str(method->sym_id) );
-    flag_first = 0;
+    mrbc_array_push( &ret, &mrbc_symbol_value(method->sym_id) );
     method = method->next;
   }
 
-  mrbc_printf("]");
-
-  SET_NIL_RETURN();
+  SET_RETURN(ret);
 }
 
 
@@ -404,21 +406,20 @@ static void c_object_instance_methods(struct VM *vm, mrbc_value v[], int argc)
 static void c_object_instance_variables(struct VM *vm, mrbc_value v[], int argc)
 {
   // temporary code for operation check.
-#if 1
+
+  mrbc_value ret = mrbc_array_new( vm, 0 );
   mrbc_kv_handle *kvh = &v[0].instance->ivar;
-
+#if 0
   mrbc_printf("n = %d/%d ", kvh->n_stored, kvh->data_size);
-  mrbc_printf("[");
+#endif
 
-  int i;
-  for( i = 0; i < kvh->n_stored; i++ ) {
-    mrbc_printf("%s:@%s", (i == 0 ? "" : ", "),
-		mrbc_symid_to_str( kvh->data[i].sym_id ));
+  if( v[0].tt == MRBC_TT_OBJECT ) {
+    for( int i = 0; i < kvh->n_stored; i++ ) {
+      mrbc_array_push( &ret, &mrbc_symbol_value(kvh->data[i].sym_id) );
+    }
   }
 
-  mrbc_printf("]\n");
-#endif
-  SET_NIL_RETURN();
+  SET_RETURN(ret);
 }
 
 
