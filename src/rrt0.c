@@ -353,8 +353,8 @@ int mrbc_run(void)
 
 #if !defined(MRBC_NO_TIMER)
     // Using hardware timer.
-    tcb->vm.flag_preemption = 0;
     int ret_vm_run = mrbc_vm_run(&tcb->vm);
+    tcb->vm.flag_preemption = 0;
 #else
     // Emulate time slice preemption.
     int ret_vm_run;
@@ -378,7 +378,7 @@ int mrbc_run(void)
       q_insert_task(tcb);
       hal_enable_irq();
 
-      if( ! tcb->vm.flag_permanence ) mrbc_vm_end(&tcb->vm);
+      mrbc_vm_end( &tcb->vm );
       if( ret_vm_run != 1 ) ret = ret_vm_run;   // for debug info.
 
       // find task that called join.
@@ -392,6 +392,12 @@ int mrbc_run(void)
           hal_enable_irq();
         }
       }
+      for( mrbc_tcb *tcb1 = q_suspended_; tcb1 != NULL; tcb1 = tcb1->next ) {
+        if( tcb1->reason == TASKREASON_JOIN && tcb1->tcb_join == tcb ) {
+          tcb1->reason = 0;
+        }
+      }
+
 #if MRBC_SCHEDULER_EXIT
       if( !q_ready_ && !q_waiting_ && !q_suspended_ ) return ret;
 #endif
@@ -436,6 +442,42 @@ void mrbc_sleep_ms(mrbc_tcb *tcb, uint32_t ms)
   hal_enable_irq();
 
   tcb->vm.flag_preemption = 1;
+}
+
+
+//================================================================
+/*! wake up the task.
+
+  @param  tcb		target task.
+*/
+void mrbc_wakeup_task(mrbc_tcb *tcb)
+{
+  switch( tcb->state ) {
+  case TASKSTATE_SUSPENDED:
+    mrbc_resume_task( tcb );    // for sleep without arguments.
+    break;
+
+  case TASKSTATE_WAITING:
+    if( tcb->reason != TASKREASON_SLEEP ) break;
+
+    hal_disable_irq();
+    q_delete_task(tcb);
+    tcb->state = TASKSTATE_READY;
+    tcb->reason = 0;
+    q_insert_task(tcb);
+
+    for( mrbc_tcb *t = q_waiting_; t != NULL; t = t->next ) {
+      if( t->reason != TASKREASON_SLEEP ) continue;
+      if( (int32_t)(t->wakeup_tick - wakeup_tick_) < 0 ) {
+        wakeup_tick_ = t->wakeup_tick;
+      }
+    }
+    hal_enable_irq();
+    break;
+
+  default:
+    break;
+  }
 }
 
 
@@ -511,6 +553,12 @@ void mrbc_resume_task(mrbc_tcb *tcb)
   q_insert_task(tcb);
 
   hal_enable_irq();
+
+  if( tcb->reason & TASKREASON_SLEEP ) {
+    if( (int32_t)(tcb->wakeup_tick - wakeup_tick_) < 0 ) {
+      wakeup_tick_ = tcb->wakeup_tick;
+    }
+  }
 }
 
 
@@ -914,90 +962,6 @@ static void c_task_name(mrbc_vm *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! (method) suspend task
-
-  Task.suspend()        # suspend current task.
-  task.suspend()        # suspend other task.
-*/
-static void c_task_suspend(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb;
-
-  if( v[0].tt == MRBC_TT_CLASS ) {
-    tcb = VM2TCB(vm);
-  } else {
-    tcb = *(mrbc_tcb **)v[0].instance->data;
-  }
-
-  mrbc_suspend_task(tcb);
-}
-
-
-//================================================================
-/*! (method) resume task
-
-  task.resume()
-*/
-static void c_task_resume(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  if( v[0].tt == MRBC_TT_CLASS ) return;
-
-  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
-
-  mrbc_resume_task(tcb);
-}
-
-
-//================================================================
-/*! (method) terminate task
-
-  task.terminate()
-*/
-static void c_task_terminate(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  mrbc_tcb *tcb;
-
-  if( v[0].tt == MRBC_TT_CLASS ) {
-    tcb = VM2TCB(vm);
-  } else {
-    tcb = *(mrbc_tcb **)v[0].instance->data;
-  }
-
-  mrbc_terminate_task(tcb);
-}
-
-
-//================================================================
-/*! (method) join task
-
-  task.join()
-*/
-static void c_task_join(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  if( v[0].tt == MRBC_TT_CLASS ) return;
-
-  mrbc_tcb *tcb_me = VM2TCB(vm);
-  mrbc_tcb *tcb_join = *(mrbc_tcb **)v[0].instance->data;
-
-  mrbc_join_task(tcb_me, tcb_join);
-}
-
-
-//================================================================
-/*! (method) task pass
-
-  Task.pass()
-*/
-static void c_task_pass(mrbc_vm *vm, mrbc_value v[], int argc)
-{
-  if( v[0].tt != MRBC_TT_CLASS ) return;
-
-  mrbc_tcb *tcb = VM2TCB(vm);
-  mrbc_relinquish(tcb);
-}
-
-
-//================================================================
 /*! (method) task priority setter
 
   Task.priority = n  # n = 0(high) .. 255(low)
@@ -1071,6 +1035,220 @@ static void c_task_status(mrbc_vm *vm, mrbc_value v[], int argc)
 }
 
 
+//================================================================
+/*! (method) suspend task
+
+  Task.suspend()        # suspend current task.
+  task.suspend()        # suspend other task.
+*/
+static void c_task_suspend(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb;
+
+  if( v[0].tt == MRBC_TT_CLASS ) {
+    tcb = VM2TCB(vm);
+  } else {
+    tcb = *(mrbc_tcb **)v[0].instance->data;
+  }
+
+  mrbc_suspend_task(tcb);
+}
+
+
+//================================================================
+/*! (method) resume task
+
+  task.resume()
+*/
+static void c_task_resume(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+
+  mrbc_resume_task(tcb);
+}
+
+
+//================================================================
+/*! (method) terminate task
+
+  task.terminate()
+*/
+static void c_task_terminate(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  mrbc_tcb *tcb;
+
+  if( v[0].tt == MRBC_TT_CLASS ) {
+    tcb = VM2TCB(vm);
+  } else {
+    tcb = *(mrbc_tcb **)v[0].instance->data;
+  }
+
+  mrbc_terminate_task(tcb);
+}
+
+
+//================================================================
+/*! (method) raises an exception in the task.
+
+  task.raise()
+  task.raise( RangeError.new("message here!") )
+*/
+static void c_task_raise(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+  mrbc_vm *vm1 = &tcb->vm;
+  mrbc_value exc;
+
+  if( argc == 0 ) {
+    exc = mrbc_exception_new( vm1, MRBC_CLASS(RuntimeError), 0, 0 );
+  } else if( v[1].tt == MRBC_TT_EXCEPTION ) {
+    exc = v[1];
+    mrbc_incref(&exc);
+  } else {
+    mrbc_raise( vm, MRBC_CLASS(ArgumentError), 0 );
+    return;
+  }
+
+  mrbc_decref(&vm1->exception);
+  vm1->exception = exc;
+  vm1->flag_preemption = 2;
+
+  if( tcb->state == TASKSTATE_WAITING && tcb->reason == TASKREASON_SLEEP ) {
+    void mrbc_wakeup_task(mrbc_tcb *tcb);
+    mrbc_wakeup_task( tcb );
+  }
+}
+
+
+//================================================================
+/*! (method) Waits for task to complete.
+
+  task.join() -> Task
+*/
+static void c_task_join(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb_me = VM2TCB(vm);
+  mrbc_tcb *tcb_join = *(mrbc_tcb **)v[0].instance->data;
+
+  mrbc_join_task(tcb_me, tcb_join);
+}
+
+
+//================================================================
+/*! (method) returns task termination value.
+
+  task.value
+*/
+static void c_task_value(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+
+  if( tcb->state != TASKSTATE_DORMANT ) {
+    mrbc_raise(vm, 0, "task must be end");
+    return;
+  }
+
+  mrbc_incref( &tcb->vm.regs[0] );
+  SET_RETURN( tcb->vm.regs[0] );
+}
+
+
+//================================================================
+/*! (method) pass execution to another task.
+
+  Task.pass()
+*/
+static void c_task_pass(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt != MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb = VM2TCB(vm);
+  mrbc_relinquish(tcb);
+}
+
+
+//================================================================
+/*! (method) create a task dynamically.
+
+  Task.create( byte_code, regs_size = nil ) -> Task
+*/
+static void c_task_create(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  const char *byte_code;
+  int regs_size = MAX_REGS_SIZE;
+
+  // check argument.
+  if( v[0].tt != MRBC_TT_CLASS ) goto ERROR_ARGUMENT;
+
+  if( argc >= 1 && v[1].tt != MRBC_TT_STRING ) goto ERROR_ARGUMENT;
+  mrbc_incref( &v[1] );
+  byte_code = mrbc_string_cstr(&v[1]);
+
+  if( argc >= 2 ) {
+    if( v[2].tt != MRBC_TT_INTEGER ) goto ERROR_ARGUMENT;
+    regs_size = mrbc_integer(v[2]);
+  }
+
+  // create TCB
+  mrbc_tcb *tcb = mrbc_tcb_new( regs_size, TASKSTATE_DORMANT, MRBC_TASK_DEFAULT_PRIORITY );
+  if( !tcb ) {
+    mrbc_raise( vm, MRBC_CLASS(NoMemoryError), 0 );
+    return;
+  }
+  tcb->vm.flag_permanence = 1;
+
+  if( !mrbc_create_task( byte_code, tcb ) ) return;
+
+  // create Instance
+  mrbc_value ret = mrbc_instance_new(vm, v->cls, sizeof(mrbc_tcb *));
+  *(mrbc_tcb **)ret.instance->data = tcb;
+  SET_RETURN( ret );
+  return;
+
+ ERROR_ARGUMENT:
+  mrbc_raise( vm, MRBC_CLASS(ArgumentError), 0 );
+}
+
+
+//================================================================
+/*! (method) start execution for a task.
+
+  task.run
+*/
+static void c_task_run(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+  if( tcb->state != TASKSTATE_DORMANT ) return;
+
+  mrbc_start_task(tcb);
+}
+
+
+//================================================================
+/*! (method) reset the task execution state.
+
+  task.rewind
+*/
+static void c_task_rewind(mrbc_vm *vm, mrbc_value v[], int argc)
+{
+  if( v[0].tt == MRBC_TT_CLASS ) return;
+
+  mrbc_tcb *tcb = *(mrbc_tcb **)v[0].instance->data;
+  if( tcb->state != TASKSTATE_DORMANT ) return;
+
+  mrbc_vm_begin( &tcb->vm );
+}
+
+
 /* MRBC_AUTOGEN_METHOD_TABLE
 
   CLASS("Task")
@@ -1082,14 +1260,22 @@ static void c_task_status(mrbc_vm *vm, mrbc_value v[], int argc)
   METHOD( "name_list", c_task_name_list )
   METHOD( "name=", c_task_set_name )
   METHOD( "name", c_task_name )
-  METHOD( "suspend", c_task_suspend )
-  METHOD( "resume", c_task_resume )
-  METHOD( "terminate", c_task_terminate )
-  METHOD( "join", c_task_join )
-  METHOD( "pass", c_task_pass )
   METHOD( "priority=", c_task_set_priority )
   METHOD( "priority", c_task_priority )
   METHOD( "status", c_task_status )
+
+  METHOD( "suspend", c_task_suspend )
+  METHOD( "resume", c_task_resume )
+  METHOD( "terminate", c_task_terminate )
+  METHOD( "raise", c_task_raise )
+
+  METHOD( "join", c_task_join )
+  METHOD( "value", c_task_value )
+  METHOD( "pass", c_task_pass )
+
+  METHOD( "create", c_task_create )
+  METHOD( "run", c_task_run )
+  METHOD( "rewind", c_task_rewind )
 */
 
 
@@ -1244,19 +1430,15 @@ void pq(const mrbc_tcb *p_tcb)
 {
   if( p_tcb == NULL ) return;
 
-  // TCB address
+  // vm_id, TCB, name
   for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
+    mrbc_printf("%d:%08x %-8.8s ", t->vm.vm_id,
 #if defined(UINTPTR_MAX)
-    mrbc_printf("$%08x   ", (uint32_t)(uintptr_t)t);
+                (uint32_t)(uintptr_t)t,
 #else
-    mrbc_printf("$%08x   ", (uint32_t)t);
+                (uint32_t)t,
 #endif
-  }
-  mrbc_printf("\n");
-
-  // vm_id, name
-  for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
-    mrbc_printf("%d:%-9.9s ", t->vm.vm_id, t->name[0] ? t->name : "(noname)" );
+                t->name[0] ? t->name : "(noname)" );
   }
   mrbc_printf("\n");
 
@@ -1264,43 +1446,44 @@ void pq(const mrbc_tcb *p_tcb)
   // next ptr
   for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
 #if defined(UINTPTR_MAX)
-    mrbc_printf(" next:%04x  ", (uint16_t)(uintptr_t)t->next);
+    mrbc_printf(" next:%04x          ", (uint16_t)(uintptr_t)t->next);
 #else
-    mrbc_printf(" next:%04x  ", (uint16_t)t->next);
+    mrbc_printf(" next:%04x          ", (uint16_t)t->next);
 #endif
   }
   mrbc_printf("\n");
 #endif
 
-  // task priority.
-  for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
-    mrbc_printf(" pri:%3d    ", t->priority_preemption);
-  }
-  mrbc_printf("\n");
-
-  // state
+  // task priority, state.
   //  st:SsRr
   //     ^ suspended -> S:suspended
-  //      ^ waiting  -> s:sleep m:mutex J:join
+  //      ^ waiting  -> s:sleep m:mutex J:join (uppercase is suspend state)
   //       ^ ready   -> R:ready
   //        ^ running-> r:running
   for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
+    mrbc_printf(" pri:%3d", t->priority_preemption);
 #if 1
     mrbc_tcb t1 = *t;               // Copy the value at this timing.
     mrbc_printf(" st:%c%c%c%c    ",
-        (t1.state & TASKSTATE_SUSPENDED)?'S':'-',
-        (t1.state & TASKSTATE_WAITING)?("!sm!j"[t1.reason]):"!-"[t1.reason == 0],
-        (t1.state & 0x02)?'R':'-',
-        (t1.state & 0x01)?'r':'-' );
+      (t1.state & TASKSTATE_SUSPENDED)?'S':'-',
+      (t1.state & TASKSTATE_SUSPENDED)? ("-SM!J"[t1.reason]) :
+      (t1.state & TASKSTATE_WAITING)?   ("!sm!j"[t1.reason]) : '-',
+      (t1.state & 0x02)?'R':'-',
+      (t1.state & 0x01)?'r':'-' );
 #else
-    mrbc_printf(" st:%04b    ", p->state);
+    mrbc_printf(" s%04b r%03b ", t->state, t->reason);
 #endif
   }
   mrbc_printf("\n");
 
-  // timeslice, vm->flag_preemption
+  // timeslice, vm->flag_preemption, wakeup tick
   for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
-    mrbc_printf(" ts:%2d fp:%d ", t->timeslice, t->vm.flag_preemption);
+    mrbc_printf(" ts:%-2d fp:%d ", t->timeslice, t->vm.flag_preemption);
+    if( t->reason & TASKREASON_SLEEP ) {
+      mrbc_printf("w:%-6d", t->wakeup_tick );
+    } else {
+      mrbc_printf("w:--    ", t->wakeup_tick );
+    }
   }
   mrbc_printf("\n");
 }
@@ -1308,6 +1491,7 @@ void pq(const mrbc_tcb *p_tcb)
 void pqall(void)
 {
   hal_disable_irq();
+  mrbc_printf("<< tick_ = %d, wakeup_tick_ = %d >>\n", tick_, wakeup_tick_);
   mrbc_printf("<<<<< DORMANT >>>>>\n");   pq(q_dormant_);
   mrbc_printf("<<<<< READY >>>>>\n");     pq(q_ready_);
   mrbc_printf("<<<<< WAITING >>>>>\n");   pq(q_waiting_);

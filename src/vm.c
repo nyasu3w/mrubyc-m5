@@ -376,6 +376,7 @@ void mrbc_vm_begin( struct VM *vm )
   vm->flag_stop = 0;
 
   // set self to reg[0], others nil
+  mrbc_decref( &vm->regs[0] );
   vm->regs[0] = mrbc_instance_new(vm, mrbc_class_object, 0);
   if( vm->regs[0].instance == NULL ) return;	// ENOMEM
   for( int i = 1; i < vm->regs_size; i++ ) {
@@ -402,7 +403,7 @@ void mrbc_vm_end( struct VM *vm )
   assert( vm->ret_blk == 0 );
 
   int n_used = 0;
-  for( int i = 0; i < vm->regs_size; i++ ) {
+  for( int i = 1; i < vm->regs_size; i++ ) {
     //mrbc_printf("vm->regs[%d].tt = %d\n", i, mrbc_type(vm->regs[i]));
     if( mrbc_type(vm->regs[i]) != MRBC_TT_NIL ) n_used = i;
     mrbc_decref_empty(&vm->regs[i]);
@@ -680,6 +681,10 @@ static inline void op_getiv( mrbc_vm *vm, mrbc_value *regs EXT )
     return;
   }
   mrbc_value *self = mrbc_get_self( vm, regs );
+  if( self->tt != MRBC_TT_OBJECT ) {
+    mrbc_raise(vm, MRBC_CLASS(NotImplementedError), 0);
+    return;
+  }
 
   mrbc_decref(&regs[a]);
   regs[a] = mrbc_instance_getiv(self, sym_id);
@@ -702,6 +707,10 @@ static inline void op_setiv( mrbc_vm *vm, mrbc_value *regs EXT )
     return;
   }
   mrbc_value *self = mrbc_get_self( vm, regs );
+  if( self->tt != MRBC_TT_OBJECT ) {
+    mrbc_raise(vm, MRBC_CLASS(NotImplementedError), 0);
+    return;
+  }
 
   mrbc_instance_setiv(self, sym_id, &regs[a]);
 }
@@ -1650,7 +1659,9 @@ static inline void op_return__sub( mrbc_vm *vm, mrbc_value *regs, int a )
 
   // return without anything if top level.
   if( vm->callinfo_tail == NULL ) {
-    if( vm->flag_permanence ) mrbc_incref(&regs[a]);
+    mrbc_decref(&regs[0]);
+    regs[0] = regs[a];
+    regs[a].tt = MRBC_TT_EMPTY;
     vm->flag_preemption = 1;
     vm->flag_stop = 1;
     return;
@@ -2970,10 +2981,10 @@ int mrbc_vm_run( struct VM *vm )
 #endif
     if( !vm->flag_preemption ) continue;	// execute next ope code.
     if( !mrbc_israised(vm) ) return vm->flag_stop; // normal return.
-    vm->flag_preemption = 0;
 
 
     // Handle exception
+    vm->flag_preemption = 0;
     const mrbc_irep_catch_handler *handler;
 
     while( 1 ) {

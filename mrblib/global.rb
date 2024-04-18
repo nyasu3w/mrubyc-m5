@@ -1,5 +1,5 @@
 #
-# Object, mrubyc class library
+# mrubyc class library
 #
 #  Copyright (C) 2015- Kyushu Institute of Technology.
 #  Copyright (C) 2015- Shimane IT Open-Innovation Center.
@@ -8,6 +8,6 @@
 #
 
 RUBY_VERSION = "1.9"
-MRUBY_VERSION = "3.2.0"
-MRUBYC_VERSION = "3.2"
+MRUBY_VERSION = "3.3.0"
+MRUBYC_VERSION = "3.3"
 RUBY_ENGINE = "mruby/c"

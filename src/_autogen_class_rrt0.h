@@ -3,6 +3,7 @@
 
 /*===== Task class =====*/
 static const mrbc_sym method_symbols_Task[] = {
+  MRBC_SYM(create),
   MRBC_SYM(current),
   MRBC_SYM(get),
   MRBC_SYM(join),
@@ -13,13 +14,18 @@ static const mrbc_sym method_symbols_Task[] = {
   MRBC_SYM(pass),
   MRBC_SYM(priority),
   MRBC_SYM(priority_EQ),
+  MRBC_SYM(raise),
   MRBC_SYM(resume),
+  MRBC_SYM(rewind),
+  MRBC_SYM(run),
   MRBC_SYM(status),
   MRBC_SYM(suspend),
   MRBC_SYM(terminate),
+  MRBC_SYM(value),
 };
 
 static const mrbc_func_t method_functions_Task[] = {
+  c_task_create,
   c_task_get,
   c_task_get,
   c_task_join,
@@ -30,10 +36,14 @@ static const mrbc_func_t method_functions_Task[] = {
   c_task_pass,
   c_task_priority,
   c_task_set_priority,
+  c_task_raise,
   c_task_resume,
+  c_task_rewind,
+  c_task_run,
   c_task_status,
   c_task_suspend,
   c_task_terminate,
+  c_task_value,
 };
 
 struct RBuiltinClass mrbc_class_Task = {
