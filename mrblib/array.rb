@@ -125,18 +125,6 @@ class Array
   end
 
   #
-  # each with index
-  #
-  def each_with_index
-    i = 0
-    while i < length
-      yield self[i], i
-      i += 1
-    end
-    return self
-  end
-
-  #
   # index
   #
   def index( *val, &block )
