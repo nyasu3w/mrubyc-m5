@@ -28,19 +28,24 @@ end
 When this program is executed, this `Task1` outputs `"task1"`.
 
 From another task, `Task1` can be controlled. When the method suspend is called, the output `"task 1"` will be stopped.
-In the following program, the output of `"task1"` stops 10 seconds after the program starts. And mote, five seconds later, the output of `"task 1"` resumes.
+In the following program, the output of `"task1"` stops 10 seconds after the program starts. And more, five seconds later, the output of `"task 1"` resumes.
 
 
 
 ```Ruby
 sleep 10
 
-task = Task.get("Task1");
+task1 = Task.get("Task1");
+
+puts "Suspend Task1"
 task1.suspend
 
 sleep 5
 
+puts "Resume Task1"
 task1.resume
+
+sleep 1
 ```
 
 
@@ -68,6 +73,33 @@ end
 The new generated task is initially in a stopped state (`TASKSTATE_DORMANT`).
 Use `run` method to execute the task. 
 
+
+## Sync tasks
+
+
+```Ruby
+Task.name = "Task1"
+
+10.times do |i|
+  puts "task 1 #{i}"
+  sleep 1
+end
+```
+
+```Ruby
+task1 = Task.get("Task1");
+
+3.times do |i|
+    puts "task 2 #{i}"
+    sleep 1.5
+end
+
+puts "Waiting for Task1"
+
+task1.join
+
+puts "Tasks completed"
+```
 
 <hr>
 
