@@ -392,6 +392,12 @@ int mrbc_run(void)
           hal_enable_irq();
         }
       }
+      for( mrbc_tcb *tcb1 = q_suspended_; tcb1 != NULL; tcb1 = tcb1->next ) {
+        if( tcb1->reason == TASKREASON_JOIN && tcb1->tcb_join == tcb ) {
+          tcb1->reason = 0;
+        }
+      }
+
 #if MRBC_SCHEDULER_EXIT
       if( !q_ready_ && !q_waiting_ && !q_suspended_ ) return ret;
 #endif
@@ -547,6 +553,12 @@ void mrbc_resume_task(mrbc_tcb *tcb)
   q_insert_task(tcb);
 
   hal_enable_irq();
+
+  if( tcb->reason & TASKREASON_SLEEP ) {
+    if( (int32_t)(tcb->wakeup_tick - wakeup_tick_) < 0 ) {
+      wakeup_tick_ = tcb->wakeup_tick;
+    }
+  }
 }
 
 
@@ -1418,19 +1430,15 @@ void pq(const mrbc_tcb *p_tcb)
 {
   if( p_tcb == NULL ) return;
 
-  // TCB address
+  // vm_id, TCB, name
   for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
+    mrbc_printf("%d:%08x %-8.8s ", t->vm.vm_id,
 #if defined(UINTPTR_MAX)
-    mrbc_printf("$%08x   ", (uint32_t)(uintptr_t)t);
+                (uint32_t)(uintptr_t)t,
 #else
-    mrbc_printf("$%08x   ", (uint32_t)t);
+                (uint32_t)t,
 #endif
-  }
-  mrbc_printf("\n");
-
-  // vm_id, name
-  for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
-    mrbc_printf("%d:%-9.9s ", t->vm.vm_id, t->name[0] ? t->name : "(noname)" );
+                t->name[0] ? t->name : "(noname)" );
   }
   mrbc_printf("\n");
 
@@ -1438,43 +1446,44 @@ void pq(const mrbc_tcb *p_tcb)
   // next ptr
   for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
 #if defined(UINTPTR_MAX)
-    mrbc_printf(" next:%04x  ", (uint16_t)(uintptr_t)t->next);
+    mrbc_printf(" next:%04x          ", (uint16_t)(uintptr_t)t->next);
 #else
-    mrbc_printf(" next:%04x  ", (uint16_t)t->next);
+    mrbc_printf(" next:%04x          ", (uint16_t)t->next);
 #endif
   }
   mrbc_printf("\n");
 #endif
 
-  // task priority.
-  for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
-    mrbc_printf(" pri:%3d    ", t->priority_preemption);
-  }
-  mrbc_printf("\n");
-
-  // state
+  // task priority, state.
   //  st:SsRr
   //     ^ suspended -> S:suspended
-  //      ^ waiting  -> s:sleep m:mutex J:join
+  //      ^ waiting  -> s:sleep m:mutex J:join (uppercase is suspend state)
   //       ^ ready   -> R:ready
   //        ^ running-> r:running
   for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
+    mrbc_printf(" pri:%3d", t->priority_preemption);
 #if 1
     mrbc_tcb t1 = *t;               // Copy the value at this timing.
     mrbc_printf(" st:%c%c%c%c    ",
-        (t1.state & TASKSTATE_SUSPENDED)?'S':'-',
-        (t1.state & TASKSTATE_WAITING)?("!sm!j"[t1.reason]):"!-"[t1.reason == 0],
-        (t1.state & 0x02)?'R':'-',
-        (t1.state & 0x01)?'r':'-' );
+      (t1.state & TASKSTATE_SUSPENDED)?'S':'-',
+      (t1.state & TASKSTATE_SUSPENDED)? ("-SM!J"[t1.reason]) :
+      (t1.state & TASKSTATE_WAITING)?   ("!sm!j"[t1.reason]) : '-',
+      (t1.state & 0x02)?'R':'-',
+      (t1.state & 0x01)?'r':'-' );
 #else
-    mrbc_printf(" st:%04b    ", p->state);
+    mrbc_printf(" s%04b r%03b ", t->state, t->reason);
 #endif
   }
   mrbc_printf("\n");
 
-  // timeslice, vm->flag_preemption
+  // timeslice, vm->flag_preemption, wakeup tick
   for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
-    mrbc_printf(" ts:%2d fp:%d ", t->timeslice, t->vm.flag_preemption);
+    mrbc_printf(" ts:%-2d fp:%d ", t->timeslice, t->vm.flag_preemption);
+    if( t->reason & TASKREASON_SLEEP ) {
+      mrbc_printf("w:%-6d", t->wakeup_tick );
+    } else {
+      mrbc_printf("w:--    ", t->wakeup_tick );
+    }
   }
   mrbc_printf("\n");
 }
@@ -1482,6 +1491,7 @@ void pq(const mrbc_tcb *p_tcb)
 void pqall(void)
 {
   hal_disable_irq();
+  mrbc_printf("<< tick_ = %d, wakeup_tick_ = %d >>\n", tick_, wakeup_tick_);
   mrbc_printf("<<<<< DORMANT >>>>>\n");   pq(q_dormant_);
   mrbc_printf("<<<<< READY >>>>>\n");     pq(q_ready_);
   mrbc_printf("<<<<< WAITING >>>>>\n");   pq(q_waiting_);
