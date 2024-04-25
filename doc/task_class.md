@@ -5,7 +5,7 @@ When executing multiple programs concurrently, one program can control the execu
 By using Task, the program can be executed by giving its bytecode.
 
 
-## task controlling
+## Task controlling
 
 mruby/c has the feature of concurrently executing multiple programs.
 Each concurrently running program is called a task.
@@ -27,7 +27,7 @@ end
 
 When this program is executed, this `Task1` outputs `"task1"`.
 
-From another task, `Task1` can be controlled. When the method suspend is called, the output `"task 1"` will be stopped.
+`Task1` can be controlled from another task. When the method suspend is called, the output `"task 1"` will be stopped.
 In the following program, the output of `"task1"` stops 10 seconds after the program starts. And more, five seconds later, the output of `"task 1"` resumes.
 
 
@@ -44,12 +44,10 @@ sleep 5
 
 puts "Resume Task1"
 task1.resume
-
-sleep 1
 ```
 
 
-## new task
+## Create new task
 
 A new task can be created by `create` method, given the mruby bytecode.
 
@@ -104,28 +102,69 @@ puts "Tasks completed"
 <hr>
 
 
-## methods
+## Methods
 
-- create
-- run
-- rewind
+**create( byte_code, regs_size = nil ) -> Task**
 
-<div></div>
+Create a new task from bytecode and return an object of the generated task.
 
-- name=
-- name
-- priority=
-- priority
+The register size to be allocated by the VM is passed in the `size` parameter. If `size` is not given, the register size is the default value (MAX_REGS_SIZE).
 
-<div></div>
+The generated task is in the stopped state initially. To run a task in the stopped state, use `run` method.
 
-- get
-- current
-- list
-- name_list
-- state
+**run**
 
-<div></div>
+Execute a task, which is created by `create` method and in the stopped state.
+
+**rewind**
+
+Initialize and execute a stopped task.
+
+<hr/>
+
+**name=**
+
+Set task name.　`name` methods names its own task.
+
+**name**
+
+Get task name.
+
+**priority=**
+
+Set task priority, which is 0 to 255. The highest priority is 0.
+
+**priority**
+
+Get task priority.
+
+<hr/>
+
+**current -> Task**<br>
+**get -> Task**<br>
+**get(task_name) -> Task**
+
+Return task name, which is named by `name`.
+
+If `task_name` is not given, `get` returns its own task(myself).
+
+If `task_name` is not found, `get` returns nil.
+
+**list() -> Array[Task]**
+
+Return array of tasks, which are not only running tasks but also stopped tasks.
+
+**name_list() -> Array[String]**
+
+Return array of task names.
+
+**status() -> String**
+
+Return task status as string like `READY`, `WAITING`, `SUSPENDED` or `DORMANT`.
+Especially in `WAITING` status, `stauts` returns its reason like `WAITING SLEEP`.
+
+
+<hr/>
 
 - suspend
 - resume
