@@ -166,14 +166,33 @@ Especially in `WAITING` status, `stauts` returns its reason like `WAITING SLEEP`
 
 <hr/>
 
-- suspend
-- resume
-- terminate
-- raise
+**suspend**
 
-<div></div>
+Suspend a task. To suspend other task, first get the task object by using `get`, and use `suspend` method. To suspend its own task, use `Task.suspend`.
 
-- join
-- pass
-- value
+**resume**
 
+Resume(Continue) the suspended task.
+
+**terminate**
+
+Terminate a task.
+
+**raise()**<br>
+**raise(Exception)**
+
+Throw an exeption into other task. If `Exception` is not given, `RuntimeError` is thrown.
+
+<hr/>
+
+**join() -> Task**
+
+Wait for a task. `join` synchronizes between its own task and another task.
+
+**pass()**
+
+Pass the execution slot to another task. Release its own running status.
+
+**value -> Object**
+
+Return task termination value.
