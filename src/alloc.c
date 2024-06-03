@@ -696,7 +696,7 @@ void mrbc_raw_free(void *ptr)
 void * mrbc_raw_realloc(void *ptr, unsigned int size)
 {
   MEMORY_POOL *pool = memory_pool;
-  USED_BLOCK *target = (USED_BLOCK *)((uint8_t *)ptr - sizeof(USED_BLOCK));
+  volatile USED_BLOCK *target = (USED_BLOCK *)((uint8_t *)ptr - sizeof(USED_BLOCK));
   MRBC_ALLOC_MEMSIZE_T alloc_size = size + sizeof(USED_BLOCK);
   FREE_BLOCK *next;
 
