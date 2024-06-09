@@ -75,13 +75,28 @@ while true
 end
 ```
 
-### list() -> Array[Task]
+### list -> Array[Task]
 
 - Return array of tasks, which are not only running tasks but also stopped tasks.
 
-### name_list() -> Array[String]
+### name_list -> Array[String]
 
 - Return an array of task names.
+
+The following code shows the list of tasks.
+
+```Ruby
+Task.name = "Task1"
+
+sleep 10
+```
+
+```Ruby
+Task.name = "Task2"
+
+p Task.list       # => [#<Task:6a9f63a8>, #<Task:6a9f63d4>]
+p Task.name_list  # => ["Task2", "Task1"]
+```
 
 
 ## Instance Method
@@ -149,7 +164,7 @@ puts "Tasks completed"
 
 - Get task priority.
 
-### status() -> String
+### status -> String
 
 - Return task status as string like `READY`, `WAITING`, `SUSPENDED` or `DORMANT`.
 - Especially in `WAITING` status, `stauts` returns its reason like `WAITING SLEEP`.
@@ -198,12 +213,12 @@ puts "task1.terminate"
 task1.terminate
 ```
 
-### raise()
-### raise(Exception)
+### raise
+### raise(Exception = RuntimeError)
 
 - Throw an exeption into other task. If `Exception` is not given, `RuntimeError` is thrown.
 
-### pass()
+### pass
 
 - Pass the execution slot to another task. Release its own running status.
 
