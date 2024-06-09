@@ -226,3 +226,19 @@ task1.terminate
 
 - Return task termination value.
 
+```Ruby
+Task.name = "Task1"
+
+sleep 3
+
+["return value", 123, 456]
+```
+
+```Ruby
+task1 = Task.get("Task1")
+
+puts "waiting for Task1"
+task1.join
+
+p task1.value
+```
