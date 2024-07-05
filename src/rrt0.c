@@ -334,6 +334,8 @@ int mrbc_start_task(mrbc_tcb *tcb)
 int mrbc_run(void)
 {
   int ret = 0;
+
+  (void)ret;	// avoid warning.
 #if MRBC_SCHEDULER_EXIT
   if( !q_ready_ && !q_waiting_ && !q_suspended_ ) return ret;
 #endif
