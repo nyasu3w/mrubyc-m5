@@ -393,7 +393,7 @@ int mrbc_p_sub(const mrbc_value *v)
 #if 0
   // display reference counter
   if( mrbc_type(*v) > MRBC_TT_INC_DEC_THRESHOLD ) {
-    mrbc_printf("(%d)", v->obj->ref_count);
+    mrbc_printf("#%d", v->obj->ref_count);
   }
 #endif
 

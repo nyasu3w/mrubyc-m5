@@ -1473,21 +1473,23 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
   if( mrbc_type(regs[0]) == MRBC_TT_PROC &&
       mrbc_type(regs[1]) == MRBC_TT_ARRAY &&
       argc == 1 && m1 > 1 ) {
+
     mrbc_value argary = regs[1];
-    regs[1].tt = MRBC_TT_EMPTY;
+    int argary_size = mrbc_array_size(&argary);
 
-    argc = mrbc_array_size(&argary);
-    if( argc < m1 ) argc = m1;
+    argc = argary_size > m1 ? argary_size : m1;
 
-    for( int i = 0; i < argc; i++ ) {
-      mrbc_decref( &regs[i+1] );
-      if( mrbc_array_size(&argary) > i ) {
-	regs[i+1] = argary.array->data[i];
+    for( int i = argc; i > 0; i-- ) {
+      if( i != 1 ) mrbc_decref( &regs[i] );
+      if( argary_size >= i ) {
+	regs[i] = argary.array->data[i-1];
+	mrbc_incref(&regs[i]);
       } else {
-	mrbc_set_nil( &regs[i+1] );
+	mrbc_set_nil( &regs[i] );
       }
     }
-    mrbc_array_delete_handle( &argary );
+
+    mrbc_decref(&argary);
   }
 
   // dictionary, keyword or rest parameter exists.

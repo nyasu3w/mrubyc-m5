@@ -84,10 +84,15 @@ static inline int mrbc_array_size(const mrbc_value *ary)
 */
 static inline void mrbc_array_delete_handle(mrbc_value *ary)
 {
-  mrbc_array *h = ary->array;
+  mrbc_raw_free( ary->array->data );
+#if defined(MRBC_DEBUG)
+  ary->array->data = 0;
+#endif
 
-  mrbc_raw_free(h->data);
-  mrbc_raw_free(h);
+  mrbc_raw_free( ary->array );
+#if defined(MRBC_DEBUG)
+  ary->array = 0;
+#endif
 }
 
 
