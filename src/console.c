@@ -445,7 +445,8 @@ int mrbc_print_sub(const mrbc_value *v)
   case MRBC_TT_FLOAT:	mrbc_printf("%g", v->d);	break;
 #endif
   case MRBC_TT_SYMBOL:	mrbc_print_symbol(v->i);	break;
-  case MRBC_TT_CLASS:	mrbc_print_symbol(v->cls->sym_id); break;
+  case MRBC_TT_CLASS:   // fall through.
+  case MRBC_TT_MODULE:	mrbc_print_symbol(v->cls->sym_id); break;
 
   case MRBC_TT_OBJECT:
     mrbc_printf("#<");

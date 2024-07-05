@@ -52,7 +52,7 @@ MAKE_METHOD_TABLE ?= ../support/make_method_table.rb
 AUTOGEN_SYMBOL_TABLE = _autogen_builtin_symbol.h
 AUTOGEN_METHOD_TABLE = _autogen_class_array.h _autogen_class_exception.h \
 	_autogen_class_float.h _autogen_class_hash.h _autogen_class_integer.h \
-	_autogen_class_math.h _autogen_class_object.h _autogen_class_range.h \
+	_autogen_module_math.h _autogen_class_object.h _autogen_class_range.h \
 	_autogen_class_string.h _autogen_class_symbol.h _autogen_class_rrt0.h
 
 #
@@ -71,7 +71,7 @@ _autogen_class_float.h:		$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_numeric.c
 _autogen_class_hash.h:		$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_hash.c
-_autogen_class_math.h:		$(AUTOGEN_METHOD_SRCS)
+_autogen_module_math.h:		$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_math.c
 _autogen_class_object.h:	$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_object.c

@@ -141,6 +141,10 @@ def parse_source_string( src )
       cls = { class: strip_double_quot(args[0]) }
       ret[:classes] << cls
 
+    when "MODULE"
+      cls = { module: strip_double_quot(args[0]) }
+      ret[:classes] << cls
+
     when "SUPER"
       if !cls
         puts "Error: need CLASS parameter first."

@@ -8,6 +8,8 @@
 #
 
 class Array
+  include Enumerable
+
   #
   # all?
   #
@@ -71,20 +73,6 @@ class Array
   end
 
   #
-  # collect
-  #
-  def collect
-    i = 0
-    ary = []
-    while i < length
-      ary[i] = yield self[i]
-      i += 1
-    end
-    return ary
-  end
-  alias map collect
-
-  #
   # collect!
   #
   def collect!
@@ -131,18 +119,6 @@ class Array
     i = 0
     while i < length
       yield i
-      i += 1
-    end
-    return self
-  end
-
-  #
-  # each with index
-  #
-  def each_with_index
-    i = 0
-    while i < length
-      yield self[i], i
       i += 1
     end
     return self

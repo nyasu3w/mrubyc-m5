@@ -8,6 +8,7 @@
 #
 
 class Hash
+  include Enumerable
 
   #
   # each

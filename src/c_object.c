@@ -539,6 +539,46 @@ static void c_object_attr_accessor(struct VM *vm, mrbc_value v[], int argc)
 }
 
 
+//================================================================
+/*! (class method) include
+ */
+static void c_object_include(struct VM *vm, mrbc_value v[], int argc)
+{
+  mrbc_class *self;
+
+  if( v[0].tt == MRBC_TT_CLASS || v[0].tt == MRBC_TT_MODULE ) {
+    self = v[0].cls;
+  } else if( vm->callinfo_tail == 0 ) {    // is top level?
+    self = mrbc_class_object;
+  } else {
+    mrbc_raise( vm, 0, 0 );
+    return; // Error.
+  }
+
+  for( int i = 1; i <= argc; i++ ) {
+    if( v[i].tt != MRBC_TT_MODULE ) {
+      mrbc_raise(vm, MRBC_CLASS(TypeError), "wrong argument type Class");
+      return;
+    }
+    mrbc_class *module = v[i].cls;
+    mrbc_class *alias = mrbc_raw_alloc_no_free( sizeof(mrbc_class) );
+    if( !alias ) return;  // ENOMEM
+
+    *alias = (mrbc_class){
+      .sym_id = module->sym_id,
+      .flag_module = 1,
+      .flag_alias = 1,
+      .super = self->super,
+      .aliased = module,
+#if defined(MRBC_DEBUG)
+      .name = module->name,
+#endif
+    };
+    self->super = alias;
+  }
+}
+
+
 #if MRBC_USE_STRING
 //================================================================
 /*! (method) sprintf
@@ -734,6 +774,8 @@ static void c_object_to_s(struct VM *vm, mrbc_value v[], int argc)
   METHOD( "raise",	c_object_raise )
   METHOD( "attr_reader",c_object_attr_reader )
   METHOD( "attr_accessor", c_object_attr_accessor )
+  METHOD( "include",    c_object_include )
+  METHOD( "extend",     c_object_include )
 
 #if MRBC_USE_STRING
   METHOD( "sprintf",	c_object_sprintf )
