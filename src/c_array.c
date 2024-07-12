@@ -720,6 +720,8 @@ static void c_array_set(struct VM *vm, mrbc_value v[], int argc)
     if( mrbc_array_set(v, mrbc_integer(v[1]), &v[2]) != 0 ) {
       mrbc_raise( vm, MRBC_CLASS(IndexError), "too small for array");
     }
+    // return val
+    v[0] = v[2];
     mrbc_type(v[2]) = MRBC_TT_EMPTY;
     return;
   }
@@ -760,11 +762,16 @@ static void c_array_set(struct VM *vm, mrbc_value v[], int argc)
       }
     } else {
       mrbc_array_push(&v[0], &v[3]);
-      v[3].tt = MRBC_TT_EMPTY;
     }
 
     mrbc_array_push_m(&v[0], &v1);
     mrbc_array_delete_handle( &v1 );
+
+    // return val
+    v[0] = v[3];
+    if( v[3].tt != MRBC_TT_ARRAY ) {
+      v[3].tt = MRBC_TT_EMPTY;
+    }
     return;
   }
 
