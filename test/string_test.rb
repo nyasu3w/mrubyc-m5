@@ -99,6 +99,20 @@ class StringTest < MrubycTestCase
     assert_equal "bar", str0      #(str0 は無傷、 str1 は str0 と内容を共有していない
   end
 
+  description "self[nth]=val -> val"
+  def nth_return_val_case
+    str = "bar"
+    assert_equal "B", str[0] = "B"
+    assert_equal "Bar", str
+  end
+
+  description "send []= case"
+  def send_nth_return_val_case
+    str = "bar"
+    assert_equal "B", str.[]=(0, "B")
+    assert_equal "Bar", str
+  end
+
   description "境界値チェックを詳細にかけておく"
   def boundary_value_case
     s1 = "0123456"

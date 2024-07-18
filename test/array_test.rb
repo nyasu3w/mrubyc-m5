@@ -61,6 +61,30 @@ class ArrayTest < MrubycTestCase
     assert_equal [:AB, :CD, :E], %i(AB CD E)
   end
 
+  description "array.[]=(idx, replace)"
+  def send_aset_case
+    a = [0, 1, 2, 3, 4]
+    assert_equal 9, a.[]=(1, 9)
+    assert_equal [0, 9, 2, 3, 4], a
+
+    b = [0, 1, 2, 3, 4]
+    assert_equal 9, b.[]=(1, 3, 9)
+    assert_equal [0, 9, 4], b
+  end
+
+  description "Array#[idx] = replace (GCed value)"
+  def replace_with_GCed_value_case
+    a = [0,1,2]
+    str = "string"
+    assert_equal str, a[0] = str
+    assert_equal ["string", 1, 2], a
+
+    b = [0,1,2]
+    obj = Object.new
+    assert_equal obj, b[0, 2] = obj
+    assert_equal [obj, 2], b
+  end
+
   description "setter"
   def setter_case
     a = Array.new
