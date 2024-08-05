@@ -652,6 +652,7 @@ static void c_string_insert(struct VM *vm, mrbc_value v[], int argc)
 
   // return val
   mrbc_incref(val);
+  mrbc_decref(&v[0]);
   v[0] = *val;
 }
 

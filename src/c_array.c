@@ -719,8 +719,12 @@ static void c_array_set(struct VM *vm, mrbc_value v[], int argc)
   if( argc == 2 && mrbc_type(v[1]) == MRBC_TT_INTEGER ) {
     if( mrbc_array_set(v, mrbc_integer(v[1]), &v[2]) != 0 ) {
       mrbc_raise( vm, MRBC_CLASS(IndexError), "too small for array");
+      return;
     }
+
     // return val
+    mrbc_incref(&v[2]);
+    mrbc_decref(&v[0]);
     v[0] = v[2];
     mrbc_type(v[2]) = MRBC_TT_EMPTY;
     return;
@@ -761,6 +765,7 @@ static void c_array_set(struct VM *vm, mrbc_value v[], int argc)
 	mrbc_incref( &v[3].array->data[i] );
       }
     } else {
+      mrbc_incref(&v[3]);
       mrbc_array_push(&v[0], &v[3]);
     }
 
@@ -768,10 +773,9 @@ static void c_array_set(struct VM *vm, mrbc_value v[], int argc)
     mrbc_array_delete_handle( &v1 );
 
     // return val
+    mrbc_decref(&v[0]);
     v[0] = v[3];
-    if( v[3].tt != MRBC_TT_ARRAY ) {
-      v[3].tt = MRBC_TT_EMPTY;
-    }
+    v[3].tt = MRBC_TT_EMPTY;
     return;
   }
 
