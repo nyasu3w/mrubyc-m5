@@ -19,7 +19,7 @@ class Hash
     i = 0
     while i < len
       key = keys[i]
-      block.call [key, self[key]]
+      block.call([key, self[key]])
       i += 1
     end
 
