@@ -1661,9 +1661,13 @@ static inline void op_return__sub( mrbc_vm *vm, mrbc_value *regs, int a )
 
   // return without anything if top level.
   if( vm->callinfo_tail == NULL ) {
-    mrbc_decref(&regs[0]);
-    regs[0] = regs[a];
-    regs[a].tt = MRBC_TT_EMPTY;
+    if (vm->flag_permanence == 1) {
+      mrbc_incref(&regs[a]);
+    } else {
+      mrbc_decref(&regs[0]);
+      regs[0] = regs[a];
+      regs[a].tt = MRBC_TT_EMPTY;
+    }
     vm->flag_preemption = 1;
     vm->flag_stop = 1;
     return;

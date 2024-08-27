@@ -381,7 +381,7 @@ int mrbc_run(void)
       q_insert_task(tcb);
       hal_enable_irq();
 
-      mrbc_vm_end( &tcb->vm );
+      if( ! tcb->vm.flag_permanence ) mrbc_vm_end( &tcb->vm );
       if( ret_vm_run != 1 ) ret = ret_vm_run;   // for debug info.
 
       // find task that called join.
