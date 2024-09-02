@@ -25,14 +25,14 @@
      +-----------------+-------------------------------+-----------------+---
      |size| (contents) |size|*next|*prev| (empty) |*top|size| (contents) |
  USED|   1|            |   0|     |     |         |    |   1|            |
- PREV|   1|            |   1|     |     |         |    |   0|            |
+ PREV|  1 |            |  1 |     |     |         |    |  0 |            |
 
                                            Sentinel block at the link tail.
                                       ...              |  USED_BLOCK     |
                                      ------------------+-----------------+
                                                        |size| (contents) |
                                                    USED|   1|            |
-                                                   PREV|   ?|            |
+                                                   PREV|  ? |            |
     size : block size.
     *next: linked list, pointer to the next free block of same block size.
     *prev: linked list, pointer to the previous free block of same block size.
