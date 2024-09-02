@@ -651,9 +651,9 @@ static void c_string_insert(struct VM *vm, mrbc_value v[], int argc)
   v->string->data = str;
 
   // return val
-  mrbc_incref(val);
   mrbc_decref(&v[0]);
   v[0] = *val;
+  val->tt = MRBC_TT_EMPTY;
 }
 
 
