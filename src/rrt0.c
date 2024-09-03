@@ -209,10 +209,11 @@ mrbc_tcb * mrbc_tcb_new( int regs_size, enum MrbcTaskState task_state, int prior
 {
   mrbc_tcb *tcb;
 
-  tcb = mrbc_raw_alloc( sizeof(mrbc_tcb) + sizeof(mrbc_value) * regs_size );
+  unsigned int size = sizeof(mrbc_tcb) + sizeof(mrbc_value) * regs_size;
+  tcb = mrbc_raw_alloc(size);
   if( !tcb ) return NULL;	// ENOMEM
 
-  memset(tcb, 0, sizeof(mrbc_tcb));
+  memset(tcb, 0, size);
 #if defined(MRBC_DEBUG)
   memcpy( tcb->type, "TCB", 4 );
 #endif
@@ -380,7 +381,7 @@ int mrbc_run(void)
       q_insert_task(tcb);
       hal_enable_irq();
 
-      mrbc_vm_end( &tcb->vm );
+      if( ! tcb->vm.flag_permanence ) mrbc_vm_end( &tcb->vm );
       if( ret_vm_run != 1 ) ret = ret_vm_run;   // for debug info.
 
       // find task that called join.
