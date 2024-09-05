@@ -428,13 +428,15 @@ void mrbc_vm_end( struct VM *vm )
 */
 void mrbc_vm_close( struct VM *vm )
 {
+  mrbc_decref( &vm->regs[0] );
+
   // free vm id.
   int idx = (vm->vm_id-1) >> 4;
   int bit = 1 << ((vm->vm_id-1) & 0x0f);
   free_vm_bitmap[idx] &= ~bit;
 
   // free irep and vm
-  if( vm->top_irep ) mrbc_irep_free( vm->top_irep );
+  if( vm->top_irep ) mrbc_raw_free( vm->top_irep );
   if( vm->flag_need_memfree ) mrbc_raw_free(vm);
 }
 

@@ -226,7 +226,7 @@ mrbc_tcb * mrbc_tcb_new( int regs_size, enum MrbcTaskState task_state, int prior
 
 
 //================================================================
-/*! specify running VM code.
+/*! Create a task specifying bytecode to be executed.
 
   @param  byte_code	pointer to VM byte code.
   @param  tcb		Task control block with parameter, or NULL.
@@ -258,6 +258,27 @@ mrbc_tcb * mrbc_create_task(const void *byte_code, mrbc_tcb *tcb)
   hal_enable_irq();
 
   return tcb;
+}
+
+
+//================================================================
+/*! Delete a task.
+
+  @param  byte_code	pointer to VM byte code.
+  @param  tcb		Task control block with parameter, or NULL.
+  @return Pointer to mrbc_tcb or NULL.
+*/
+int mrbc_delete_task(mrbc_tcb *tcb)
+{
+  if( tcb->state != TASKSTATE_DORMANT )  return -1;
+
+  hal_disable_irq();
+  q_delete_task(tcb);
+  hal_enable_irq();
+
+  mrbc_vm_close( &tcb->vm );
+
+  return 0;
 }
 
 
