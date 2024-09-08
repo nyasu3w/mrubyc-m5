@@ -2169,15 +2169,15 @@ static inline void op_array( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_BB();
 
-  mrbc_value value = mrbc_array_new(vm, b);
-  if( value.array == NULL ) return;  // ENOMEM
+  mrbc_value ret = mrbc_array_new(vm, b);
+  if( ret.array == NULL ) return;  // ENOMEM
 
-  memcpy( value.array->data, &regs[a], sizeof(mrbc_value) * b );
+  memcpy( ret.array->data, &regs[a], sizeof(mrbc_value) * b );
   memset( &regs[a], 0, sizeof(mrbc_value) * b );
-  value.array->n_stored = b;
+  ret.array->n_stored = b;
 
   mrbc_decref(&regs[a]);
-  regs[a] = value;
+  regs[a] = ret;
 }
 
 
@@ -2190,17 +2190,15 @@ static inline void op_array2( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_BBB();
 
-  mrbc_value value = mrbc_array_new(vm, c);
-  if( value.array == NULL ) return;  // ENOMEM
+  mrbc_value ret = mrbc_array_new(vm, c);
+  if( ret.array == NULL ) return;  // ENOMEM
 
-  for( int i = 0; i < c; i++ ) {
-    mrbc_incref( &regs[b+i] );
-    value.array->data[i] = regs[b+i];
-  }
-  value.array->n_stored = c;
+  memcpy( ret.array->data, &regs[b], sizeof(mrbc_value) * c );
+  memset( &regs[b], 0, sizeof(mrbc_value) * c );
+  ret.array->n_stored = c;
 
   mrbc_decref(&regs[a]);
-  regs[a] = value;
+  regs[a] = ret;
 }
 
 
