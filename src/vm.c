@@ -2701,13 +2701,9 @@ static inline void op_def( mrbc_vm *vm, mrbc_value *regs EXT )
   mrbc_class *cls = regs[a].cls;
   mrbc_sym sym_id = mrbc_irep_symbol_id(vm->cur_irep, b);
   mrbc_proc *proc = regs[a+1].proc;
-  mrbc_method *method;
-
-  if( vm->vm_id == 0 ) {
-    method = mrbc_raw_alloc_no_free( sizeof(mrbc_method) );
-  } else {
-    method = mrbc_raw_alloc( sizeof(mrbc_method) );
-  }
+  mrbc_method *method = (vm->vm_id == 0) ?
+    mrbc_raw_alloc_no_free( sizeof(mrbc_method) ) :
+    mrbc_raw_alloc( sizeof(mrbc_method) );
   if( !method ) return; // ENOMEM
 
   method->type = (vm->vm_id == 0) ? 'm' : 'M';
@@ -2746,17 +2742,19 @@ static inline void op_alias( mrbc_vm *vm, mrbc_value *regs EXT )
   mrbc_sym sym_id_new = mrbc_irep_symbol_id(vm->cur_irep, a);
   mrbc_sym sym_id_org = mrbc_irep_symbol_id(vm->cur_irep, b);
   mrbc_class *cls = vm->target_class;
-  mrbc_method *method = mrbc_raw_alloc( sizeof(mrbc_method) );
-  if( !method ) return;	// ENOMEM
+  mrbc_method *method = (vm->vm_id == 0) ?
+    mrbc_raw_alloc_no_free( sizeof(mrbc_method) ) :
+    mrbc_raw_alloc( sizeof(mrbc_method) );
+  if( !method ) return; // ENOMEM
 
   if( mrbc_find_method( method, cls, sym_id_org ) == 0 ) {
     mrbc_raisef(vm, MRBC_CLASS(NameError), "undefined method '%s'",
 		mrbc_symid_to_str(sym_id_org));
-    mrbc_raw_free( method );
+    if(vm->vm_id != 0) mrbc_raw_free( method );
     return;
   }
 
-  method->type = 'M';
+  method->type = (vm->vm_id == 0) ? 'm' : 'M';
   method->sym_id = sym_id_new;
   method->next = cls->method_link;
   cls->method_link = method;
