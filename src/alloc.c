@@ -629,16 +629,14 @@ void * mrbc_raw_alloc_no_free(unsigned int size)
 */
 void mrbc_raw_free(void *ptr)
 {
-  if( ptr == NULL ) {
-#if defined(MRBC_DEBUG)
-    static const char msg[] = "mrbc_raw_free(): NULL pointer was given.\n";
-    hal_write(2, msg, sizeof(msg)-1);
-#endif
-    return;
-  }
-
 #if defined(MRBC_DEBUG)
   {
+    if( ptr == NULL ) {
+      static const char msg[] = "mrbc_raw_free(): NULL pointer was given.\n";
+      hal_write(2, msg, sizeof(msg)-1);
+      return;
+    }
+
     FREE_BLOCK *target = (FREE_BLOCK *)((uint8_t *)ptr - sizeof(USED_BLOCK));
     FREE_BLOCK *block = BLOCK_TOP(memory_pool);
     while( block < (FREE_BLOCK *)BLOCK_END(memory_pool) ) {
@@ -656,6 +654,8 @@ void mrbc_raw_free(void *ptr)
     memset( ptr, 0xff, BLOCK_SIZE(target) - sizeof(USED_BLOCK) );
   }
 #endif
+
+  if( ptr == NULL ) return;
 
   MEMORY_POOL *pool = memory_pool;
 
