@@ -1789,7 +1789,7 @@ static inline void op_break( mrbc_vm *vm, mrbc_value *regs EXT )
     }
 
     // Is it the origin (generator) of proc?
-    if( vm->callinfo_tail == vm->ret_blk->callinfo_self ) break;
+    if( vm->callinfo_tail == vm->ret_blk->callinfo ) break;
 
     reg_offset = vm->callinfo_tail->reg_offset;
     mrbc_pop_callinfo(vm);
@@ -1831,13 +1831,22 @@ static inline void op_blkpush( mrbc_vm *vm, mrbc_value *regs EXT )
   if( lv == 0 ) {
     // current env
     blk = regs + offset;
+
   } else {
     // upper env
     assert( regs[0].tt == MRBC_TT_PROC );
+    mrbc_callinfo *callinfo = regs[0].proc->callinfo;
 
-    mrbc_callinfo *callinfo = regs[0].proc->callinfo_self;
+    for( int i = 0; i < lv-1; i++ ) {
+      assert( callinfo );
+      mrbc_value *reg0 = callinfo->cur_regs + callinfo->reg_offset;
+      assert( reg0->tt == MRBC_TT_PROC );
+      callinfo = reg0->proc->callinfo;
+    }
+
     blk = callinfo->cur_regs + callinfo->reg_offset + offset;
   }
+
   if( blk->tt != MRBC_TT_PROC ) {
     mrbc_raise( vm, MRBC_CLASS(Exception), "no block given (yield)");
     return;
