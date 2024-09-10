@@ -264,8 +264,7 @@ mrbc_tcb * mrbc_create_task(const void *byte_code, mrbc_tcb *tcb)
 //================================================================
 /*! Delete a task.
 
-  @param  byte_code	pointer to VM byte code.
-  @param  tcb		Task control block with parameter, or NULL.
+  @param  tcb		Task control block.
   @return Pointer to mrbc_tcb or NULL.
 */
 int mrbc_delete_task(mrbc_tcb *tcb)
