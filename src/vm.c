@@ -1139,7 +1139,7 @@ CASE_OP_BREAK: {
 
   // return to the proc generated level.
   int reg_offset = 0;
-  while( vm->callinfo_tail != vm->ret_blk->callinfo_self ) {
+  while( vm->callinfo_tail != vm->ret_blk->callinfo ) {
     // find ensure that still needs to be executed.
     const mrbc_irep_catch_handler *handler = find_catch_handler_ensure(vm);
     if( handler ) {
