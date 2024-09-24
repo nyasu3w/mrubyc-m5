@@ -30,6 +30,7 @@
 #include "c_string.h"
 #include "c_array.h"
 #include "c_hash.h"
+#include "c_math.h"
 #include "global.h"
 #include "vm.h"
 #include "load.h"
@@ -658,7 +659,6 @@ int mrbc_run_mrblib(const void *bytecode)
 void mrbc_init_class(void)
 {
   extern const uint8_t mrblib_bytecode[];
-  void mrbc_init_module_math(void);
 
   mrbc_value cls = {.tt = MRBC_TT_CLASS};
 
