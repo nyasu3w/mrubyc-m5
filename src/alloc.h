@@ -42,6 +42,14 @@ struct MRBC_ALLOC_STATISTICS {
   unsigned int fragmentation;	//!< returns memory fragmentation count.
 };
 
+#if defined(MRBC_USE_ALLOC_PROF)
+struct MRBC_ALLOC_PROF {
+  unsigned long initial;
+  unsigned long max;
+  unsigned long min;
+};
+#endif
+
 struct VM;
 
 /***** Global variables *****************************************************/
@@ -64,6 +72,11 @@ void mrbc_alloc_print_pool_header(void *pool_header);
 void mrbc_alloc_print_memory_block(void *pool_header);
 void mrbc_alloc_print_memory_pool(void);
 
+#if defined(MRBC_USE_ALLOC_PROF)
+void mrbc_alloc_start_profiling(void);
+void mrbc_alloc_stop_profiling(void);
+void mrbc_alloc_get_profiling(struct MRBC_ALLOC_PROF *prof);
+#endif
 
 #if defined(MRBC_ALLOC_VMID)
 // Enables memory management by VMID.
