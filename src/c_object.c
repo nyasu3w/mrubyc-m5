@@ -275,6 +275,7 @@ static void c_object_print(struct VM *vm, mrbc_value v[], int argc)
   for( i = 1; i <= argc; i++ ) {
     mrbc_print_sub( &v[i] );
   }
+  SET_NIL_RETURN();
 }
 
 
