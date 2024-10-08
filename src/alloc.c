@@ -228,6 +228,10 @@ typedef struct MEMORY_POOL {
 // memory pool
 static MEMORY_POOL *memory_pool;
 
+#if defined(MRBC_USE_ALLOC_PROF)
+static int profiling = 0;
+static struct MRBC_ALLOC_PROF alloc_prof = {0, 0, 0};
+#endif
 
 /***** Global variables *****************************************************/
 /***** Signal catching functions ********************************************/
@@ -359,6 +363,30 @@ static void remove_free_block(MEMORY_POOL *pool, FREE_BLOCK *target)
   }
 }
 
+
+#if defined(MRBC_USE_ALLOC_PROF)
+//================================================================
+/*! Record current memory usage for profiling
+*/
+static void alloc_profile(void)
+{
+  if (!profiling) return;
+
+  MEMORY_POOL *pool = memory_pool;
+  USED_BLOCK *block = BLOCK_TOP(pool);
+  unsigned int used = 0;
+
+  while (block < (USED_BLOCK *)BLOCK_END(pool)) {
+    if (!IS_FREE_BLOCK(block)) {
+      used += BLOCK_SIZE(block);
+    }
+    block = PHYS_NEXT(block);
+  }
+
+  if (alloc_prof.max < used) alloc_prof.max = used;
+  if (used < alloc_prof.min) alloc_prof.min = used;
+}
+#endif
 
 //================================================================
 /*! Split block by size
@@ -568,6 +596,10 @@ void * mrbc_raw_alloc(unsigned int size)
           BLOCK_SIZE(target) - sizeof(USED_BLOCK) );
 #endif
 
+#if defined(MRBC_USE_ALLOC_PROF)
+  alloc_profile();
+#endif
+
   return (uint8_t *)target + sizeof(USED_BLOCK);
 }
 
@@ -684,6 +716,10 @@ void mrbc_raw_free(void *ptr)
 
   // target, add to index
   add_free_block( pool, target );
+
+#if defined(MRBC_USE_ALLOC_PROF)
+  alloc_profile();
+#endif
 }
 
 
@@ -726,6 +762,9 @@ void * mrbc_raw_realloc(void *ptr, unsigned int size)
     SET_PREV_USED(release);
   } else {
     SET_PREV_USED(next);
+#if defined(MRBC_USE_ALLOC_PROF)
+    alloc_profile();
+#endif
     return ptr;
   }
 
@@ -737,6 +776,9 @@ void * mrbc_raw_realloc(void *ptr, unsigned int size)
     SET_PREV_FREE(next);
   }
   add_free_block( pool, release );
+#if defined(MRBC_USE_ALLOC_PROF)
+  alloc_profile();
+#endif
   return ptr;
 
 
@@ -868,6 +910,38 @@ void mrbc_alloc_statistics( struct MRBC_ALLOC_STATISTICS *ret )
   }
 }
 
+#if defined(MRBC_USE_ALLOC_PROF)
+//================================================================
+/*! Start memory allocation profiling
+*/
+void mrbc_alloc_start_profiling(void)
+{
+  if (profiling) return;
+  profiling = 1;
+  alloc_prof.max = 0;
+  alloc_profile();
+  alloc_prof.initial = alloc_prof.min = alloc_prof.max;
+}
+
+//================================================================
+/*! Stop memory allocation profiling
+*/
+void mrbc_alloc_stop_profiling(void)
+{
+  if (!profiling) return;
+  profiling = 0;
+}
+
+//================================================================
+/*! Get memory allocation profiling data
+
+  @return pointer to struct MRBC_ALLOC_PROF
+*/
+void mrbc_alloc_get_profiling(struct MRBC_ALLOC_PROF *prof)
+{
+  memcpy(prof, &alloc_prof, sizeof(struct MRBC_ALLOC_PROF));
+}
+#endif
 
 #if defined(MRBC_DEBUG)
 //================================================================
