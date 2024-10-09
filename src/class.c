@@ -381,20 +381,21 @@ mrbc_value mrbc_proc_new(struct VM *vm, void *irep, uint8_t b_or_m)
   mrbc_proc *proc = mrbc_alloc(vm, sizeof(mrbc_proc));
   if( !proc ) goto RETURN;		// ENOMEM
 
+  memset(proc, 0, sizeof(mrbc_proc));
   MRBC_INIT_OBJECT_HEADER( proc, "PR" );
   proc->block_or_method = b_or_m;
-  proc->callinfo = vm->callinfo_tail;
-
-  if( vm->cur_regs[0].tt == MRBC_TT_PROC ) {
-    proc->callinfo_self = vm->cur_regs[0].proc->callinfo_self;
-  } else {
-    proc->callinfo_self = vm->callinfo_tail;
+  if( b_or_m == 'B' ) {
+    if( vm->cur_regs[0].tt == MRBC_TT_PROC ) {
+      proc->callinfo_self = vm->cur_regs[0].proc->callinfo_self;
+      proc->self = vm->cur_regs[0].proc->self;
+    } else {
+      proc->callinfo_self = vm->callinfo_tail;
+      proc->self = vm->cur_regs[0];
+    }
+    mrbc_incref(&proc->self);
   }
-
+  proc->callinfo = vm->callinfo_tail;
   proc->irep = irep;
-  proc->self = *mrbc_get_self(vm, vm->cur_regs);
-  mrbc_incref(&proc->self);
-  proc->ret_val.tt = MRBC_TT_NIL;
 
  RETURN:
   return (mrbc_value){.tt = MRBC_TT_PROC, .proc = proc};
