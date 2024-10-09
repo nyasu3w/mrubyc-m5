@@ -401,6 +401,18 @@ static inline void uint16_to_bin( uint16_t v, void *d )
 }
 
 
+//================================================================
+/*! get the self object
+
+  @param  vm	A pointer to VM.
+  @param  regs	registor
+*/
+static inline mrbc_value * mrbc_get_self( struct VM *vm, mrbc_value *regs )
+{
+  return regs[0].tt == MRBC_TT_PROC ? &(regs[0].proc->self) : &regs[0];
+}
+
+
 #ifdef __cplusplus
 }
 #endif

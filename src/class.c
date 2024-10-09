@@ -392,6 +392,9 @@ mrbc_value mrbc_proc_new(struct VM *vm, void *irep)
   }
 
   val.proc->irep = irep;
+  val.proc->self = *mrbc_get_self(vm, vm->cur_regs);
+  mrbc_incref(&val.proc->self);
+  val.proc->ret_val.tt = MRBC_TT_NIL;
 
   return val;
 }
@@ -404,6 +407,7 @@ mrbc_value mrbc_proc_new(struct VM *vm, void *irep)
 */
 void mrbc_proc_delete(mrbc_value *val)
 {
+  mrbc_decref(&val->proc->self);
   mrbc_raw_free(val->proc);
 }
 

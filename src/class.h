@@ -110,6 +110,7 @@ typedef struct RProc {
   struct CALLINFO *callinfo;
   struct CALLINFO *callinfo_self;
   struct IREP *irep;
+  mrbc_value self;
   mrbc_value ret_val;
 
 } mrbc_proc;

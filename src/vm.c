@@ -173,26 +173,6 @@ static const mrbc_irep_catch_handler *find_catch_handler_ensure( const struct VM
 }
 
 
-//================================================================
-/*! get the self object
-*/
-static mrbc_value * mrbc_get_self( struct VM *vm, mrbc_value *regs )
-{
-  mrbc_value *self = &regs[0];
-  if( mrbc_type(*self) == MRBC_TT_PROC ) {
-    mrbc_callinfo *callinfo = regs[0].proc->callinfo_self;
-    if( callinfo ) {
-      self = callinfo->cur_regs + callinfo->reg_offset;
-    } else {
-      self = &vm->regs[0];
-    }
-    assert( self->tt != MRBC_TT_PROC );
-  }
-
-  return self;
-}
-
-
 /***** Global functions *****************************************************/
 
 //================================================================
