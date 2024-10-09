@@ -107,6 +107,7 @@ typedef struct RInstance mrb_instance;
 typedef struct RProc {
   MRBC_OBJECT_HEADER;
 
+  uint8_t block_or_method;
   struct CALLINFO *callinfo;
   struct CALLINFO *callinfo_self;
   struct IREP *irep;
@@ -180,7 +181,7 @@ void mrbc_instance_delete(mrbc_value *v);
 void mrbc_instance_setiv(mrbc_value *obj, mrbc_sym sym_id, mrbc_value *v);
 mrbc_value mrbc_instance_getiv(mrbc_value *obj, mrbc_sym sym_id);
 void mrbc_instance_clear_vm_id(mrbc_value *v);
-mrbc_value mrbc_proc_new(struct VM *vm, void *irep);
+mrbc_value mrbc_proc_new(struct VM *vm, void *irep, uint8_t b_or_m);
 void mrbc_proc_delete(mrbc_value *val);
 void mrbc_proc_clear_vm_id(mrbc_value *v);
 int mrbc_obj_is_kind_of(const mrbc_value *obj, const mrbc_class *cls);

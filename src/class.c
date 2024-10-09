@@ -373,30 +373,31 @@ void mrbc_instance_clear_vm_id(mrbc_value *v)
 
   @param  vm		Pointer to VM.
   @param  irep		Pointer to IREP.
+  @param  b_or_m	block or method flag.
   @return		mrbc_value of Proc object.
 */
-mrbc_value mrbc_proc_new(struct VM *vm, void *irep)
+mrbc_value mrbc_proc_new(struct VM *vm, void *irep, uint8_t b_or_m)
 {
-  mrbc_value val = {.tt = MRBC_TT_PROC};
+  mrbc_proc *proc = mrbc_alloc(vm, sizeof(mrbc_proc));
+  if( !proc ) goto RETURN;		// ENOMEM
 
-  val.proc = mrbc_alloc(vm, sizeof(mrbc_proc));
-  if( !val.proc ) return val;	// ENOMEM
+  MRBC_INIT_OBJECT_HEADER( proc, "PR" );
+  proc->block_or_method = b_or_m;
+  proc->callinfo = vm->callinfo_tail;
 
-  MRBC_INIT_OBJECT_HEADER( val.proc, "PR" );
-  val.proc->callinfo = vm->callinfo_tail;
-
-  if( mrbc_type(vm->cur_regs[0]) == MRBC_TT_PROC ) {
-    val.proc->callinfo_self = vm->cur_regs[0].proc->callinfo_self;
+  if( vm->cur_regs[0].tt == MRBC_TT_PROC ) {
+    proc->callinfo_self = vm->cur_regs[0].proc->callinfo_self;
   } else {
-    val.proc->callinfo_self = vm->callinfo_tail;
+    proc->callinfo_self = vm->callinfo_tail;
   }
 
-  val.proc->irep = irep;
-  val.proc->self = *mrbc_get_self(vm, vm->cur_regs);
-  mrbc_incref(&val.proc->self);
-  val.proc->ret_val.tt = MRBC_TT_NIL;
+  proc->irep = irep;
+  proc->self = *mrbc_get_self(vm, vm->cur_regs);
+  mrbc_incref(&proc->self);
+  proc->ret_val.tt = MRBC_TT_NIL;
 
-  return val;
+ RETURN:
+  return (mrbc_value){.tt = MRBC_TT_PROC, .proc = proc};
 }
 
 
