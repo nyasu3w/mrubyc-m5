@@ -55,6 +55,18 @@ static uint16_t free_vm_bitmap[MAX_VM_COUNT / 16 + 1];
 /***** Signal catching functions ********************************************/
 /***** Local functions ******************************************************/
 //================================================================
+/*! Shift arguments for method_missing
+
+  @param  recv		pointer to receiver
+  @param  narg		number of arguments
+*/
+static void shift_arguments(mrb_value *recv, int narg) {
+  for (int i = narg + 1; 0 < i; i--) {
+    recv[i + 1] = recv[i];
+  }
+}
+
+//================================================================
 /*! Method call by method name's id
 
   @param  vm		pointer to VM.
@@ -111,13 +123,21 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
   mrbc_class *cls = find_class_by_object(recv);
   mrbc_method method;
   if( mrbc_find_method( &method, cls, sym_id ) == 0 ) {
-    mrbc_raisef(vm, MRBC_CLASS(NoMethodError),
-		"undefined local variable or method '%s' for %s",
-		mrbc_symid_to_str(sym_id), mrbc_symid_to_str( cls->sym_id ));
-    if( vm->callinfo_tail != 0 ) {
-      vm->exception.exception->method_id = vm->callinfo_tail->method_id;
+    if( mrbc_find_method( &method, cls, MRBC_SYM(method_missing) ) == 0 ) {
+      mrbc_raisef(vm, MRBC_CLASS(NoMethodError),
+        "undefined local variable or method '%s' for %s",
+        mrbc_symid_to_str(sym_id), mrbc_symid_to_str( cls->sym_id ));
+
+      if( vm->callinfo_tail != 0 ) {
+        vm->exception.exception->method_id = vm->callinfo_tail->method_id;
+      }
+      return;
+    } else {
+      shift_arguments(recv, narg);
+      recv[1] = mrbc_symbol_value(sym_id);
+      sym_id = MRBC_SYM(method_missing);
+      narg++;
     }
-    return;
   }
 
   // call C function and return.
