@@ -655,6 +655,30 @@ void * mrbc_raw_alloc_no_free(unsigned int size)
 
 
 //================================================================
+/*! allocate memory for compatibility with calloc
+
+  @param  nmemb  number of elements.
+  @param  size   size of an element.
+  @return void * pointer to allocated memory.
+  @retval NULL   error.
+*/
+void * mrbc_raw_calloc(unsigned int nmemb, unsigned int size)
+{
+  unsigned int total_size = nmemb * size;
+  void* ptr = mrbc_raw_alloc(total_size);
+  if (ptr != NULL) {
+    // Instead of using memset and memset_s (not available in C99),
+    // we use a volatile pointer to prevent unexpected optimization.
+    volatile unsigned char *vptr = (volatile unsigned char *)ptr;
+    while (total_size--) {
+      *vptr++ = 0;
+    }
+  }
+  return ptr;
+}
+
+
+//================================================================
 /*! release memory
 
   @param  ptr	Return value of mrbc_raw_alloc()
@@ -830,6 +854,25 @@ void * mrbc_alloc(const struct VM *vm, unsigned int size)
   return ptr;
 }
 
+
+//================================================================
+/*! allocate memory where zero-cleared out.
+
+  @param  vm     pointer to VM.
+  @param  nmemb  number of elements.
+  @param  size   size of an element.
+  @return void * pointer to allocated memory.
+  @retval NULL   error.
+*/
+void * mrbc_calloc(const struct VM *vm, unsigned int nmemb, unsigned int size)
+{
+  void *ptr = mrbc_raw_calloc(nmemb, size);
+  if( ptr == NULL ) return NULL;	// ENOMEM
+
+  if( vm ) mrbc_set_vm_id(ptr, vm->vm_id);
+
+  return ptr;
+}
 
 //================================================================
 /*! release memory, vm used.
