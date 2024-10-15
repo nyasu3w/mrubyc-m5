@@ -62,6 +62,7 @@ void mrbc_init_alloc(void *ptr, unsigned int size);
 void mrbc_cleanup_alloc(void);
 void *mrbc_raw_alloc(unsigned int size);
 void *mrbc_raw_alloc_no_free(unsigned int size);
+void *mrbc_raw_calloc(unsigned int nmemb, unsigned int size);
 void mrbc_raw_free(void *ptr);
 void *mrbc_raw_realloc(void *ptr, unsigned int size);
 #define mrbc_free(vm,ptr)		mrbc_raw_free(ptr)
@@ -81,6 +82,7 @@ void mrbc_alloc_get_profiling(struct MRBC_ALLOC_PROF *prof);
 #if defined(MRBC_ALLOC_VMID)
 // Enables memory management by VMID.
 void *mrbc_alloc(const struct VM *vm, unsigned int size);
+void *mrbc_calloc(const struct VM *vm, unsigned int nmemb, unsigned int size);
 void mrbc_free_all(const struct VM *vm);
 void mrbc_set_vm_id(void *ptr, int vm_id);
 int mrbc_get_vm_id(void *ptr);
@@ -108,6 +110,9 @@ static inline void *mrbc_raw_alloc(unsigned int size) {
 }
 static inline void *mrbc_raw_alloc_no_free(unsigned int size) {
   return malloc(size);
+}
+static inline void *mrbc_raw_calloc(unsigned int nmemb, unsigned int size) {
+  return calloc(nmemb, size);
 }
 static inline void mrbc_raw_free(void *ptr) {
   free(ptr);
