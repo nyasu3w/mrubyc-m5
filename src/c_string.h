@@ -67,6 +67,8 @@ int mrbc_string_append_cbuf(mrbc_value *s1, const void *s2, int len2);
 int mrbc_string_index(const mrbc_value *src, const mrbc_value *pattern, int offset);
 int mrbc_string_strip(mrbc_value *src, int mode);
 int mrbc_string_chomp(mrbc_value *src);
+int mrbc_string_upcase(mrbc_value *str);
+int mrbc_string_downcase(mrbc_value *str);
 
 
 /***** Inline functions *****************************************************/
