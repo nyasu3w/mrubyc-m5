@@ -173,26 +173,6 @@ static const mrbc_irep_catch_handler *find_catch_handler_ensure( const struct VM
 }
 
 
-//================================================================
-/*! get the self object
-*/
-static mrbc_value * mrbc_get_self( struct VM *vm, mrbc_value *regs )
-{
-  mrbc_value *self = &regs[0];
-  if( mrbc_type(*self) == MRBC_TT_PROC ) {
-    mrbc_callinfo *callinfo = regs[0].proc->callinfo_self;
-    if( callinfo ) {
-      self = callinfo->cur_regs + callinfo->reg_offset;
-    } else {
-      self = &vm->regs[0];
-    }
-    assert( self->tt != MRBC_TT_PROC );
-  }
-
-  return self;
-}
-
-
 /***** Global functions *****************************************************/
 
 //================================================================
@@ -2520,21 +2500,36 @@ static inline void op_hashcat( mrbc_vm *vm, mrbc_value *regs EXT )
 
 
 //================================================================
-/*! OP_BLOCK, OP_METHOD
+/*! OP_BLOCK
 
   R[a] = lambda(Irep[b],L_BLOCK)
+*/
+static inline void op_block( mrbc_vm *vm, mrbc_value *regs EXT )
+{
+  FETCH_BB();
+
+  mrbc_value ret = mrbc_proc_new(vm, mrbc_irep_child_irep(vm->cur_irep, b), 'B');
+  if( !ret.proc ) return;	// ENOMEM
+
+  mrbc_decref(&regs[a]);
+  regs[a] = ret;
+}
+
+
+//================================================================
+/*! OP_METHOD
+
   R[a] = lambda(Irep[b],L_METHOD)
 */
 static inline void op_method( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_BB();
 
+  mrbc_value ret = mrbc_proc_new(vm, mrbc_irep_child_irep(vm->cur_irep, b), 'M');
+  if( !ret.proc ) return;	// ENOMEM
+
   mrbc_decref(&regs[a]);
-
-  mrbc_value val = mrbc_proc_new(vm, mrbc_irep_child_irep(vm->cur_irep, b));
-  if( !val.proc ) return;	// ENOMEM
-
-  regs[a] = val;
+  regs[a] = ret;
 }
 
 
@@ -2962,7 +2957,7 @@ int mrbc_vm_run( struct VM *vm )
     case OP_HASHADD:    op_hashadd    (vm, regs EXT); break;
     case OP_HASHCAT:    op_hashcat    (vm, regs EXT); break;
     case OP_LAMBDA:     op_unsupported(vm, regs EXT); break; // not implemented.
-    case OP_BLOCK:      // fall through
+    case OP_BLOCK:      op_block      (vm, regs EXT); break;
     case OP_METHOD:     op_method     (vm, regs EXT); break;
     case OP_RANGE_INC:  op_range_inc  (vm, regs EXT); break;
     case OP_RANGE_EXC:  op_range_exc  (vm, regs EXT); break;
