@@ -24,7 +24,7 @@ require_relative "common_sub"
 
 APPEND_SYMBOL = [
   "",   # To make zero an error (reserved) value.
-  "+", "-", "*", "/", "==", "<", "<=", ">", ">=", "initialize", "PI", "E",
+  "+", "-", "*", "/", "==", "<", "<=", ">", ">=", "initialize", "PI", "E", "method_missing",
 ]
 
 
