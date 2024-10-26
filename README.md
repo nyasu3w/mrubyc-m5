@@ -1,3 +1,81 @@
+# mruby/c for m5
+This is a project for using mruby/c on M5Stack devices with M5Unified library on Arduino framework.
+
+Features: supporting ruby scripts (mruby/c) for
+- Writing chars/Drawing graphs on LCD 
+- Support of BtnA/B/C
+- Support of Touch panel
+- Read/Write SD cards
+- Reading IMU value
+- Input from CardKB
+- Easy extention with many arduino library
+
+The compactness is important and implemented functions are rather little, but you can implement/extend more for your purpose.
+Though, this project do not pursue compactness in fact.
+
+## Example projects
+Placed in "projects" directory.
+- demo of functions (total_demo)
+- limiting functions for compactness (only_display)
+- loading compiled rubyscript from SD (mrb_in_sd)
+- extension of M5Stack-Avatar (m5stack-avatar)
+
+## prerequisites
+- mruby
+- platformio
+
+mruby needs to byte compile ruby files.
+platformio is necessary because the build system depends on it.
+
+## preparation
+Please note that the directory structure is not as usual. It might be my mistake but it works for me for the moment.
+
+Each project files are placed under projects directory. Now some projects are there, and one of them is selected in src_dir variable in `platformio.ini` in the top directory.
+
+mruby compiler needs to be available to run from `extra_script.py`. 
+The calling line in extra_script.py is like:
+
+> ret=subprocess.run(['c:/msys64/usr/bin/bash','-l', '-c', f'mrbc -B {bname} {rubyfile}'])
+
+This is just for my environment on MSYS2. It might be ready with 
+
+> ret=subprocess.run([ f'mrbc -B {bname} {rubyfile}']) 
+
+`extra_script.py` will check the necessity and do byte compile.
+If you do not like the automatic byte compile, you can do it by hand:
+
+> mrbc -B {name} {name}.rb
+
+`{name}.c` is generated. The generated C file is to be on src directory of the project. {name} would be specified your cpp file.
+
+In that case, please remove a line to call before_build function in near the bottom of `extra_script.py`. Otherwise, the build system would stop.
+
+
+## build
+Confirm the board setting in `platformio.ini`. You might want to change default_envs variable.
+
+> pio run
+
+Simple. Thank you, PlatformIO.
+In the case of manual mrbc activation above, run the mrbc command before `pio run`.
+
+You can upload the built firmware by
+
+> pio run --target=upload
+
+If you are using PlatformIO on VSCode,you can build and upload from the bottom line of VSCode.
+
+## Creating a new project
+1. make a new directory in "projects"
+1. If you need additional libraries, write it in 'libdeps.txt' in the new directory
+  1. `libdeps.txt` format is same as lib_deps variable in `platformio.ini`
+1. create your source files in src directory in the new directory.
+
+## 
+
+---
+The original mruby/c README follows.
+---
 # mruby/c
 
 [![Ruby](https://github.com/mrubyc/mrubyc/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/mrubyc/mrubyc/actions/workflows/c-cpp.yml)

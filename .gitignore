@@ -1,3 +1,10 @@
+.pio/
+.vscode/
+projects/m5stack-avatar/src/test.c
+projects/only_display/src/test.c
+project/tota/src/demo.c
+
+#the folloowings are from original mrubyc
 # Executables
 sample_scheduler
 sample_include

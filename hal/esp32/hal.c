@@ -49,8 +49,15 @@ static portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 */
 static void on_timer(void *arg)
 {
+#if CONFIG_IDF_TARGET_ESP32
     TIMERG0.int_clr_timers.t0 = 1;
     TIMERG0.hw_timer[TIMER_0].config.alarm_en = TIMER_ALARM_EN;
+#elif CONFIG_IDF_TARGET_ESP32S3
+    TIMERG0.int_clr_timers.t0_int_clr = 1;
+    TIMERG0.hw_timer[TIMER_0].config.tn_alarm_en = 1;
+#else
+#error "not yet considered"
+#endif
     mrbc_tick();
 }
 
@@ -66,7 +73,7 @@ static void on_timer(void *arg)
   initialize
 
 */
-void hal_init(void)
+void mrbc_hal_init(void)
 {
   timer_config_t config;
 
