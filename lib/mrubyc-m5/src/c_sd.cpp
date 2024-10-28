@@ -135,8 +135,15 @@ static void class_sd_init_normal()
     mrbc_define_method(0, class_sd, "write", class_sd_write);
 }
 
+bool judge_sd_enabled(){ // disable SD.begin() 
+    if(M5.getBoard() == 3) {
+        return false;
+    } 
+    return true;
+}
+
 void class_sd_init(){
-    if(SD.begin(GPIO_NUM_4, SPI, 15000000)){
+    if(judge_sd_enabled() && SD.begin(GPIO_NUM_4, SPI, 15000000)){
         delay(100);
         class_sd_init_normal();  // define SD 
     } else {
