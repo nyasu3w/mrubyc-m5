@@ -1,6 +1,13 @@
-
 a=Avatar.new
-#a.scale=0.4
+
+case M5.board
+when 3 # M5StickC
+  a.scale=0.3
+  a.set_position(-30,-120)
+when 11 # AtomS3
+  a.scale=0.4
+  a.set_position(-55,-100)
+end
 a.start
 sleep 2
 exp=[ "Happy", "Angry", "Sad", "Doubt", "Sleepy", "Neutral"]

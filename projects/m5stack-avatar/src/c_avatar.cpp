@@ -20,26 +20,20 @@ static void class_avatar_initialize(mrb_vm *vm, mrb_value *v, int argc){
 static void class_avatar_set(mrb_vm *vm, mrb_value *v, int argc){
     m5avatar::Avatar *avatar = *(m5avatar::Avatar**)v->instance->data;
     if(argc == 2){
-        if(v[1].tt == MRBC_TT_FIXNUM && v[2].tt == MRBC_TT_FIXNUM){
-            int x = GET_INT_ARG(1);
-            int y = GET_INT_ARG(2);
+            int x = val_to_i(vm, v, GET_ARG(1), argc);
+            int y = val_to_i(vm, v, GET_ARG(2), argc);
             avatar->setPosition(x, y);
-        } else {
-            mrbc_raise( vm, MRBC_CLASS(TypeError), "Invalid argument type");
-            SET_NIL_RETURN();
-        }
+    } else {
+        mrbc_raise( vm, MRBC_CLASS(TypeError), "Invalid argument type");
+        SET_NIL_RETURN();
     }
 }
 
 static void class_avatar_scale(mrb_vm *vm, mrb_value *v, int argc){
     m5avatar::Avatar *avatar = *(m5avatar::Avatar**)v->instance->data;
     if(argc == 1){
-        if(v[1].tt != MRBC_TT_FLOAT){
-            mrbc_raise( vm, MRBC_CLASS(TypeError), "Invalid argument type");
-        } else {
-            float scale = GET_FLOAT_ARG(1);
-            avatar->setScale(scale);
-        }
+        float scale = val_to_f(vm, v, GET_ARG(1), argc);
+        avatar->setScale(scale);
     }
     SET_NIL_RETURN();
 }
@@ -60,16 +54,7 @@ static void class_avatar_set_speech_text(mrb_vm *vm, mrb_value *v, int argc){
 static void class_avatar_set_rotation(mrb_vm *vm, mrb_value *v, int argc){
     m5avatar::Avatar *avatar = *(m5avatar::Avatar**)v->instance->data;
     if(argc == 1){
-        float radian = 0;
-        if(v[1].tt == MRBC_TT_FLOAT){
-            radian = GET_FLOAT_ARG(1);
-        } else if(v[1].tt == MRBC_TT_INTEGER){
-            radian = (float) GET_INT_ARG(1);
-        } else {
-            mrbc_raise( vm, MRBC_CLASS(TypeError), "Invalid argument type");
-            SET_NIL_RETURN();
-            return;
-        }
+        float radian = val_to_f(vm, v, GET_ARG(1), argc);
         avatar->setRotation(radian);
     }
     SET_NIL_RETURN();
@@ -78,12 +63,7 @@ static void class_avatar_set_rotation(mrb_vm *vm, mrb_value *v, int argc){
 static void class_avatar_set_expression(mrb_vm *vm, mrb_value *v, int argc){
     m5avatar::Avatar *avatar = *(m5avatar::Avatar**)v->instance->data;
     if(argc == 1){
-        if(v[1].tt != MRBC_TT_FIXNUM){
-            mrbc_raise( vm, MRBC_CLASS(TypeError), "Invalid argument type");
-            SET_NIL_RETURN();
-            return;
-        }
-        int exp = GET_INT_ARG(1);
+        int exp = val_to_i(vm, v, GET_ARG(1), argc);
         avatar->setExpression((m5avatar::Expression)exp);
     }
 }
