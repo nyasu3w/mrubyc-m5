@@ -26,6 +26,18 @@ Placed in "projects" directory.
 - loading compiled rubyscript from SD (mrb_in_sd)
 - extension of M5Stack-Avatar (m5stack-avatar)
 
+## directory structure
+    mrubyc-m5/
+       +- lib/
+       |   +- mrubyc-m5 : main library of this project
+       +- projects/     : each projects of mruby/c-m5
+       |   + total_demo
+       |   :
+       +- src : almost same as original mruby/c. hal.c and hal.h is added
+       | 
+       the other directories are the same as original mruby/c
+
+
 ## prerequisites
 - mruby
 - platformio
