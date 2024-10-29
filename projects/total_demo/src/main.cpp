@@ -23,6 +23,7 @@ void setup() {
   M5.begin(cfg);
   M5.Display.setTextSize(2);
 
+  Serial.begin(115200);
   Wire.begin(); // for cardkb
   Serial.println("start");
 
