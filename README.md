@@ -1,7 +1,13 @@
 # mruby/c for m5
 This is a project for using mruby/c on M5Stack devices with M5Unified library on Arduino framework.
 
-Features: supporting ruby scripts (mruby/c) for
+The movie of total_demo in this project on M5Stack Core2:
+
+https://github.com/user-attachments/assets/b0aa8a82-fc44-421c-a1d7-70b15c6e211f
+
+
+## Features 
+Supporting ruby scripts (mruby/c) for:
 - Writing chars/Drawing graphs on LCD 
 - Support of BtnA/B/C
 - Support of Touch panel
@@ -11,7 +17,7 @@ Features: supporting ruby scripts (mruby/c) for
 - Easy extention with many arduino library
 
 The compactness is important and implemented functions are rather little, but you can implement/extend more for your purpose.
-Though, this project do not pursue compactness in fact.
+Though, this project do not pursue compactness so far.
 
 ## Example projects
 Placed in "projects" directory.
@@ -33,7 +39,7 @@ Please note that the directory structure is not as usual. It might be my mistake
 Each project files are placed under projects directory. Now some projects are there, and one of them is selected in src_dir variable in `platformio.ini` in the top directory.
 
 mruby compiler needs to be available to run from `extra_script.py`. 
-The calling line in extra_script.py is like:
+The calling line in `extra_script.py` is like:
 
 > ret=subprocess.run(['c:/msys64/usr/bin/bash','-l', '-c', f'mrbc -B {bname} {rubyfile}'])
 
@@ -46,7 +52,7 @@ If you do not like the automatic byte compile, you can do it by hand:
 
 > mrbc -B {name} {name}.rb
 
-`{name}.c` is generated. The generated C file is to be on src directory of the project. {name} would be specified your cpp file.
+`{name}.c` is generated. The generated C file is to be on src directory of the project. {name} would be specified in your cpp file.
 
 In that case, please remove a line to call before_build function in near the bottom of `extra_script.py`. Otherwise, the build system would stop.
 
@@ -71,10 +77,8 @@ If you are using PlatformIO on VSCode,you can build and upload from the bottom l
   1. `libdeps.txt` format is same as lib_deps variable in `platformio.ini`
 1. create your source files in src directory in the new directory.
 
-## 
+### The original mruby/c README follows.
 
----
-The original mruby/c README follows.
 ---
 # mruby/c
 
