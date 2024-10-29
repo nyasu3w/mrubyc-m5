@@ -622,7 +622,8 @@ static void c_object_constants(mrb_vm *vm, mrb_value v[], int argc)
 
     // is the next module alias?
     if( cls->flag_alias ) {
-      if( cls->super ) {
+      // save the super class pointer to mod_nest[]
+      if( cls->super && cls->super != (mrbc_class *)&mrbc_class_Object ) {
         if( mod_nest_idx >= (sizeof(mod_nest) / sizeof(mrbc_class *)) ) {
           mrbc_printf("Warning: Module nest exceeds upper limit.\n");
         } else {
