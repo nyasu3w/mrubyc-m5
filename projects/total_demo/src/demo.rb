@@ -64,12 +64,14 @@ while !hit_any_key do sleep 0.1 end
   
 xscale=2.0
 yscale=2.0
+xoffset=0
 yoffset=50
 case board 
-when 3,4,5 #
-  xscale=0.9
-  yscale=0.7
-  yoffset=0
+when 3,4,5 # M5StickC
+  xscale=0.6
+  yscale=0.6
+  xoffset=0
+  yoffset=80
 when 11 #atomS3
   xscale=0.8
   yscale=0.8
@@ -98,11 +100,11 @@ if board>0 then
         if d[sx]>sy then
           zz=((z+100)*0.035).to_i+1
           if [1,2,5,7].include?(zz) then
-            dot(xscale*sx,yscale*sy+yoffset,white)
+            dot(xscale*sx+xoffset,yscale*sy+yoffset,white)
           elsif  [2,3].include?(zz) or zz>=6 then
-            dot(xscale*sx,yscale*sy+yoffset,green)
+            dot(xscale*sx+xoffset,yscale*sy+yoffset,green)
           elsif zz>=4 then
-            dot(xscale*sx,yscale*sy+yoffset,purple)
+            dot(xscale*sx+xoffset,yscale*sy+yoffset,purple)
           end
           d[sx]=sy
         end
