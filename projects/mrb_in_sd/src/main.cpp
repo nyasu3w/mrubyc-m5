@@ -60,52 +60,55 @@ const char* select_menu(std::vector<String> mrbfiles){
 
     while(true){
         M5.update();
-        if(M5.BtnA.wasPressed()){
-            focused = focused - 1;
-            if(focused < 0) focused = 0;
-            if(focused <start) start = focused;
-            draw_menu(start, mrbfiles, focused);
-        } else if(M5.BtnB.wasPressed()){
-            break;
-        } else if(M5.BtnC.wasPressed()){
-            focused = focused + 1;
-            if(focused >= mrbfiles.size()) focused = mrbfiles.size()-1;
-            if(focused >= start+menu_max_items) start = focused - menu_max_items + 1;
-            draw_menu(start, mrbfiles, focused);
-        } else if(M5.Touch.getCount()>0){
+
+        typedef enum {NONE,M_UP,M_SEL,M_DOWN } TOUCHACTION;
+        int touch_action = NONE;
+        if(M5.Touch.getCount()>0){
             auto detail = M5.Touch.getDetail(0);
             int dy = detail.y - menu_off_y;
             if(0 < detail.y  && dy < menu_item_height*menu_max_items && detail.isHolding()){
-                focused = dy / menu_item_height + start;
-                draw_menu(start, mrbfiles, focused);
+                int new_focused = dy / menu_item_height + start;
+                if(new_focused!=focused && new_focused < mrbfiles.size()){
+                    focused = new_focused;
+                    draw_menu(start, mrbfiles, focused);
+                }
+                continue;
             } else if(detail.wasClicked()){
                 if(detail.y < menu_bottom_y) {
-                draw_menu(start, mrbfiles, focused);
-                int new_focused = dy / menu_item_height + start;
-                if(new_focused >= mrbfiles.size()) {
-                    focused = mrbfiles.size()-1;
-                } else {
-                    focused = new_focused;
-                }
-                break;
+                    draw_menu(start, mrbfiles, focused);
+                    int new_focused = dy / menu_item_height + start;
+                    if(new_focused >= mrbfiles.size()) {
+                        // do nothing by clicking out of menu
+                    } else {
+                        focused = new_focused;
+                        touch_action = TOUCHACTION::M_SEL;
+                    }
                 } else {
                     if(detail.x < 100){
-                        focused = focused - 1;
-                        if(focused < 0) focused = 0;
-                        if(focused <start) start = focused;
-                        draw_menu(start, mrbfiles, focused);
+                        touch_action = TOUCHACTION::M_UP;
                     } else if(detail.x < 200){
-                        break;
+                        touch_action = TOUCHACTION::M_SEL;
                     } else {
-                        focused = focused + 1;
-                        if(focused >= mrbfiles.size()) focused = mrbfiles.size()-1;
-                        if(focused >= start+menu_max_items) start = focused - menu_max_items + 1;
-                        draw_menu(start, mrbfiles, focused);
+                        touch_action = TOUCHACTION::M_DOWN;
                     }
                 }
             }
         }
-        delay(50);
+
+        if(touch_action==TOUCHACTION::M_UP || M5.BtnA.wasPressed()){
+            focused = focused - 1;
+            if(focused < 0) focused = 0;
+            if(focused <start) start = focused;
+            draw_menu(start, mrbfiles, focused);
+        } else if(touch_action==TOUCHACTION::M_SEL || M5.BtnB.wasPressed()){
+            break;
+        } else if(touch_action==TOUCHACTION::M_DOWN || M5.BtnC.wasPressed()){
+            focused = focused + 1;
+            if(focused >= mrbfiles.size()) focused = mrbfiles.size()-1;
+            if(focused >= start+menu_max_items) start = focused - menu_max_items + 1;
+            draw_menu(start, mrbfiles, focused);
+        } 
+        delay(50); // the last of while loop
     }
     delay(100);
     M5.Display.setTextSize(2);
