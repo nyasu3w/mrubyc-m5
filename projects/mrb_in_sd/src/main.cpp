@@ -153,10 +153,12 @@ unsigned int sd_file_loader(const char* path){
     return size;
 }
 
-void stop4ever(){
+void stop4ever(const char* msg){
     M5.Display.clear();
     M5.Display.setTextColor(TFT_RED);
-    M5.Display.println("mrb load error. ");
+    M5.Display.println("Error:");
+    M5.Display.println(msg);
+    M5.Display.println("");
     M5.Display.setTextColor(TFT_WHITE);
     M5.Display.println("System stops forever");
     M5.Display.println("reset to push BtnA/B/C");
@@ -182,18 +184,15 @@ void setup() {
     if(SD.begin(GPIO_NUM_4, SPI, 15000000)){
         const char* load_file = sd_file_selector();
         if(load_file == NULL){
-            Serial.println("file select error");
-            stop4ever();
+            stop4ever("file selection failed");
         }
         Serial.printf("load_file: %s\n", const_cast<char*>(load_file));
         unsigned int r = sd_file_loader(load_file);
         if (r==0) {
-            Serial.println("load error");
-            stop4ever();
+            stop4ever("mrb load failed");
         }
     } else {
-        Serial.println("SD mount failed");
-        stop4ever();
+        stop4ever("SD mount failed");
     }
     Serial.println("mrb load done");
     mrbc_init(mempool, MEMSIZE);
