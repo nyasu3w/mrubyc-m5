@@ -36,18 +36,18 @@ static const mrbc_sym method_symbols_Object[] = {
 #if defined(MRBC_DEBUG)
   MRBC_SYM(object_id),
 #endif
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
   MRBC_SYM(p),
 #endif
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
   MRBC_SYM(print),
 #endif
 #if MRBC_USE_STRING
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
   MRBC_SYM(printf),
 #endif
 #endif
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
   MRBC_SYM(puts),
 #endif
   MRBC_SYM(raise),
@@ -93,18 +93,18 @@ static const mrbc_func_t method_functions_Object[] = {
 #if defined(MRBC_DEBUG)
   c_object_object_id,
 #endif
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
   c_object_p,
 #endif
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
   c_object_print,
 #endif
 #if MRBC_USE_STRING
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
   c_object_printf,
 #endif
 #endif
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
   c_object_puts,
 #endif
   c_object_raise,

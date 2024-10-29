@@ -238,7 +238,7 @@ static void c_object_nil(struct VM *vm, mrbc_value v[], int argc)
 //================================================================
 /*! (method) p
  */
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
 static void c_object_p(struct VM *vm, mrbc_value v[], int argc)
 {
   int i;
@@ -271,7 +271,7 @@ static void c_object_p(struct VM *vm, mrbc_value v[], int argc)
 //================================================================
 /*! (method) print
  */
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
 static void c_object_print(struct VM *vm, mrbc_value v[], int argc)
 {
   int i;
@@ -286,7 +286,7 @@ static void c_object_print(struct VM *vm, mrbc_value v[], int argc)
 //================================================================
 /*! (method) puts
  */
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
 static void c_object_puts(struct VM *vm, mrbc_value v[], int argc)
 {
   int i;
@@ -728,7 +728,7 @@ static void c_object_sprintf(struct VM *vm, mrbc_value v[], int argc)
 //================================================================
 /*! (method) printf
 */
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
 static void c_object_printf(struct VM *vm, mrbc_value v[], int argc)
 {
   c_object_sprintf(vm, v, argc);
@@ -786,7 +786,7 @@ static void c_object_to_s(struct VM *vm, mrbc_value v[], int argc)
   METHOD( "is_a?",	c_object_kind_of )
   METHOD( "kind_of?",	c_object_kind_of )
   METHOD( "nil?",	c_object_nil )
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
   METHOD( "p",		c_object_p )
   METHOD( "print",	c_object_print )
   METHOD( "puts",	c_object_puts )
@@ -799,7 +799,7 @@ static void c_object_to_s(struct VM *vm, mrbc_value v[], int argc)
 
 #if MRBC_USE_STRING
   METHOD( "sprintf",	c_object_sprintf )
-#if !defined(MRBC_NO_OBJECT_STDOUT)
+#if !defined(MRBC_NO_STDIO)
   METHOD( "printf",	c_object_printf )
 #endif
   METHOD( "inspect",	c_object_to_s )
