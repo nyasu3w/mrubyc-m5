@@ -126,16 +126,21 @@ mrbc_value * mrbc_get_class_const( const struct RClass *cls, mrbc_sym sym_id )
 void mrbc_get_all_class_const( const struct RClass *cls, mrbc_value *ret )
 {
   mrbc_kv_iterator ite = mrbc_kv_iterator_new( &handle_const );
+  int flag_object_class = (cls == (mrbc_class *)&mrbc_class_Object);
 
   while( mrbc_kv_i_has_next( &ite ) ) {
     const mrbc_kv *kv = mrbc_kv_i_next( &ite );
-    if( !mrbc_is_nested_symid(kv->sym_id) ) continue;
 
-    mrbc_sym id1, id2;
-    mrbc_separate_nested_symid( kv->sym_id, &id1, &id2 );
+    if( mrbc_is_nested_symid(kv->sym_id) ) {
+      mrbc_sym id1, id2;
 
-    if( id1 == cls->sym_id ) {
-      mrbc_array_push(ret, &mrbc_symbol_value(id2));
+      mrbc_separate_nested_symid( kv->sym_id, &id1, &id2 );
+      if( id1 == cls->sym_id ) {
+	mrbc_array_push(ret, &mrbc_symbol_value(id2));
+      }
+
+    } else if( flag_object_class ) {
+      mrbc_array_push(ret, &mrbc_symbol_value(kv->sym_id));
     }
   }
 }
