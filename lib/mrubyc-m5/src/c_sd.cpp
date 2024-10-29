@@ -135,15 +135,31 @@ static void class_sd_init_normal()
     mrbc_define_method(0, class_sd, "write", class_sd_write);
 }
 
-bool judge_sd_enabled(){ // disable SD.begin() 
-    if(M5.getBoard() == 3) {
-        return false;
-    } 
-    return true;
+int get_sdcard_gpio(){ 
+    int sdcard_gpio[] = {
+// unknown, M5Stack, M5StackCore2, M5StickC, M5StickCPlus
+        -1, GPIO_NUM_4, GPIO_NUM_4,-1,-1,
+// M5StickCPlus2, M5StackCoreInk, M5Paper,M5Tough,M5Station
+        -1, -1, GPIO_NUM_4, GPIO_NUM_4,-1,
+// M5StackCoreS3,M5AtomS3,M5Dial,M5DinMeter,M5Cardputer,
+        GPIO_NUM_4,-1,-1,-1,-GPIO_NUM_12,
+// M5AirQ,M5VAMeter,M5StackCoreS3SE,M5AtomS3R,
+        -1,-1,GPIO_NUM_4,-1,
+//board=139: M5CAPSULE:GPIO_NUM_11
+    };
+
+    int board = M5.getBoard();
+    if(board==139){  //M5Capsule
+        return GPIO_NUM_11;
+    } else if(0 < board || board < sizeof(sdcard_gpio)/sizeof(sdcard_gpio[0])){
+            return sdcard_gpio[board];
+    }
+    return -1;
 }
 
 void class_sd_init(){
-    if(judge_sd_enabled() && SD.begin(GPIO_NUM_4, SPI, 15000000)){
+    int gpio = get_sdcard_gpio();
+    if(gpio>=0 && SD.begin(gpio, SPI)){
         delay(100);
         class_sd_init_normal();  // define SD 
     } else {
