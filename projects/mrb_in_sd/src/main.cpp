@@ -81,8 +81,27 @@ const char* select_menu(std::vector<String> mrbfiles){
             } else if(detail.wasClicked()){
                 if(detail.y < menu_bottom_y) {
                 draw_menu(start, mrbfiles, focused);
-                focused = dy / menu_item_height + start;
+                int new_focused = dy / menu_item_height + start;
+                if(new_focused >= mrbfiles.size()) {
+                    focused = mrbfiles.size()-1;
+                } else {
+                    focused = new_focused;
+                }
                 break;
+                } else {
+                    if(detail.x < 100){
+                        focused = focused - 1;
+                        if(focused < 0) focused = 0;
+                        if(focused <start) start = focused;
+                        draw_menu(start, mrbfiles, focused);
+                    } else if(detail.x < 200){
+                        break;
+                    } else {
+                        focused = focused + 1;
+                        if(focused >= mrbfiles.size()) focused = mrbfiles.size()-1;
+                        if(focused >= start+menu_max_items) start = focused - menu_max_items + 1;
+                        draw_menu(start, mrbfiles, focused);
+                    }
                 }
             }
         }
