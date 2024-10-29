@@ -589,6 +589,57 @@ static void c_object_include(struct VM *vm, mrbc_value v[], int argc)
 }
 
 
+//================================================================
+/*! (class method) constants
+ */
+static void c_object_constants(mrb_vm *vm, mrb_value v[], int argc)
+{
+  int flag_inherit = 1;
+
+  if( v[0].tt != MRBC_TT_CLASS ) {
+    mrbc_raise(vm, MRBC_CLASS(NoMethodError), 0);
+    return;
+  }
+  if( argc >= 1 && v[1].tt == MRBC_TT_FALSE ) flag_inherit = 0;
+
+  mrbc_class *cls = v[0].cls;
+  mrbc_value ret = mrbc_array_new( vm, 0 );
+
+  mrbc_get_all_class_const( cls, &ret );
+  if( !flag_inherit ) goto RETURN;
+
+  // support super class
+  mrbc_class *mod_nest[3];
+  int mod_nest_idx = 0;
+
+  while( 1 ) {
+    cls = cls->super;
+    if( cls == 0 || cls == (mrbc_class *)&mrbc_class_Object ) {
+      if( mod_nest_idx == 0 ) break;	// does not have super class.
+
+      cls = mod_nest[--mod_nest_idx];	// rewind the module search nest.
+    }
+
+    // is the next module alias?
+    if( cls->flag_alias ) {
+      if( cls->super ) {
+        if( mod_nest_idx >= (sizeof(mod_nest) / sizeof(mrbc_class *)) ) {
+          mrbc_printf("Warning: Module nest exceeds upper limit.\n");
+        } else {
+          mod_nest[mod_nest_idx++] = cls->super;
+        }
+      }
+      cls = cls->aliased;
+    }
+
+    mrbc_get_all_class_const( cls, &ret );
+  }
+
+ RETURN:
+  SET_RETURN(ret);
+}
+
+
 #if MRBC_USE_STRING
 //================================================================
 /*! (method) sprintf
@@ -786,6 +837,7 @@ static void c_object_to_s(struct VM *vm, mrbc_value v[], int argc)
   METHOD( "attr_accessor", c_object_attr_accessor )
   METHOD( "include",    c_object_include )
   METHOD( "extend",     c_object_include )
+  METHOD( "constants",  c_object_constants )
 
 #if MRBC_USE_STRING
   METHOD( "sprintf",	c_object_sprintf )
