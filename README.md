@@ -32,7 +32,7 @@ Placed in "projects" directory.
        |   +- mrubyc-m5 : main library of this project
        +- projects/     : each projects of mruby/c-m5
        |   + total_demo
-       |   :
+       |        :
        +- src : almost same as original mruby/c. hal.c and hal.h are added
        | 
        the other directories are the same as original mruby/c
