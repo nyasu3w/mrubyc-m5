@@ -31,7 +31,7 @@ if board>127 then board=0 end
 puts "Board: #{boards[board]}(#{board})"
 Display.clear
 
-Display.set_text_size(1) if Display.dimension[0]<300
+Display.set_text_size(1) if Display.dimension[0]<240
 Display.set_cursor(0,0)
 Display.puts "Board: #{boards[board]}(#{board})"
 Display.puts "Display: #{Display.dimension.inspect}"
