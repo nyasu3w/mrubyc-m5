@@ -27,7 +27,9 @@ else
   Display.puts "NG: STA mode failed(#{wl_status[r]})"
 end
 
-hc=HTTPClient.new("http://www.yahoo.co.jp") 
+Display.puts "start to conenct"
+# Note: google returns too big response to make exception
+hc=HTTPClient.new("http://www.example.com/")   #not for https
 rc = hc.get
 Display.puts "HTTP GET: #{rc}"
 resp = hc.response
@@ -38,4 +40,4 @@ sleep 10
 Wifi.disconnect 
 Display.puts "disconnected"
 
-sleep 30
+while(true) do sleep 1 end
