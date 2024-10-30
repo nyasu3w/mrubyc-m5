@@ -26,5 +26,7 @@ void class_m5dial_init(){
     mrbc_define_method(0, class_m5dial, "read", class_m5dial_read);
     mrbc_define_method(0, class_m5dial, "write", class_m5dial_write);
     mrbc_define_method(0, class_m5dial, "read_and_reset", class_m5dial_read_and_reset);
-
+#ifdef USE_M5DIAL_RFID
+  // not yet
+#endif
 }
