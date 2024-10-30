@@ -82,8 +82,8 @@ static void c_wifi_softap(mrb_vm *vm, mrb_value *v, int argc) {
 mrb_class *class_httpclient;
 
 static void c_httpclient_new(mrb_vm *vm, mrb_value *v, int argc) {
-    mrbc_value hc = mrbc_instance_new(0, class_httpclient, sizeof(HTTPClient*));
-    return;
+    v[0] = mrbc_instance_new(0, class_httpclient, sizeof(HTTPClient*));
+    mrbc_instance_call_initialize( vm, v, argc );
 }
 
 static void c_httpclient_initialize(mrb_vm *vm, mrb_value *v, int argc) {
@@ -92,13 +92,13 @@ static void c_httpclient_initialize(mrb_vm *vm, mrb_value *v, int argc) {
         return;
     }
     const char* url = val_to_s(vm,v,GET_ARG(1),argc);
-    auto client = *(HTTPClient**) v[0].instance->data = new HTTPClient();
-
+    auto client = *(HTTPClient**) v->instance->data = new HTTPClient();
     client->begin(url);
 }
 
 static void c_httpclient_get(mrb_vm *vm, mrb_value *v, int argc) {
-    auto client = *(HTTPClient**) v[0].instance->data;
+    auto client = *(HTTPClient**) v->instance->data;
+
     auto r = client->GET();
     SET_INT_RETURN(r);
     return;
@@ -183,6 +183,7 @@ void class_wifi_init(){
     mrbc_define_method(0, class_httpclient, "size", c_httpclient_size);
     mrbc_define_method(0, class_httpclient, "post", c_httpclient_post);
     mrbc_define_method(0, class_httpclient, "put", c_httpclient_put);
+    mrbc_define_method(0, class_httpclient, "close", c_httpclient_end);
     mrbc_define_method(0, class_httpclient, "end", c_httpclient_end);
 
 #endif // USE_HTTPCLIENT   

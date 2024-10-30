@@ -25,7 +25,7 @@ void setup() {
   auto cfg = M5.config();
   M5.begin(cfg);
   M5.Display.setTextSize(2);
-
+  Serial.begin(115200);
   Serial.println("start");
 
   mrbc_init(mempool, MEMSIZE);
