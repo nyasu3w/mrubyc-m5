@@ -1,12 +1,15 @@
 a=Avatar.new
 
-case M5.board
+case M5.board # not caluculated values
 when 3 # M5StickC
   a.scale=0.3
   a.set_position(-30,-120)
 when 11 # AtomS3
   a.scale=0.4
   a.set_position(-55,-100)
+when 12
+  a.scale=0.9
+  a.set_position(0,-36)
 end
 a.start
 sleep 2
