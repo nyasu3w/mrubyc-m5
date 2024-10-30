@@ -22,14 +22,16 @@ The compactness is important and implemented functions are rather little, but yo
 Placed in "projects" directory.
 - demo of functions (total_demo)
 - limiting functions for compactness (only_display)
-- loading compiled rubyscript from SD (mrb_in_sd)
+- loading compiled rubyscript (mrb) from SD (mrb_in_sd)
 - extension of M5Stack-Avatar (m5stack-avatar)
+- extension for Encoder of M5Dial (m5dial)
+- extension for wifi to http get (wifi)
 
 ## directory structure
     mrubyc-m5/
        +- lib/
        |   +- mrubyc-m5 : main library of this project
-       +- projects/     : each projects of mruby/c-m5
+       +- projects/     : example projects of mruby/c-m5
        |   + total_demo
        |        :
        +- src : almost same as original mruby/c. hal.c and hal.h are added
@@ -93,8 +95,8 @@ See a main.cpp from example projects under `projects` directory.
 Those are almost same and 
 
 1. MEMSIZE can change the size of memory pool for vm. Note that this is only for mruby/c itself.
-1. Configration block before #include `#include "mruby_init.h"` can remove some functions from the vm.
-  See only_display project.
+1. Configration block is placed just before #include `#include "mruby_init.h"`. It can remove some functions from the vm.
+  See "only_display" project.
 1. New implementation of classes of arduino libraries is acceptable like m5stack-avatar and m5dial project.
 1. if *.rb file is in the `src` directory, those are byte compiled to mrb files and the code is accessed as a array of the same name.  For convinience, `mrubycode` is the coded array name which is converted from such as `#define mrubycode demo`, where demo is from demo.rb.
 
