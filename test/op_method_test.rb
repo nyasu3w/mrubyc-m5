@@ -1,6 +1,5 @@
-# frozen_string_literal: true
 
-class OpMethodTest < MrubycTestCase
+class OpMethodTest < Picotest::Test
 
   # メソッドで実行される演算子のテスト
   # 　単項論理演算子 ! は、test_boolへ
@@ -8,7 +7,7 @@ class OpMethodTest < MrubycTestCase
   #　 <=>　演算子は、test_compareへ
 
   description "+, -"
-  def plus_minus_case
+  def test_plus_minus
     a = 123
     assert_equal( 123, +123 )
     #assert_equal( 123, +a )        # 実装が必要か怪しい
@@ -21,14 +20,14 @@ class OpMethodTest < MrubycTestCase
   end
 
   description "剰余"
-  def surplus_case
+  def test_surplus
     a = 123
     assert_equal( 3, 123 % 12 )
     assert_equal( 3, a % 12 )
   end
 
   description "ビット演算"
-  def op_bit_case
+  def test_op_bit
     a = 0x15a0
     assert_equal( -5537, ~a )
 
@@ -48,7 +47,7 @@ class OpMethodTest < MrubycTestCase
   end
 
   description "== (op_eq)"
-  def op_eq_case
+  def test_op_eq
     assert_true( 1 == 1 )
     assert_false( 1 == 2 )
     assert_true( 1 == 1.0 )
@@ -57,7 +56,7 @@ class OpMethodTest < MrubycTestCase
   end
 
   description "!="
-  def op_not_eq_case
+  def test_op_not_eq
     assert_true( 1 != 2 )
     assert_false( 1 != 1 )
     assert_true( 1 != 2.0 )
@@ -66,7 +65,7 @@ class OpMethodTest < MrubycTestCase
   end
 
   description "&&"
-  def op_and_case
+  def test_op_and
     assert_equal( 2,     1 && 2 )
     assert_equal( false, 1 && false )
     assert_equal( nil,   1 && nil )
@@ -76,7 +75,7 @@ class OpMethodTest < MrubycTestCase
   end
 
   description "||"
-  def op_or_case
+  def test_op_or
     assert_equal( 1,     1 || 2 )
     assert_equal( 1,     1 || false )
     assert_equal( 1,     1 || nil )

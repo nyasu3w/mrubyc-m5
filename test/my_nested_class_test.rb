@@ -1,6 +1,5 @@
-# frozen_string_literal: true
 
-class MyNestedClassTest < MrubycTestCase
+class MyNestedClassTest < Picotest::Test
 
   # Can't use setup
   class A
@@ -17,7 +16,7 @@ class MyNestedClassTest < MrubycTestCase
   end
 
   description 'nested class'
-  def nested_case
+  def test_nested
     assert_equal "A", A.new.h
     assert_equal "B", A::B.new.h
     assert_equal "C", A::B::C.new.h
