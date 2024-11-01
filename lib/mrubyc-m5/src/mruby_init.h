@@ -14,6 +14,9 @@
 #ifdef USE_SD_FUNCTION
 #include "c_sd.h"
 #endif
+#ifdef USE_FILE_CLASS
+#include "c_file.h"
+#endif
 #ifdef USE_CARDKB
 #include "c_cardkb.h"
 #endif
@@ -42,6 +45,12 @@ void my_mrubyc_init(){
 #else
     mrbc_set_const(mrbc_str_to_symid("SD"), &failed_object);
 #endif
+#ifdef USE_FILE_CLASS
+    class_file_init();  // define SD 
+#else
+    mrbc_set_const(mrbc_str_to_symid("File"), &failed_object);
+#endif
+
 #ifdef USE_TOUCH
     class_touch_init();
 #else
