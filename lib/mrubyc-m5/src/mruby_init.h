@@ -2,6 +2,9 @@
 
 // configured init function
 
+#ifndef MY_MRUBYC_INIT
+#define MY_MRUBYC_INIT
+
 #include "c_m5.h"
 #include "c_display_button.h"
 
@@ -46,3 +49,4 @@ void my_mrubyc_init(){
 #endif // USE_TOUCH
 }
 
+#endif // MY_MRUBYC_INIT
