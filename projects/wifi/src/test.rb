@@ -27,13 +27,15 @@ else
   Display.puts "NG: STA mode failed(#{wl_status[r]})"
 end
 
-Display.puts "start to conenct"
+Display.print "HTTP GET:"
 # Note: google returns too big response to make exception
 hc=HTTPClient.new("http://www.example.com/")   #not for https
 rc = hc.get
-Display.puts "HTTP GET: #{rc}"
+Display.puts rc
 resp = hc.response
-Display.puts "HTTP Response: #{resp}"
+Display.puts "HTTP Response:"
+Display.set_text_size(1)
+Display.puts resp
 hc.close
 
 sleep 10
