@@ -157,7 +157,6 @@ int mrbc_array_resize(mrbc_value *ary, int size)
   mrbc_array *h = ary->array;
 
   mrbc_value *data2 = mrbc_raw_realloc(h->data, sizeof(mrbc_value) * size);
-  if( !data2 ) return E_NOMEMORY_ERROR;	// ENOMEM
 
   h->data = data2;
   h->data_size = size;
