@@ -9,6 +9,7 @@
 #define USE_DISPLAY_GRAPHICS  // Display to support graphics functions
 #define USE_M5UNIFIED_IMU  // IMU to support M5Unified IMU functions
 #define USE_SD_FUNCTION  // to support SD functions
+#define USE_FILE_CLASS  // to support File functions
 #define USE_CARDKB  // to support CardKB functions
 #define USE_TOUCH // to support Touch functions
 #endif // ! SUPPRESS_USEDEF
