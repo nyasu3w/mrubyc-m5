@@ -132,12 +132,13 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
         vm->exception.exception->method_id = vm->callinfo_tail->method_id;
       }
       return;
-    } else {
-      shift_arguments(recv, narg);
-      recv[1] = mrbc_symbol_value(sym_id);
-      sym_id = MRBC_SYM(method_missing);
-      narg++;
     }
+
+    // call 'method_missing' method.
+    shift_arguments(recv, narg);
+    recv[1] = mrbc_symbol_value(sym_id);
+    sym_id = MRBC_SYM(method_missing);
+    narg++;
   }
 
   // call C function and return.
