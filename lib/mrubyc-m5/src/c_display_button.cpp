@@ -1,6 +1,7 @@
 #include <M5Unified.h>
 #include "my_mrubydef.h"
 #include "c_display_button.h"
+#include "c_file.h"
 
 static void
 class_display_set_text_size(mrb_vm *vm, mrb_value *v, int argc)
@@ -194,6 +195,56 @@ class_display_draw_circle(mrb_vm *vm, mrb_value *v, int argc)
         SET_FALSE_RETURN();
     }
 }
+
+typedef enum{bmp,jpg,png} pic_type;
+static void
+class_display_draw_pic(pic_type t, mrb_vm *vm, mrb_value *v, int argc)
+{
+    if(argc<3){
+        mrbc_raise(vm, MRBC_CLASS(ArgumentError),"too few arguments");
+        return;
+    }
+    mrbc_value file = GET_ARG(1);
+    int r = mrbc_obj_is_kind_of(&file, class_file);
+    if(r==0){
+        mrbc_raise(vm, MRBC_CLASS(ArgumentError),"not a file");
+        SET_FALSE_RETURN();
+        return;
+    }
+    File *f = *(File**) file.instance->data;
+    int x = val_to_i(vm, v, GET_ARG(2),argc);
+    int y = val_to_i(vm, v, GET_ARG(3),argc);
+    switch(t){
+        case bmp:
+            M5.Display.drawBmp(f,x,y);
+            break;
+        case jpg:
+            M5.Display.drawJpg(f,x,y);
+            break;
+        case png:
+            M5.Display.drawPng(f,x,y);
+            break;
+    }
+    SET_TRUE_RETURN();
+}
+
+static void
+class_display_draw_bmp(mrb_vm *vm, mrb_value *v, int argc)
+{
+    class_display_draw_pic(bmp,vm,v,argc);
+}
+
+static void
+class_display_draw_jpg(mrb_vm *vm, mrb_value *v, int argc)
+{
+    class_display_draw_pic(jpg,vm,v,argc);
+}
+static void
+class_display_draw_png(mrb_vm *vm, mrb_value *v, int argc)
+{
+    class_display_draw_pic(png,vm,v,argc);
+}
+
 #endif // USE_DISPLAY_GRAPHICS
 
 static void
@@ -258,6 +309,9 @@ void class_display_button_init()
     mrbc_define_method(0, class_display, "fill_circle", class_display_flll_circle);
     mrbc_define_method(0, class_display, "draw_circle", class_display_draw_circle);
     mrbc_define_method(0, class_display, "draw_line", class_display_draw_line);
+    mrbc_define_method(0, class_display, "draw_bmp", class_display_draw_bmp);
+    mrbc_define_method(0, class_display, "draw_jpg", class_display_draw_jpg);
+    mrbc_define_method(0, class_display, "draw_png", class_display_draw_png);
 #endif // USE_DISPLAY_GRAPHICS
 
     mrb_class *class_btn,*class_btna,*class_btnb,*class_btnc;

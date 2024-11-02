@@ -5,6 +5,12 @@ def hit_any_key
   return (BtnA.is_pressed? or BtnB.is_pressed? or (CardKB.available? and CardKB.getch!=0) or (Touch.count>0 and Touch.was_clicked?(0)) )
 end
 
+#Display.clear
+#Display.draw_bmp(SD.open("/mrubyc/ruby.bmp"),0,0)
+#Display.draw_png(SD.open("/mrubyc/ruby.png"),40,0)
+#Display.draw_jpg(SD.open("/mrubyc/ruby.jpg"),80,0)
+#while !hit_any_key do sleep 0.1 end
+
 white=0xffff
 blue=0x001f
 green=0x07e0
