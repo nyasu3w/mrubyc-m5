@@ -9,19 +9,24 @@ mrb_class *class_file;
 static void
 class_file_read(mrb_vm *vm, mrb_value *v, int argc)
 {
+Serial.println("class_file_read");
     File *f = *(File**) v->instance->data;
     if(f){
+        int len = 255;
         if(argc>0){
             int len = val_to_i(vm, v, GET_ARG(1),argc);
-            if(len>0){
-                char *buf = (char*)mrbc_alloc(vm, len+1);
-                if(buf){
-                    int r = f->read((uint8_t*)buf, len);
-                    buf[r] = '\0';
-                    SET_RETURN(mrbc_string_new_cstr(vm, buf));
-                    mrbc_raw_free(buf);
-                    return;
-                }
+        } else {
+
+        }
+        if(len>0){
+            char *buf = (char*)mrbc_alloc(vm, len+1);
+            if(buf){
+                int r = f->read((uint8_t*)buf, len);
+                buf[r] = '\0';
+                SET_RETURN(mrbc_string_new_cstr(vm, buf));
+                mrbc_raw_free(buf);
+                return;
+            } else {
             }
         }
     }

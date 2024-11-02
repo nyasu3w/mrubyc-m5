@@ -32,6 +32,7 @@ static void class_spiffs_open(mrb_vm *vm, mrb_value *v, int argc)
                 SET_FALSE_RETURN();
                 return;
             }
+
             mrbc_value file = mrbc_instance_new(0, class_file, sizeof(File*));
             *(File**) file.instance->data = new File(f);
             SET_RETURN(file);
