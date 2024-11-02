@@ -2,7 +2,7 @@
 # global settings
 def hit_any_key
   M5.update
-  return (BtnA.is_pressed or BtnB.is_pressed or (CardKB.available? and CardKB.getch!=0) or (Touch.count>0 and Touch.was_clicked?(0)) )
+  return (BtnA.is_pressed? or BtnB.is_pressed? or (CardKB.available? and CardKB.getch!=0) or (Touch.count>0 and Touch.was_clicked?(0)) )
 end
 
 white=0xffff
@@ -193,22 +193,22 @@ Display.clear
 Display.puts "Input test. CardKB/BtnA,B","BtnC to end"
 while true do
   M5.update
-  if BtnC.is_pressed then
+  if BtnC.is_pressed? then
 #    Display.clear
     Display.puts "\nBtnC is pressed to end"
     sleep 1
     raise "end"
   end
 
-  if BtnA.is_pressed() then
+  if BtnA.is_pressed? then
     Display.print "[A]"
-  elsif BtnA.was_pressed() then
+  elsif BtnA.was_pressed? then
     Display.print "[a]"
   end
 
-  if BtnB.is_pressed() then
+  if BtnB.is_pressed? then
     Display.print "[B]"
-  elsif BtnB.was_pressed() then
+  elsif BtnB.was_pressed? then
     Display.print "[b]"
   end
 

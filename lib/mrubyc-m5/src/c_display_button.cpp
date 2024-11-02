@@ -262,8 +262,8 @@ void class_display_button_init()
 
     mrb_class *class_btn,*class_btna,*class_btnb,*class_btnc;
     class_btn = mrbc_define_class(0, "BtnClass", mrbc_class_object);
-    mrbc_define_method(0, class_btn, "is_pressed", class_btn_is_pressed);
-    mrbc_define_method(0, class_btn, "was_pressed", class_btn_was_pressed);
+    mrbc_define_method(0, class_btn, "is_pressed?", class_btn_is_pressed);
+    mrbc_define_method(0, class_btn, "was_pressed?", class_btn_was_pressed);
     mrbc_define_method(0, class_btn, "number", class_btn_no);
 
     mrbc_value btn = mrbc_instance_new(0, class_btn, sizeof(int));

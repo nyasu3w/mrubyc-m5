@@ -8,7 +8,7 @@ old_pos = -12345
 Display.set_text_size(4)
 while true do
   M5.update
-  if BtnA.was_pressed then
+  if BtnA.was_pressed? then
     puts "BtnA was pressed"
     Dial.read_and_reset(0)
   end
