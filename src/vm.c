@@ -370,7 +370,7 @@ void mrbc_vm_begin( struct VM *vm )
   vm->cur_irep = vm->top_irep;
   vm->inst = vm->cur_irep->inst;
   vm->cur_regs = vm->regs;
-  vm->target_class = mrbc_class_object;
+  vm->target_class = MRBC_CLASS(Object);
   vm->callinfo_tail = NULL;
   vm->ret_blk = NULL;
   vm->exception = mrbc_nil_value();
@@ -379,7 +379,7 @@ void mrbc_vm_begin( struct VM *vm )
 
   // set self to reg[0], others nil
   mrbc_decref( &vm->regs[0] );
-  vm->regs[0] = mrbc_instance_new(vm, mrbc_class_object, 0);
+  vm->regs[0] = mrbc_instance_new(vm, MRBC_CLASS(Object), 0);
   if( vm->regs[0].instance == NULL ) return;	// ENOMEM
   for( int i = 1; i < vm->regs_size; i++ ) {
     vm->regs[i] = mrbc_nil_value();
@@ -2594,7 +2594,7 @@ static inline void op_oclass( mrbc_vm *vm, mrbc_value *regs EXT )
 
   mrbc_decref(&regs[a]);
   regs[a].tt = MRBC_TT_CLASS;
-  regs[a].cls = mrbc_class_object;
+  regs[a].cls = MRBC_CLASS(Object);
 }
 
 
