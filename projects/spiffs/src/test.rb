@@ -1,7 +1,14 @@
-
 file = "/test.txt"
 if SPIFFS.available?
   Display.puts "SPIFFS is available"
+  Display.puts "files in / :"
+  d=SPIFFS.open("/")
+  while f=d.open_next_file do
+    Display.puts f.path
+  end
+  d.close
+  Display.puts "----"
+
   if SPIFFS.exists?(file) then
     Display.puts "File #{file} exists"
     txt = SPIFFS.open(file)

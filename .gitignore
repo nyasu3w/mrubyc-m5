@@ -1,9 +1,9 @@
 .pio/
 .vscode/
 mrubyc-m5.code-workspace
-projects/m5stack-avatar/src/test.c
-projects/only_display/src/test.c
-project/tota/src/demo.c
+projects/total_demo/src/demo.c
+test.c
+
 
 #the folloowings are from original mrubyc
 # Executables

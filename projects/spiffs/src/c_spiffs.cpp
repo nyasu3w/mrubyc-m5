@@ -5,6 +5,11 @@
 #include "c_file.h"
 #include "c_spiffs.h"
 
+#ifndef USE_FILE_CLASS
+#error "USE_FILE_CLASS must be defined"
+#endif
+
+
 static void class_spiffs_open(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){
@@ -20,19 +25,12 @@ static void class_spiffs_open(mrb_vm *vm, mrb_value *v, int argc)
                 mode = FILE_READ;
             }
         }
-
-        if(SPIFFS.exists(path)){
+        if((path[0]=='/' && path[1]==0) || SPIFFS.exists(path)){  // ??
             File f = SPIFFS.open(path, mode);
             if(!f){
                 SET_FALSE_RETURN();
                 return;
             }
-            if(f.isDirectory()){
-                f.close();
-                SET_FALSE_RETURN();
-                return;
-            }
-
             mrbc_value file = mrbc_instance_new(0, class_file, sizeof(File*));
             *(File**) file.instance->data = new File(f);
             SET_RETURN(file);
