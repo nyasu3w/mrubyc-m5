@@ -2,12 +2,13 @@
 # For NECO Unit
 n=70
 
-led = NeoPixel.new n,32  # 4 neopixels on pin32
+led = NeoPixel.new n  # strip on portA 
+#led = NeoPixel.new n ,32  # 70 neopixels on pin32
 
 while true do
   Display.clear
   Display.set_text_size(4)
-  0.upto(2) do |ly|
+  0.upto(2) do |ly|  # for each red,green,blue
     ca=[0,0,0] 
     ca[ly]=255
     Display.set_text_color Display.color565(*ca)
