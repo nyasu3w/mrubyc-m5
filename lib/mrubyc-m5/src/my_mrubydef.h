@@ -14,6 +14,9 @@
 #define USE_TOUCH // to support Touch functions
 #endif // ! SUPPRESS_USEDEF
 
+#define USE_TEMPORAL_RANDOM_FUNCTION  // it seems that mruby/c does not have randome number function
+
+
 #include "mrubyc.h"
 
 #include "c_m5.h"
