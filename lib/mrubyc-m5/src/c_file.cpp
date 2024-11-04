@@ -21,8 +21,7 @@ class_file_read(mrb_vm *vm, mrb_value *v, int argc)
             char *buf = (char*)mrbc_alloc(vm, len+1);
             if(buf){
                 int r = f->read((uint8_t*)buf, len);
-                buf[r] = '\0';
-                SET_RETURN(mrbc_string_new_cstr(vm, buf));
+                SET_RETURN(mrbc_string_new(vm, buf,r));
                 mrbc_raw_free(buf);
                 return;
             } else {
