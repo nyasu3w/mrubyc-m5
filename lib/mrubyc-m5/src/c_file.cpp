@@ -13,10 +13,9 @@ class_file_read(mrb_vm *vm, mrb_value *v, int argc)
     if(f){
         int len = 255;
         if(argc>0){
-            int len = val_to_i(vm, v, GET_ARG(1),argc);
-        } else {
+            len = val_to_i(vm, v, GET_ARG(1),argc);
+        } 
 
-        }
         if(len>0){
             char *buf = (char*)mrbc_alloc(vm, len+1);
             if(buf){
@@ -24,7 +23,6 @@ class_file_read(mrb_vm *vm, mrb_value *v, int argc)
                 SET_RETURN(mrbc_string_new(vm, buf,r));
                 mrbc_raw_free(buf);
                 return;
-            } else {
             }
         }
     }
