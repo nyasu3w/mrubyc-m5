@@ -23,7 +23,9 @@
 #ifdef USE_TOUCH
 #include "c_touch.h"
 #endif
-
+#ifdef USE_SPEAKER
+#include "c_speaker.h"
+#endif
 
 
 void my_mrubyc_init(){
@@ -56,6 +58,11 @@ void my_mrubyc_init(){
 #else
     mrbc_set_const(mrbc_str_to_symid("Touch"), &failed_object);
 #endif // USE_TOUCH
+#ifdef USE_SPEAKER
+    class_speaker_init();
+#else
+    mrbc_set_const(mrbc_str_to_symid("Speaker"), &failed_object);
+#endif // USE_SPEAKER
 }
 
 #endif // MY_MRUBYC_INIT

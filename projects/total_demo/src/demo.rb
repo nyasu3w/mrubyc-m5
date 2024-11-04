@@ -37,6 +37,12 @@ if board>127 then board=0 end
 puts "Board: #{boards[board]}(#{board})"
 Display.clear
 
+if Speaker then
+  Speaker.volume = 20
+  Speaker.tone 1000,100,0
+  Speaker.tone 2000,100,0,false
+end
+
 Display.set_text_size(1) if Display.dimension[0]<240
 Display.set_cursor(0,0)
 Display.puts "Board: #{boards[board]}(#{board})"
