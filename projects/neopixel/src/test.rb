@@ -1,9 +1,12 @@
 
-# For NECO Unit
-n=70
 
-led = NeoPixel.new n  # strip on portA 
-#led = NeoPixel.new n ,32  # 70 neopixels on pin32
+if M5.board==128 then # for M5Atom(Matrix)
+  n=25  
+  led = NeoPixel.new n ,27  # 25 neopixels on gpio27
+else  # For NECO Unit
+  n=70
+  led = NeoPixel.new n  # 70 led strip on portA 
+end
 
 M5.randomseed  # for temporal until mruby/c supports random number
 
