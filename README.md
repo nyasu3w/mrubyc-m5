@@ -6,6 +6,12 @@ The movie of total_demo in this project on M5Stack Core2:
 https://github.com/user-attachments/assets/b0aa8a82-fc44-421c-a1d7-70b15c6e211f
 
 
+## for the first try
+Build by PlatformIO in the top directory, then upload to your M5Stack device.
+
+`platformio.ini` is already set to build `project/total_demo` sample.
+You can change the built sample by editing `src_dir` variable in `platformio.ini`
+
 ## Features 
 Supporting ruby scripts (mruby/c) for:
 - Writing chars/Drawing graphs on LCD 
