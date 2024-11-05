@@ -78,3 +78,20 @@ test_host:
 		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
 		bash -c \
 		"rake clean && rake && bin/picoruby /work/mrubyc/test/0_runner.rb"
+
+test_mips:
+	docker run -e QEMU_LD_PREFIX=/usr/mips-linux-gnu \
+		-e MRUBY_CONFIG=mips-linux-gnu \
+		-e RUBY="qemu-mips -L /usr/mips-linux-gnu build/mips-linux-gnu/bin/picoruby" \
+		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
+		bash -c \
+		"rake clean && rake && qemu-mips build/mips-linux-gnu/bin/picoruby /work/mrubyc/test/0_runner.rb"
+
+test_mips_no_libc:
+	docker run -e QEMU_LD_PREFIX=/usr/mips-linux-gnu \
+		-e MRUBY_CONFIG=mips-linux-gnu \
+		-e PICORUBY_NO_LIBC_ALLOC=1 \
+		-e RUBY="qemu-mips -L /usr/mips-linux-gnu build/mips-linux-gnu/bin/picoruby" \
+		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
+		bash -c \
+		"rake clean && rake && qemu-mips build/mips-linux-gnu/bin/picoruby /work/mrubyc/test/0_runner.rb"

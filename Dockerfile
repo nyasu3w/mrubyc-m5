@@ -22,6 +22,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     g++-arm-linux-gnueabihf \
     libc6-dev-armhf-cross \
     libc6:armhf \
+    g++-mips-linux-gnu \
+    libc6-dev-mips-cross \
     git \
     cmake \
     make \
@@ -49,6 +51,8 @@ RUN git clone --recursive -b master \
 WORKDIR /work/picoruby
 RUN rake
 ENV MRUBY_CONFIG=arm-linux-gnueabihf
+RUN rake
+ENV MRUBY_CONFIG=mips-linux-gnu
 RUN rake
 ENV MRUBY_CONFIG=default
 
