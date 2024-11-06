@@ -38,14 +38,24 @@ docker_build:
 	docker build -t mrubyc-test --build-arg USER_ID=$(USER_ID) $(options) .
 
 docker_bash:
+	docker run --rm -it -v $(shell pwd):/work/mrubyc mrubyc-test /bin/bash
+
+docker_bash_root:
 	docker run -u root --rm -it -v $(shell pwd):/work/mrubyc mrubyc-test /bin/bash
 
 delete_docker:
 	docker rmi mrubyc-test
 
-test_full: test_host test_host_no_libc test_arm test_arm_no_libc
+.PHONY: test test_host_gcc test_host_clang test_mips test_arm test_host_gcc_no_libc test_host_clang_no_libc test_mips_no_libc test_arm_no_libc test_full
 
-test: test_host
+test_full: test_host_gcc test_host_gcc_no_libc test_host_clang test_host_clang_no_libc test_arm test_arm_no_libc
+
+test: # if platform includes darwin, test_clang, else, test_host_gcc
+	@if [ `uname` = "Darwin" ]; then \
+		make test_host_clang_no_libc; \
+	else \
+		make test_host_gcc_no_libc; \
+	fi
 
 test_arm_no_libc:
 	docker run -e QEMU_LD_PREFIX=/usr/arm-linux-gnueabihf \
@@ -64,16 +74,35 @@ test_arm:
 		bash -c \
 		"rake clean && rake && qemu-arm build/arm-linux-gnueabihf/bin/picoruby /work/mrubyc/test/0_runner.rb"
 
-test_host_no_libc:
+test_host_gcc_no_libc:
 	docker run \
+		-e CC=gcc \
 		-e MRUBY_CONFIG=default \
 		-e PICORUBY_NO_LIBC_ALLOC=1 \
 		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
 		bash -c \
 		"rake clean && rake && bin/picoruby /work/mrubyc/test/0_runner.rb"
 
-test_host:
+test_host_gcc:
 	docker run \
+		-e CC=gcc \
+		-e MRUBY_CONFIG=default \
+		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
+		bash -c \
+		"rake clean && rake && bin/picoruby /work/mrubyc/test/0_runner.rb"
+
+test_host_clang_no_libc:
+	docker run \
+		-e CC=clang \
+		-e MRUBY_CONFIG=default \
+		-e PICORUBY_NO_LIBC_ALLOC=1 \
+		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
+		bash -c \
+		"rake clean && rake && bin/picoruby /work/mrubyc/test/0_runner.rb"
+
+test_host_clang:
+	docker run \
+		-e CC=clang \
 		-e MRUBY_CONFIG=default \
 		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
 		bash -c \
