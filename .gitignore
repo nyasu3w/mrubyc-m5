@@ -1,5 +1,6 @@
 .pio/
 .vscode/
+my_projects/
 mrubyc-m5.code-workspace
 projects/total_demo/src/demo.c
 test.c

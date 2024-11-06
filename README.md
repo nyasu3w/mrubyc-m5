@@ -12,6 +12,8 @@ Build by PlatformIO in the top directory, then upload to your M5Stack device.
 `platformio.ini` is already set to build `project/total_demo` sample.
 You can change the built sample by editing `src_dir` variable in `platformio.ini`
 
+When src_dir is changing, VSCode might need some seconds to apply the change. If VSCode notifies such like "unknown ids", try again a few seconds later.
+
 ## Features 
 Supporting ruby scripts (mruby/c) for:
 - Writing chars/Drawing graphs on LCD 
