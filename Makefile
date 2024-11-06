@@ -3,14 +3,12 @@
 #
 # Copyright (C) 2015- Kyushu Institute of Technology.
 # Copyright (C) 2015- Shimane IT Open-Innovation Center.
+# Copyright (C) 2024- HASUMI Hitoshi.
 #
 #  This file is distributed under BSD 3-Clause License.
 #
 
-# MRUBY_TAG corresponds to tag or branch of mruby/mruby
-MRUBY_TAG = $(shell grep MRUBY_VERSION mrblib/global.rb | sed 's/MRUBY_VERSION *= *"\(.*\)"/\1/')
 USER_ID = $(shell id -u)
-
 
 .PHONY: all mrblib mrubyc_lib mrubyc_bin
 all: mrubyc_lib mrubyc_bin
@@ -34,39 +32,66 @@ clean:
 clean_all: clean
 	cd src ; $(MAKE) clean_all
 
-.PHONY: test setup_test check_tag debug_test
-test: test_arm test_host
+.PHONY: docker_build delete_docker docker_bash
+
+docker_build:
+	docker build -t mrubyc-test --build-arg USER_ID=$(USER_ID) $(options) .
+
+docker_bash:
+	docker run -u root --rm -it -v $(shell pwd):/work/mrubyc mrubyc-test /bin/bash
+
+delete_docker:
+	docker rmi mrubyc-test
+
+test_full: test_host test_host_no_libc test_arm test_arm_no_libc
+
+test: test_host
+
+test_arm_no_libc:
+	docker run -e QEMU_LD_PREFIX=/usr/arm-linux-gnueabihf \
+		-e MRUBY_CONFIG=arm-linux-gnueabihf \
+		-e PICORUBY_NO_LIBC_ALLOC=1 \
+		-e RUBY="qemu-arm build/arm-linux-gnueabihf/bin/picoruby" \
+		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
+		bash -c \
+		"rake clean && rake && qemu-arm build/arm-linux-gnueabihf/bin/picoruby /work/mrubyc/test/0_runner.rb"
 
 test_arm:
-	make run_test CC=arm-linux-gnueabi-gcc QEMU=qemu-arm-static
+	docker run -e QEMU_LD_PREFIX=/usr/arm-linux-gnueabihf \
+		-e MRUBY_CONFIG=arm-linux-gnueabihf \
+		-e RUBY="qemu-arm build/arm-linux-gnueabihf/bin/picoruby" \
+		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
+		bash -c \
+		"rake clean && rake && qemu-arm build/arm-linux-gnueabihf/bin/picoruby /work/mrubyc/test/0_runner.rb"
+
+test_host_no_libc:
+	docker run \
+		-e MRUBY_CONFIG=default \
+		-e PICORUBY_NO_LIBC_ALLOC=1 \
+		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
+		bash -c \
+		"rake clean && rake && bin/picoruby /work/mrubyc/test/0_runner.rb"
 
 test_host:
-	make run_test CC=gcc
+	docker run \
+		-e MRUBY_CONFIG=default \
+		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
+		bash -c \
+		"rake clean && rake && bin/picoruby /work/mrubyc/test/0_runner.rb"
 
-run_test: check_tag
-	docker run --mount type=bind,src=${PWD}/,dst=/work/mrubyc \
-	  -e CFLAGS="-DMRBC_USE_HAL_POSIX=1 -DMRBC_USE_MATH=1 -DMRBC_INT64 -DMRBC_SUPPORT_OP_EXT $(CFLAGS)" \
-	  -e MRBC="/work/mruby/build/host/bin/mrbc" \
-	  mrubyc-dev /bin/sh -c "cd mrblib; make distclean all && cd -; \
-	  CC=$(CC) QEMU=$(QEMU) \
-	  bundle exec mrubyc-test --every=10 \
-	  --mrbc-path=/work/mruby/build/host/bin/mrbc \
-	  $(file)"
+test_mips:
+	docker run -e QEMU_LD_PREFIX=/usr/mips-linux-gnu \
+		-e MRUBY_CONFIG=mips-linux-gnu \
+		-e RUBY="qemu-mips -L /usr/mips-linux-gnu build/mips-linux-gnu/bin/picoruby" \
+		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
+		bash -c \
+		"rake clean && rake && qemu-mips build/mips-linux-gnu/bin/picoruby /work/mrubyc/test/0_runner.rb"
 
-check_tag:
-	$(eval CURRENT_MRUBY_TAG = $(shell docker run mrubyc-dev \
-	  /bin/sh -c 'cd /work/mruby && git status | ruby -e"puts STDIN.first.split(\" \")[-1]"'))
-	@echo MRUBY_TAG=$(MRUBY_TAG)
-	@echo CURRENT_MRUBY_TAG=$(CURRENT_MRUBY_TAG)
-	if test "$(CURRENT_MRUBY_TAG)" = "$(MRUBY_TAG)"; \
-	then \
-	  echo 'Skip setup_test'; \
-	else \
-	  make setup_test; \
-	fi
-
-setup_test:
-	docker build -t mrubyc-dev --build-arg MRUBY_TAG=$(MRUBY_TAG) --build-arg USER_ID=$(USER_ID) $(options) .
-
-debug_test:
-	gdb $(OPTION) --directory $(shell pwd)/src --args test/tmp/test
+test_mips_no_libc:
+	docker run -e QEMU_LD_PREFIX=/usr/mips-linux-gnu \
+		-e MRUBY_CONFIG=mips-linux-gnu \
+		-e PICORUBY_NO_LIBC_ALLOC=1 \
+		-e RUBY="qemu-mips -L /usr/mips-linux-gnu build/mips-linux-gnu/bin/picoruby" \
+		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
+		bash -c \
+		"rake clean && rake && qemu-mips build/mips-linux-gnu/bin/picoruby /work/mrubyc/test/0_runner.rb"

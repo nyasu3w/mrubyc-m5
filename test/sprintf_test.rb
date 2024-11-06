@@ -1,9 +1,8 @@
-# frozen_string_literal: true
 
-class SprintfTest < MrubycTestCase
+class SprintfTest < Picotest::Test
 
   description "%c"
-  def c_case
+  def test_c
     assert_equal "A", sprintf("%c", 65)
     assert_equal "A", sprintf("%c", "A")
 
@@ -16,7 +15,7 @@ class SprintfTest < MrubycTestCase
   end
 
   description "%s"
-  def s_case
+  def test_s
     assert_equal "ABC", sprintf("%s", "ABC")
 
     # width
@@ -41,7 +40,7 @@ class SprintfTest < MrubycTestCase
   end
 
   description "%d, %i"
-  def d_i_case
+  def test_d_i
     assert_equal "123", sprintf("%d", 123)
     assert_equal "123", sprintf("%i", 123)
     assert_equal "-123", sprintf("%d", -123)
@@ -94,12 +93,12 @@ class SprintfTest < MrubycTestCase
   end
 
   description "%u"
-  def u_case
+  def test_u
     assert_equal "-1", sprintf("%u", -1)
   end
 
   description "%x, %X"
-  def x_X_case
+  def test_x_X
     assert_equal "0", sprintf("%x", 0)
     assert_equal "a", sprintf("%x", 10)
     assert_equal "A", sprintf("%X", 10)
@@ -143,7 +142,7 @@ class SprintfTest < MrubycTestCase
   end
 
   description "%b, %B"
-  def b_B_case
+  def test_b_B
     assert_equal   "0", sprintf("%b", 0)
     assert_equal   "1", sprintf("%b", 1)
     assert_equal  "10", sprintf("%b", 2)

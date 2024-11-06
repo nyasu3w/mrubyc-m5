@@ -1,9 +1,8 @@
-# frozen_string_literal: true
-
-class GlobalTest < MrubycTestCase
+class GlobalTest < Picotest::Test
 
   description "RUBY_ENGINE"
-  def ruby_engine
+  def test_ruby_engine
     assert_equal "mruby/c", RUBY_ENGINE
   end
+
 end

@@ -1,21 +1,20 @@
-# frozen_string_literal: true
 
-class IntegerTest < MrubycTestCase
+class IntegerTest < Picotest::Test
 
   description "abs"
-  def abs_case
+  def test_abs
     assert_equal 12, 12.abs
     assert_equal 34.56, (-34.56).abs
     assert_equal 34.56, -34.56.abs
   end
 
   description "chr"
-  def chr_case
+  def test_chr
     assert_equal "A", 65.chr
   end
 
   description "times"
-  def times_case
+  def test_times
     result = 0
     10.times { |i|
       result += i
@@ -24,7 +23,7 @@ class IntegerTest < MrubycTestCase
   end
 
   description "upto"
-  def upto_case
+  def test_upto
     result = 0
     -1.upto 10 do |i|
       result += i
@@ -33,7 +32,7 @@ class IntegerTest < MrubycTestCase
   end
 
   description "downto"
-  def downto_case
+  def test_downto
     result = 0
     10.downto -1 do |i|
       result += i
@@ -42,19 +41,19 @@ class IntegerTest < MrubycTestCase
   end
 
   description "to_f"
-  def to_f_case
+  def test_to_f
     assert_equal( 10.0, 10.to_f )
     assert_equal( -10.0, -10.to_f )
   end
 
   description "to_i"
-  def to_i__case
+  def test_to_i_
     assert_equal( 10, 10.to_i )
     assert_equal( -10, -10.to_i )
   end
 
   description "to_s"
-  def to_s_case
+  def test_to_s
     assert_equal( "10", 10.to_s )
     assert_equal( "1010", 10.to_s(2) )
     assert_equal( "12", 10.to_s(8) )
@@ -67,26 +66,26 @@ class IntegerTest < MrubycTestCase
   end
 
   description "clamp"
-  def clamp_case
+  def test_clamp
     assert_equal 2, 10.clamp(0, 2)
     assert_equal 2, 10.clamp(-1, 2)
     assert_equal -2, -10.clamp(-2, 2)
     assert_equal 2.0, 10.clamp(0, 2.0)
     assert_equal 2, 10.clamp(-1.0, 2.0)
     assert_equal -2, -10.clamp(-2.0, 2)
-    assert_raise(ArgumentError.new("min argument must be smaller than max argument")) do
+    assert_raise(ArgumentError, "min argument must be smaller than max argument") do
       0.clamp(1, -1)
     end
-    assert_raise(ArgumentError.new("wrong number of arguments (expected 2)")) do
+    assert_raise(ArgumentError, "wrong number of arguments (expected 2)") do
       0.clamp(1)
     end
-    assert_raise(ArgumentError.new("wrong number of arguments (expected 2)")) do
+    assert_raise(ArgumentError, "wrong number of arguments (expected 2)") do
       0.clamp(1..2)
     end
-    assert_raise(ArgumentError.new("comparison failed")) do
+    assert_raise(ArgumentError, "comparison failed") do
       0.clamp("1", "2")
     end
-    assert_raise(ArgumentError.new("comparison failed")) do
+    assert_raise(ArgumentError, "comparison failed") do
       0.clamp(0..10, 9)
     end
   end

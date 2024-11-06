@@ -1,9 +1,8 @@
-# frozen_string_literal: true
 
-class HashTest < MrubycTestCase
+class HashTest < Picotest::Test
 
   description "生成"
-  def constructor_case
+  def test_constructor
     h = {a: 1, b: 2}
     assert_equal( {:a=>1, :b=>2 }, h )
 
@@ -12,7 +11,7 @@ class HashTest < MrubycTestCase
   end
 
   description "値の取り出し"
-  def pick_value_case
+  def test_pick_value
     h = {:key=>"value", "key"=>:value, 3=>"Three", :"4"=>444}
     assert_equal( "value", h[:key] )
     assert_equal( :value,  h["key"] )
@@ -21,7 +20,7 @@ class HashTest < MrubycTestCase
   end
 
   description "値の設定、サイズ"
-  def setter_case
+  def test_setter
     h = Hash.new
     assert_equal( 0, h.size )
     h["key"] = :value
@@ -30,20 +29,20 @@ class HashTest < MrubycTestCase
   end
 
   description "存在しないキーにアクセスした場合nilが返ること"
-  def nonexistent_case
+  def test_nonexistent
     h = Hash.new
     assert_equal( nil, h["no-exist-key"] )
   end
 
   description "operator !="
-  def negate_op_case
+  def test_negate_op
     h = Hash.new
     h1 = {:key=>"value", "key"=>:value, 3=>"Three", :"4"=>444}
     assert_not_equal( h, h1 )
   end
 
   description "==  (順序が違うHash同士の比較)"
-  def eq_eq_case
+  def test_eq_eq
     h1 = {:key=>"value", "key"=>:value, 3=>"Three", :"4"=>444}
     h = Hash.new
     h["key"] = :value
@@ -57,7 +56,7 @@ class HashTest < MrubycTestCase
   end
 
   description "値の上書き"
-  def override_case
+  def test_override
     h = Hash.new
     h["key"] = :value
     h[:"4"] = 444
@@ -69,7 +68,7 @@ class HashTest < MrubycTestCase
   end
 
   description "clear"
-  def clear_case
+  def test_clear
     h = {}
     h[:key] = "other value"
     h.clear
@@ -78,7 +77,7 @@ class HashTest < MrubycTestCase
   end
 
   description "dup"
-  def dup_case
+  def test_dup
     h = {:a=>"A", :b=>"B"}
     h1 = h
     assert_equal( h, h1 )
@@ -92,7 +91,7 @@ class HashTest < MrubycTestCase
   end
 
   description "delete"
-  def delete_case
+  def test_delete
     h = {:ab => "some", :cd => "all"}
 
     assert_equal( "some", h.delete(:ab) )
@@ -104,46 +103,46 @@ class HashTest < MrubycTestCase
   end
 
   description "empty?"
-  def is_empty_case
+  def test_is_empty
     assert_equal( true, {}.empty? )
     assert_equal( false, {:a=>1}.empty? )
   end
 
   description "has_key?"
-  def has_key_case
+  def test_has_key
     h = {:key=>"value", "key"=>:value, 3=>"Three", :"4"=>444}
     assert_equal( true,  h.has_key?(:key) )
     assert_equal( false, h.has_key?(:key2) )
   end
 
   description "has_value?"
-  def has_value_case
+  def test_has_value
     h = {:key=>"value", "key"=>:value, 3=>"Three", :"4"=>444}
     assert_equal( true,  h.has_value?(444) )
     assert_equal( false, h.has_value?(555) )
   end
 
   description "key"
-  def key_case
+  def test_key
     h = {:key=>"value", "key"=>:value, 3=>"Three", :"4"=>444}
     assert_equal( "key", h.key(:value) )
     assert_equal( nil,   h.key(:no_exist) )
   end
 
   description "keys"
-  def keys_case
+  def test_keys
     h = {:key=>"value", "key"=>:value, 3=>"Three", :"4"=>444}
     assert_equal( [:key, "key", 3, :"4"], h.keys )
   end
 
   description "values"
-  def values_case
+  def test_values
     h = {:key=>"value", "key"=>:value, 3=>"Three", :"4"=>444}
     assert_equal( ["value", :value, "Three", 444], h.values )
   end
 
   description "size, length, count"
-  def size_case
+  def test_size
     h = {:key=>"value", "key"=>:value, 3=>"Three", :"4"=>444}
     assert_equal( 4, h.size )
     assert_equal( 4, h.length )
@@ -151,7 +150,7 @@ class HashTest < MrubycTestCase
   end
 
   description "merge"
-  def merge_case
+  def test_merge
     foo = {1=>"a", 2=>"b", 3=>"c"}
     bar = {2=>"B", 3=>"C", 4=>"D"}
     assert_equal( {1=>"a", 2=>"B", 3=>"C", 4=>"D"}, foo.merge(bar) )
@@ -160,7 +159,7 @@ class HashTest < MrubycTestCase
   end
 
   description "merge!"
-  def merge_bung_case
+  def test_merge_bung
     foo = {1=>"a", 2=>"b", 3=>"c"}
     bar = {2=>"B", 3=>"C", 4=>"D"}
     assert_equal( {1=>"a", 2=>"B", 3=>"C", 4=>"D"}, foo.merge!(bar) )
@@ -169,7 +168,7 @@ class HashTest < MrubycTestCase
   end
 
   description "to_h"
-  def to_h_case
+  def test_to_h
     h = {}
     assert_equal( {}, h.to_h )
   end

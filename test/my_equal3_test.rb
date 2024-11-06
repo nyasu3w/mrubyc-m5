@@ -1,34 +1,35 @@
-# frozen_string_literal: true
+class MyEqual3
+end
 
-class MyEqual3Test < MrubycTestCase
+class MyEqual3Test < Picotest::Test
 
   description "Integer Integer"
-  def fixnum_fixnum_case
+  def test_fixnum_fixnum
     assert_equal true,  1 === 1
     assert_equal false, 1 === 2
   end
 
   description "Integer Float"
-  def fixnum_float_case
+  def test_fixnum_float
     assert_equal true,  1 === 1.0
     assert_equal false, 1 === 1.1
   end
 
   description "Float Integer"
-  def float_fixnum_case
+  def test_float_fixnum
     assert_equal true,  1.0 === 1
     assert_equal false, 1.0 === 2
   end
 
   description "nil"
-  def nil_case
+  def test_nil
     assert_equal true,  nil === nil
     assert_equal false, nil === 1
     assert_equal false, 1 === nil
   end
 
   description "False, True"
-  def boolean_case
+  def test_boolean
     assert_equal true,  false === false
     assert_equal false, false === true
     assert_equal false, true === false
@@ -38,13 +39,13 @@ class MyEqual3Test < MrubycTestCase
   end
 
   description "Symbol"
-  def symbol_case
+  def test_symbol
     assert_equal true,  :Symbol === :Symbol
     assert_equal false, :Symbol === :Symbol2
   end
 
   description "String"
-  def string_case
+  def test_string
     assert_equal true, "abcde" === "abcde"
     assert_equal false, "abcde" === "abcd"
     assert_equal false, "abcd" === "abcde"
@@ -53,7 +54,7 @@ class MyEqual3Test < MrubycTestCase
   end
 
   description "Array"
-  def array_case
+  def test_array
     assert_equal true,  [1,2,3] === [1,2,3]
 
     assert_equal true,  Array === [1,2,3]
@@ -61,14 +62,14 @@ class MyEqual3Test < MrubycTestCase
   end
 
   description "Hash"
-  def hash_case
+  def test_hash
     assert_equal true,  {:k=>"v"} === {:k=>"v"}
     assert_equal true,  Hash === {:k=>"v"}
     assert_equal false, Hash === [1,2,3]
   end
 
   description "Range"
-  def range_case
+  def test_range
     assert_equal true,  Range === (1..3)
     assert_equal true,  (1..3) === 1
     assert_equal true,  (1..3) === 3
@@ -80,7 +81,7 @@ class MyEqual3Test < MrubycTestCase
   end
 
   description "Object"
-  def object_case
+  def test_object
     assert_equal true,  Object === nil
     assert_equal true,  Object === false
     assert_equal true,  Object === true

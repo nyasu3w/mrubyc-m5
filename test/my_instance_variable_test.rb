@@ -1,9 +1,17 @@
-# frozen_string_literal: true
+class MyInstanceVariable
+  attr_reader :r1, :r2
+  attr_accessor :rw1, :rw2
 
-class MyInstanceVariableTest < MrubycTestCase
+  def method1(v1,v2)
+    @r1 = v1
+    @r2 = v2
+  end
+end
+
+class MyInstanceVariableTest < Picotest::Test
 
   description 'instance variable'
-  def all
+  def test_all
     # 初期値は、nilであること
     obj1 = MyInstanceVariable.new
     assert_equal [nil,nil,nil,nil], [obj1.r1, obj1.r2, obj1.rw1, obj1.rw2]

@@ -1,8 +1,7 @@
-# frozen_string_literal: true
 
-class DefTest < MrubycTestCase
+class DefTest < Picotest::Test
   description "OP_DEF should return the symbol of the method name"
-  METHOD_NAME_SYM = def op_def_return
-    assert_equal(:op_def_return, METHOD_NAME_SYM)
+  METHOD_NAME_SYM = def test_op_def_return
+    assert_equal(:test_op_def_return, METHOD_NAME_SYM)
   end
 end

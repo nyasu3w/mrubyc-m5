@@ -1,9 +1,8 @@
-# frozen_string_literal: true
 
-class BoolTest < MrubycTestCase
+class BoolTest < Picotest::Test
 
   description 'true / false'
-  def basic_case
+  def test_basic
     v = true
     assert_true( v )
 
@@ -48,7 +47,7 @@ class BoolTest < MrubycTestCase
   end
 
   description "! (negation)"
-  def negation_case
+  def test_negation
     v = true
     assert_false( !v )
 
@@ -85,7 +84,7 @@ class BoolTest < MrubycTestCase
 
 
   description "!= negation operator"
-  def negation_operator_case
+  def test_negation_operator
     v1,v2 = true,true
     assert_equal( v1, v2 )
 

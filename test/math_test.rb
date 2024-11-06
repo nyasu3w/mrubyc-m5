@@ -1,9 +1,8 @@
-# frozen_string_literal: true
 
-class MathTest < MrubycTestCase
+class MathTest < Picotest::Test
 
   description 'Math class'
-  def all
+  def test_all
     # Math class methods
     assert_in_delta 1.0471, Math.acos(0.5)
     assert_in_delta 0.9624, Math.acosh(1.5)
