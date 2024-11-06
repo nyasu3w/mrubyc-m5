@@ -35,7 +35,7 @@ clean_all: clean
 .PHONY: docker_build delete_docker docker_bash
 
 docker_build:
-	docker build -t mrubyc-test --build-arg USER_ID=$(USER_ID) $(options) .
+	docker build -t mrubyc-test --no-cache --build-arg USER_ID=$(USER_ID) $(options) .
 
 docker_bash:
 	docker run --rm -it -v $(shell pwd):/work/mrubyc mrubyc-test /bin/bash
@@ -48,7 +48,7 @@ delete_docker:
 
 .PHONY: test test_host_gcc test_host_clang test_mips test_arm test_host_gcc_no_libc test_host_clang_no_libc test_mips_no_libc test_arm_no_libc test_full
 
-test_full: test_host_gcc test_host_gcc_no_libc test_host_clang test_host_clang_no_libc test_arm test_arm_no_libc
+test_full: test_host_gcc test_host_gcc_no_libc test_host_clang test_host_clang_no_libc test_arm test_arm_no_libc test_mips test_mips_no_libc
 
 test: # if platform includes darwin, test_clang, else, test_host_gcc
 	@if [ `uname` = "Darwin" ]; then \
@@ -58,25 +58,28 @@ test: # if platform includes darwin, test_clang, else, test_host_gcc
 	fi
 
 test_arm_no_libc:
-	docker run -e QEMU_LD_PREFIX=/usr/arm-linux-gnueabihf \
+	docker run \
+		-e PICORUBY_DEBUG=1 \
 		-e MRUBY_CONFIG=arm-linux-gnueabihf \
 		-e PICORUBY_NO_LIBC_ALLOC=1 \
-		-e RUBY="qemu-arm build/arm-linux-gnueabihf/bin/picoruby" \
+		-e RUBY="qemu-arm -L /usr/arm-linux-gnueabihf build/arm-linux-gnueabihf/bin/picoruby" \
 		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
 		bash -c \
-		"rake clean && rake && qemu-arm build/arm-linux-gnueabihf/bin/picoruby /work/mrubyc/test/0_runner.rb"
+		"rake clean && rake && qemu-arm -L /usr/arm-linux-gnueabihf build/arm-linux-gnueabihf/bin/picoruby /work/mrubyc/test/0_runner.rb"
 
 test_arm:
-	docker run -e QEMU_LD_PREFIX=/usr/arm-linux-gnueabihf \
+	docker run \
+		-e PICORUBY_DEBUG=1 \
 		-e MRUBY_CONFIG=arm-linux-gnueabihf \
-		-e RUBY="qemu-arm build/arm-linux-gnueabihf/bin/picoruby" \
+		-e RUBY="qemu-arm -L /usr/arm-linux-gnueabihf build/arm-linux-gnueabihf/bin/picoruby" \
 		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
 		bash -c \
-		"rake clean && rake && qemu-arm build/arm-linux-gnueabihf/bin/picoruby /work/mrubyc/test/0_runner.rb"
+		"rake clean && rake && qemu-arm -L /usr/arm-linux-gnueabihf build/arm-linux-gnueabihf/bin/picoruby /work/mrubyc/test/0_runner.rb"
 
 test_host_gcc_no_libc:
 	docker run \
 		-e CC=gcc \
+		-e PICORUBY_DEBUG=1 \
 		-e MRUBY_CONFIG=default \
 		-e PICORUBY_NO_LIBC_ALLOC=1 \
 		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
@@ -86,6 +89,7 @@ test_host_gcc_no_libc:
 test_host_gcc:
 	docker run \
 		-e CC=gcc \
+		-e PICORUBY_DEBUG=1 \
 		-e MRUBY_CONFIG=default \
 		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
 		bash -c \
@@ -94,6 +98,7 @@ test_host_gcc:
 test_host_clang_no_libc:
 	docker run \
 		-e CC=clang \
+		-e PICORUBY_DEBUG=1 \
 		-e MRUBY_CONFIG=default \
 		-e PICORUBY_NO_LIBC_ALLOC=1 \
 		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
@@ -103,6 +108,7 @@ test_host_clang_no_libc:
 test_host_clang:
 	docker run \
 		-e CC=clang \
+		-e PICORUBY_DEBUG=1 \
 		-e MRUBY_CONFIG=default \
 		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
 		bash -c \
@@ -110,6 +116,7 @@ test_host_clang:
 
 test_mips:
 	docker run -e QEMU_LD_PREFIX=/usr/mips-linux-gnu \
+		-e PICORUBY_DEBUG=1 \
 		-e MRUBY_CONFIG=mips-linux-gnu \
 		-e RUBY="qemu-mips -L /usr/mips-linux-gnu build/mips-linux-gnu/bin/picoruby" \
 		--rm -v $(shell pwd):/work/mrubyc mrubyc-test \
@@ -118,6 +125,7 @@ test_mips:
 
 test_mips_no_libc:
 	docker run -e QEMU_LD_PREFIX=/usr/mips-linux-gnu \
+		-e PICORUBY_DEBUG=1 \
 		-e MRUBY_CONFIG=mips-linux-gnu \
 		-e PICORUBY_NO_LIBC_ALLOC=1 \
 		-e RUBY="qemu-mips -L /usr/mips-linux-gnu build/mips-linux-gnu/bin/picoruby" \
