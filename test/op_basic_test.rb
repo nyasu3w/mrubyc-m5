@@ -1,9 +1,8 @@
-# frozen_string_literal: true
 
-class OpBasicTest < MrubycTestCase
+class OpBasicTest < Picotest::Test
 
   description "op_add"
-  def op_add_case
+  def test_op_add
     a = 1
     b = 2
     assert_equal( a + b, 3 )
@@ -22,7 +21,7 @@ class OpBasicTest < MrubycTestCase
   end
 
   description "op_addi"
-  def op_addi_case
+  def test_op_addi
     a = 1
     assert_equal( a + 2, 3 )
     assert_equal( 1 + 2, 3 )
@@ -33,7 +32,7 @@ class OpBasicTest < MrubycTestCase
   end
 
   description "op_sub"
-  def op_sub_case
+  def test_op_sub
     a = 1
     b = 2
     assert_equal( a - b, -1 )
@@ -52,7 +51,7 @@ class OpBasicTest < MrubycTestCase
   end
 
   description "op_subi"
-  def op_subi_case
+  def test_op_subi
     a = 1
     assert_equal( a - 2, -1 )
 
@@ -61,7 +60,7 @@ class OpBasicTest < MrubycTestCase
   end
 
   description "op_mul"
-  def op_mul_case
+  def test_op_mul
     a = 2
     b = 3
     assert_equal a * b, 6
@@ -80,7 +79,7 @@ class OpBasicTest < MrubycTestCase
   end
 
   description "op_lt"
-  def op_lt_case
+  def test_op_lt
     a = 1
     b = 2
     assert_true( a < b )
@@ -119,7 +118,7 @@ class OpBasicTest < MrubycTestCase
   end
 
   description "op_le"
-  def op_le_case
+  def test_op_le
     a = 1
     b = 2
     assert_true( a <= b )
@@ -158,7 +157,7 @@ class OpBasicTest < MrubycTestCase
   end
 
   description "op_gt"
-  def op_gt_case
+  def test_op_gt
     a = 1
     b = 2
     assert_false( a > b )
@@ -197,7 +196,7 @@ class OpBasicTest < MrubycTestCase
   end
 
   description "op_ge"
-  def op_ge_case
+  def test_op_ge
     a = 1
     b = 2
     assert_false( a >= b )

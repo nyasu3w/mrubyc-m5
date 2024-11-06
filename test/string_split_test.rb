@@ -1,13 +1,12 @@
-# frozen_string_literal: true
 
-class StringSplitTest < MrubycTestCase
+class StringSplitTest < Picotest::Test
 
   #
   # Regex not supported.
   #
 
   description "String"
-  def string_case
+  def test_string
     assert_equal ["a","b","c"],             "a,b,c".split(",")
     assert_equal ["a","","b","c"],          "a,,b,c".split(",")
     assert_equal ["a","b:c","d"],           "a::b:c::d".split("::")
@@ -17,7 +16,7 @@ class StringSplitTest < MrubycTestCase
   end
 
   description "space"
-  def space_case
+  def test_space
     assert_equal ["a", "b", "c"], "   a \t  b \n  c\r\n".split(" ")
     assert_equal ["a", "b", "c"], "a \t  b \n  c\r\n".split(" ")
     assert_equal ["a", "b", "c"], "   a \t  b \n  c".split(" ")
@@ -29,18 +28,18 @@ class StringSplitTest < MrubycTestCase
   end
 
   description "nil"
-  def nil_case
+  def test_nil
     assert_equal ["a", "b", "c"], "   a \t  b \n  c".split()
     assert_equal ["a", "b", "c"], "   a \t  b \n  c".split(nil)
   end
 
   description "empty string"
-  def empty_string_case
+  def test_empty_string
     assert_equal [" ", " ", " ", "a", " ", "\t", " ", " ", "b", " ", "\n", " ", " ", "c"], "   a \t  b \n  c".split("")
   end
 
   description "limit"
-  def limit_case
+  def test_limit
     assert_equal ["a", "b", "", "c"],         "a,b,,c,,".split(",", 0)
     assert_equal ["a,b,,c,,"],                "a,b,,c,,".split(",", 1)
     assert_equal ["a", "b,,c,,"],             "a,b,,c,,".split(",", 2)
@@ -69,7 +68,7 @@ class StringSplitTest < MrubycTestCase
   end
 
   description "empty source"
-  def empty_source_case
+  def test_empty_source
     assert_equal [], "".split(",")
     assert_equal [], "".split(",", 0)
     assert_equal [], "".split(",", 1)
@@ -87,7 +86,7 @@ class StringSplitTest < MrubycTestCase
   end
 
   description "delimiter only"
-  def delimiter_only_case
+  def test_delimiter_only
     assert_equal [],        ",".split(",")
     assert_equal [],        ",".split(",", 0)
     assert_equal [","],     ",".split(",", 1)

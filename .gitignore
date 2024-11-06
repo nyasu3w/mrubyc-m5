@@ -26,3 +26,6 @@ build/
 
 # doxygen output
 html/
+
+# PicoRuby for testing
+picoruby/

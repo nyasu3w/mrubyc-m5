@@ -1,8 +1,8 @@
 
-class StringStripTest < MrubycTestCase
+class StringStripTest < Picotest::Test
 
   description "strip, lstrip, rstrip"
-  def strip_case
+  def test_strip
     s = " a b c "
     assert_equal "a b c", s.strip
     assert_equal "a b c ", s.lstrip
@@ -50,7 +50,7 @@ class StringStripTest < MrubycTestCase
   end
 
   description "strip!"
-  def strip_bang_case
+  def test_strip_bang
     s = " a b c "
     assert_equal "a b c", s.strip!
     assert_equal "a b c", s
@@ -89,7 +89,7 @@ class StringStripTest < MrubycTestCase
   end
 
   description "lstrip!"
-  def lstrip_bang_case
+  def test_lstrip_bang
     s = " a b c "
     assert_equal "a b c ", s.lstrip!
     assert_equal "a b c ", s
@@ -128,7 +128,7 @@ class StringStripTest < MrubycTestCase
   end
 
   description "rstrip!"
-  def rstrip_bang_case
+  def test_rstrip_bang
     s = " a b c "
     assert_equal " a b c", s.rstrip!
     assert_equal " a b c", s
@@ -167,7 +167,7 @@ class StringStripTest < MrubycTestCase
   end
 
   description "chomp"
-  def chomp_case
+  def test_chomp
     s1 = "foo\r\n"
     s2 = s1.chomp
     assert_equal "foo\r\n", s1
@@ -205,7 +205,7 @@ class StringStripTest < MrubycTestCase
   end
 
   description "chomp!"
-  def chomp_bang_case
+  def test_chomp_bang
     s = "foo\r\n"
     assert_equal "foo", s.chomp!
     assert_equal "foo", s

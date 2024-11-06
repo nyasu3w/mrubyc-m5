@@ -1,41 +1,31 @@
 # Test
 
-mruby/c adopts mrubyc-test for unit testing.
+mruby/c uses picoruby-picotest of PicoRuby for unit testing.
 
-Refer to https://github.com/mrubyc/mrubyc-test for further details.
+https://github.com/picoruby/picoruby/blob/master/mrbgems/picoruby-picotest/README.md
 
 ## Prerequisite
 
-You need Docker installed.
-Information about Docker on https://docs.docker.com/get-docker/
+- Docker: https://docs.docker.com/get-docker/
 
 ## Setup
 
 ```
-make setup_test
+make docker_build
 ```
 
-This target will build a Docker container image.
-It may take a while.
+## Test
 
-### Passing docker build options
-
-```
-make setup_test options="--no-cache --quiet"
-```
-
-## Test!
+### Test for host gcc and !MRBC_LIBC_ALLOC
 
 ```
 make test
 ```
 
-You can specify a test file in this way:
+### Test all combinations of build options and target platforms
+
 ```
-make test file=test/array_test.rb
+make test_full
 ```
 
-You can override environment variables for example:
-```
-CFLAGS=-DMRBC_USE_MATH=0 make test
-```
+About build options and target platforms, see `run_test.sh`.

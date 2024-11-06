@@ -1,14 +1,13 @@
-# frozen_string_literal: true
 
-class NilClassTest < MrubycTestCase
+class NilClassTest < Picotest::Test
 
   description 'nil?'
-  def is_nil_case
+  def test_is_nil
     assert_equal( true,  nil.nil? )
   end
 
   description "variety of nil.to_SOMETHING"
-  def nil_to_something_case
+  def test_nil_to_something
     assert_equal( 0,   nil.to_i )
     assert_equal( "",  nil.to_s )
     assert_equal( 0.0, nil.to_f )

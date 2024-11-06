@@ -1,21 +1,21 @@
 # coding: utf-8
 
-class StringTest < MrubycTestCase
+class StringTest < Picotest::Test
 
   description "String.new with arg"
-  def string_new_with_arg
+  def test_string_new_with_arg
     str = String.new("a string instance")
     assert_equal "a string instance", str
   end
 
   description "String.new without arg"
-  def string_new_without_arg
+  def test_string_new_without_arg
     str = String.new
     assert_equal "", str
   end
 
   description "==, !="
-  def op_eq_case
+  def test_op_eq
     assert_equal true, "abc" == "abc"
     assert_equal false, "abc" == "ABC"
     assert_equal false, "abc" == "abcd"
@@ -24,7 +24,7 @@ class StringTest < MrubycTestCase
   end
 
   description "self * times -> String"
-  def mul_case
+  def test_mul
     s1 = "ABCDEFG"
     s2 = "0123456789"
     assert_equal "ABCDEFGABCDEFG", s1 * 2
@@ -33,7 +33,7 @@ class StringTest < MrubycTestCase
   end
 
   description "self + other -> String"
-  def add_case
+  def test_add
     s1 = "ABCDEFG"
     s2 = "0123456789"
     assert_equal "ABCDEFG0123456789", s1 + s2
@@ -43,7 +43,7 @@ class StringTest < MrubycTestCase
   end
 
   description "self << other -> self"
-  def addi_case
+  def test_addi
     s1 = "ABCDEFG"
     s2 = "0123456789"
     s1 << s2
@@ -56,7 +56,7 @@ class StringTest < MrubycTestCase
   end
 
   description "self <=> other -> (minus) | 0 | (plus)"
-  def compare_case
+  def test_compare
     assert ("aaa" <=> "xxx") < 0
     assert ("aaa" <=> "aaa") == 0
     assert ("xxx" <=> "aaa") > 0
@@ -66,13 +66,13 @@ class StringTest < MrubycTestCase
   end
 
   description "self == other -> bool"
-  def op_eq_2_case
+  def test_op_eq_2
     s1 = "ABCDEFG"
     assert_equal "ABCDEFG", s1
   end
 
   description "self[nth] -> String | nil"
-  def nth_case
+  def test_nth
     assert_equal "r", 'bar'[2]
     assert_equal true, 'bar'[2] == ?r
     assert_equal "r", 'bar'[-1]
@@ -81,7 +81,7 @@ class StringTest < MrubycTestCase
   end
 
   description "self[nth, len] -> String | nil"
-  def nth_len_case
+  def test_nth_len
     str0 = "bar"
     assert_equal "r", str0[2, 1]
     assert_equal "",  str0[2, 0]
@@ -100,21 +100,21 @@ class StringTest < MrubycTestCase
   end
 
   description "self[nth]=val -> val"
-  def nth_return_val_case
+  def test_nth_return_val
     str = "bar"
     assert_equal "B", str[0] = "B"
     assert_equal "Bar", str
   end
 
   description "send []= case"
-  def send_nth_return_val_case
+  def test_send_nth_return_val
     str = "bar"
     assert_equal "B", str.[]=(0, "B")
     assert_equal "Bar", str
   end
 
   description "境界値チェックを詳細にかけておく"
-  def boundary_value_case
+  def test_boundary_value
     s1 = "0123456"
 
     assert_equal "012", s1[0,3]
@@ -156,7 +156,7 @@ class StringTest < MrubycTestCase
   end
 
   description "self[nth] = val"
-  def nth_replace_case
+  def test_nth_replace
     s1 = "0123456789"
     s1[0] = "ab"
     assert_equal "ab123456789", s1
@@ -215,7 +215,7 @@ class StringTest < MrubycTestCase
   end
 
   description "self[nth, len] = val"
-  def nth_len_replace_case
+  def test_nth_len_replace
     s1 = "0123456789"
     s1[2,5] = "ab"
     assert_equal "01ab789", s1
@@ -311,7 +311,7 @@ class StringTest < MrubycTestCase
   end
 
   description "minus"
-  def minus_case
+  def test_minus
     s1 = "0123456789"
     s1[-8,5] = "ab"
     assert_equal "01ab789", s1
@@ -343,7 +343,7 @@ class StringTest < MrubycTestCase
   end
 
   description "String#slice!"
-  def slice_self_case
+  def test_slice_self
     s = "bar"
     assert_equal "r", s.slice!(2)
     assert_equal "ba", s
@@ -394,17 +394,17 @@ class StringTest < MrubycTestCase
   end
 
   description "ord"
-  def ord_case
+  def test_ord
     assert_equal 97, "a".ord
     assert_equal 97, "abcde".ord
 
-    assert_raise(ArgumentError.new("empty string")) do
+    assert_raise(ArgumentError, "empty string") do
       "".ord
     end
   end
 
   description "binary string"
-  def binary_case
+  def test_binary
     s1 = "ABC\x00\x0d\x0e\x0f"
     assert_equal 7, s1.size
 
@@ -423,7 +423,7 @@ class StringTest < MrubycTestCase
   end
 
   description "String#size"
-  def string_size_case
+  def test_string_size
     s = "abc"
     assert_equal 3, s.size
     assert_equal 3, s.length
@@ -438,7 +438,7 @@ class StringTest < MrubycTestCase
   end
 
   description "index"
-  def index_case
+  def test_index
     assert_equal 0, "abcde".index("")
     assert_equal 0, "abcde".index("a")
     assert_equal 0, "abcde".index("abc")
@@ -452,7 +452,7 @@ class StringTest < MrubycTestCase
   end
 
   description "tr"
-  def tr_case
+  def test_tr
     assert_equal "123defg", "abcdefg".tr("abc", "123")
     assert_equal "123d456", "abcdefg".tr("abcefg", "123456")
     assert_equal "123333g", "abcdefg".tr("abcdef", "123")
@@ -489,7 +489,7 @@ class StringTest < MrubycTestCase
   end
 
   description "start_with?"
-  def start_with_case
+  def test_start_with
     assert_true  "abc".start_with?("")
     assert_true  "abc".start_with?("a")
     assert_true  "abc".start_with?("ab")
@@ -501,7 +501,7 @@ class StringTest < MrubycTestCase
   end
 
   description "end_with?"
-  def end_with_case
+  def test_end_with
     assert_true  "abc".end_with?("")
     assert_true  "abc".end_with?("c")
     assert_true  "abc".end_with?("bc")
@@ -513,7 +513,7 @@ class StringTest < MrubycTestCase
   end
 
   description "include?"
-  def include_case
+  def test_include
     assert_true  "abc".include?("")
     assert_true  "abc".include?("a")
     assert_true  "abc".include?("b")
@@ -529,7 +529,7 @@ class StringTest < MrubycTestCase
   end
 
   description "to_f, to_i, to_s"
-  def to_something_case
+  def test_to_something
     assert_equal 10.0, "10".to_f
     assert_equal 1000.0, "10e2".to_f
     assert_equal 0.25, "25e-2".to_f
@@ -575,29 +575,29 @@ class StringTest < MrubycTestCase
   end
 
   description "String#bytes chars"
-  def string_bytes_chars
+  def test_string_bytes_chars
     assert_equal [97, 98, 99], "abc".bytes
   end
 
   description "String#bytes empty"
-  def string_bytes_empty
+  def test_string_bytes_empty
     assert_equal [], "".bytes
   end
 
   description "String#bytes null char"
-  def string_bytes_null_char
+  def test_string_bytes_null_char
     assert_equal [97, 0, 98], "a\000b".bytes
   end
 
   description "String#dup"
-  def string_dup_case
+  def test_string_dup
     assert_equal "a", "a".dup
     assert_equal "abc", "abc".dup
     assert_equal "", "".dup
   end
 
   description "String#empty?"
-  def string_empty_question_case
+  def test_string_empty_question
     assert_true  "".empty?
     assert_false "a".empty?
     assert_false "abc".empty?
@@ -606,14 +606,14 @@ class StringTest < MrubycTestCase
   end
 
   description "String#clear"
-  def string_clear_case
+  def test_string_clear
     s = "abc"
     assert_equal "", s.clear
     assert_equal "", s
   end
 
   description "String#getbyte"
-  def string_getbyte_case
+  def test_string_getbyte
     s = "abc"
     assert_equal 97, s.getbyte(0)
     assert_equal 98, s.getbyte(1)
@@ -623,7 +623,7 @@ class StringTest < MrubycTestCase
   end
 
   description "String#inspect"
-  def string_inspect_case
+  def test_string_inspect
     assert_equal "\"\\x00\"", "\0".inspect
     assert_equal "\"foo\"", "foo".inspect
   end
@@ -641,7 +641,7 @@ class StringTest < MrubycTestCase
   end
 
   description "String#upcase!"
-  def string_upcase_bang
+  def test_string_upcase_bang
     str = "\0abc"
     ret = str.upcase!
     assert_equal "\0ABC", ret
@@ -651,7 +651,7 @@ class StringTest < MrubycTestCase
   end
 
   description "String#downcase"
-  def string_downcase
+  def test_string_downcase
     assert_equal "abc", "abc".downcase
     assert_equal "a\0bc", "A\0BC".downcase
     assert_equal "abc", "aBc".downcase
@@ -662,7 +662,7 @@ class StringTest < MrubycTestCase
   end
 
   description "String#downcase!"
-  def string_downcase_bang
+  def test_string_downcase_bang
     str = "A\0BC"
     ret = str.downcase!
     assert_equal "a\0bc", ret

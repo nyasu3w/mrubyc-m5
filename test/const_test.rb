@@ -1,6 +1,5 @@
-# frozen_string_literal: true
 
-class ConstTest < MrubycTestCase
+class ConstTest < Picotest::Test
 
   class A
     CONST = 1
@@ -12,7 +11,7 @@ class ConstTest < MrubycTestCase
   end
 
   description 'Should raise NameError'
-  def name_error_case
+  def test_name_error
     assert_equal 1, A::CONST
     b = A::B.new
     assert_raise(NameError) do

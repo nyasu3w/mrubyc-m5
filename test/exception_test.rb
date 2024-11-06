@@ -1,6 +1,5 @@
-# frozen_string_literal: true
 
-class ExceptionTest < MrubycTestCase
+class ExceptionTest < Picotest::Test
 
   description "raise"
   def test_exception_rescued
@@ -59,22 +58,22 @@ class ExceptionTest < MrubycTestCase
   end
 
   description "assert_raise can simply identify an exception class"
-  def name_error_case
+  def test_name_error
     assert_raise(NameError) do
       NoExistClass.new
     end
   end
 
   description "assert_raise also accepts an instance of an exception class to check its message"
-  def argument_error_new_case
-    assert_raise(ArgumentError.new("wrong number of arguments (expected 0..1)")) do
+  def test_argument_error_new
+    assert_raise(ArgumentError, "wrong number of arguments (expected 0..1)") do
       String.new("1", "2")
     end
   end
 
   description "assert_raise accepts multiple parameters and asserts true in 'OR condition'"
-  def asserts_among_multiple_exceptions_case
-    assert_raise(NameError, ArgumentError.new("wrong number of arguments (expected 0..1)")) do
+  def test_asserts_among_multiple_exceptions
+    assert_raise(NameError, ArgumentError, "wrong number of arguments (expected 0..1)") do
       String.new("1", "2")
     end
   end
