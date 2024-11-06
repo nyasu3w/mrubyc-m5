@@ -143,10 +143,20 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
 
   // call C function and return.
   if( method.c_func ) {
+    int raise = 0;
+    if (sym_id != MRBC_SYM(raise)) {
+      vm->exception = mrbc_integer_value(sym_id);
+      raise = 1;
+    }
     method.func(vm, recv, narg);
 
     if( mrbc_israised(vm) && vm->exception.exception->method_id == 0 ) {
       vm->exception.exception->method_id = sym_id;
+    }
+    else {
+      if (raise == 1) {
+        vm->exception = mrbc_nil_value();
+      }
     }
     if( sym_id == MRBC_SYM(call) ) return;
     if( sym_id == MRBC_SYM(new) ) return;
