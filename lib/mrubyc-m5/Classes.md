@@ -166,6 +166,8 @@ Representing M5.Touch.
   > Checks if the touch operation is being holding.
 
 ## Implemented classes in sample projects
+To use these classes, copy the c_XXX.h and c_XXX.cpp to your project src directory, and call class_XXXX_init() function after my_mrubyc_init().
+
 - [M5Dial](../../projects/m5dial/Classes.md)
 - [M5Stack-Avatar](../../projects/m5stack-avatar/Classes.md)
 - [NeoPixel](../../projects/neopixel/Classes.md)
