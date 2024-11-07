@@ -108,6 +108,12 @@ Those are almost same and
 1. New implementation of classes of arduino libraries is acceptable like m5stack-avatar and m5dial project.
 1. if *.rb file is in the `src` directory, those are byte compiled to mrb files and the code is accessed as a array of the same name.  For convinience, `mrubycode` is the coded array name which is converted from such as `#define mrubycode demo`, where demo is from demo.rb.
 
+
+### Reference
+Class reference implemented for M5Unified and Arduino libraries.
+
+[Classes.md](lib/mrubyc-m5/Classes.md)
+
 *** 
 ### The original mruby/c README follows.
 
