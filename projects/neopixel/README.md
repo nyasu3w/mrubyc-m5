@@ -22,4 +22,5 @@ The signature of the methds are:
 - map1(ary_rgb, start_offset=0)
 - map3(ary_r,ary_b,ary_b, start_offset=0)
 
-
+## class reference
+[Classes.md](Classes.md)

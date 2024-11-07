@@ -8,3 +8,6 @@ This is a sample code to use another arduino library with mruby/c.
 - `main.cpp` to use class_avatar_init() after my_mrubyc_init()
   * class_avatar_init() is declared in `c_avatar.h` and defined in `c_avatar.cpp`
 - it is ok if you put `c_avatar.cpp` and `c_avatar.h` in lib/mrubyc-m5/src and modify `main.cpp` as above
+
+## class reference
+[Classes.md](Classes.md)
