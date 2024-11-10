@@ -45,6 +45,7 @@ static bool cardkb_availability(uint8_t addr)
 {
     Wire.beginTransmission(addr);
     byte r = Wire.endTransmission();
+Serial.printf("cardkb_availability: %d\n",r);
     return (r == 0);
 }
 

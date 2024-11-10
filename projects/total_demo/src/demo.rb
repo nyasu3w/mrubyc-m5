@@ -2,7 +2,7 @@
 # global settings
 def hit_any_key
   M5.update
-  return (BtnA.is_pressed? or BtnB.is_pressed? or (CardKB.available? and CardKB.getch!=0) or (Touch.count>0 and Touch.was_clicked?(0)) )
+  return (BtnA.is_pressed? or BtnB.is_pressed? or (Touch.count>0 and Touch.was_clicked?(0)) )
 end
 
 #Display.clear
@@ -50,7 +50,6 @@ Display.puts "Display: #{Display.dimension.inspect}"
 Display.puts "Touch: " + ((Touch.available?)? "OK":"NG")
 Display.puts "Imu: " + ((IMU.available?)? "OK":"NG")
 Display.puts "SD:" + ((SD.available?)? "OK":"NG")
-Display.puts "CardKB:" + ((CardKB.available?)? "0x#{CardKB.addr.to_s(16)}" :"NG")
 Display.puts
 
 cur=Display.get_cursor
@@ -212,38 +211,11 @@ if SD.available? then
   sleep 0.5
 end
 
-puts "CardKB"
-Display.set_text_color(0xffff)
 Display.clear
-Display.puts "Input test. CardKB/BtnA,B","BtnC to end"
-while true do
-  M5.update
-  if BtnC.is_pressed? then
-#    Display.clear
-    Display.puts "\nBtnC is pressed to end"
-    sleep 1
-    raise "end"
-  end
+Display.puts "Hit any key to restart"
+while !hit_any_key do sleep 0.1 end
 
-  if BtnA.is_pressed? then
-    Display.print "[A]"
-  elsif BtnA.was_pressed? then
-    Display.print "[a]"
-  end
-
-  if BtnB.is_pressed? then
-    Display.print "[B]"
-  elsif BtnB.was_pressed? then
-    Display.print "[b]"
-  end
-
-  k= CardKB.getch
-  if k==13 then k=10 end
-  if k>0 then
-    Display.print k.chr
-  end
-
-#  Display.print(".")
-  sleep 0.2
-end
+Display.clear
+Display.puts "This VM will finish in 3 seconds"
+sleep 3
 puts "the last words in this world"

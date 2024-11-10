@@ -10,7 +10,6 @@
 #define USE_M5UNIFIED_IMU  // IMU to support M5Unified IMU functions
 #define USE_SD_FUNCTION  // to support SD functions
 #define USE_FILE_CLASS  // to support File functions
-#define USE_CARDKB  // to support CardKB functions
 #define USE_TOUCH // to support Touch functions
 #define USE_SPEAKER // to support Speaker functions
 #endif // ! SUPPRESS_USEDEF

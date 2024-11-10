@@ -17,9 +17,6 @@
 #ifdef USE_FILE_CLASS
 #include "c_file.h"
 #endif
-#ifdef USE_CARDKB
-#include "c_cardkb.h"
-#endif
 #ifdef USE_TOUCH
 #include "c_touch.h"
 #endif
@@ -32,11 +29,6 @@ void my_mrubyc_init(){
     class_m5_init();
     class_display_button_init();
 
-#ifdef USE_CARDKB
-    class_cardkb_init();
-#else
-    mrbc_set_const(mrbc_str_to_symid("CardKB"), &failed_object);
-#endif
 #ifdef USE_M5UNIFIED_IMU
     class_imu_init();
 #else
@@ -52,7 +44,6 @@ void my_mrubyc_init(){
 #else
     mrbc_set_const(mrbc_str_to_symid("File"), &failed_object);
 #endif
-
 #ifdef USE_TOUCH
     class_touch_init();
 #else

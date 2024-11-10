@@ -74,20 +74,6 @@ Representing M5.Display.
 - draw_png(pic,x,y)
   > draw a picture at (x,y). `pic` is a File object, such as SD.open("/test.jpg")
 
-### CardKBClass (c_cardkb.cpp) \[USE_CARDKB\]
-A class to use M5Stack CardKB. A Constant CardKB is already prepared for default I2C address. If the address is different, you need to create a new instance for it.
-If CardKB is not available, CardKB is a FailObject.
-
-- new(addr)
-  > create a new instance of CardKBClass for the card whose i2c address is `addr`
-- addr
-  > returns its i2c address
-- getch
-  > Gets a pressed key from CardKB. When 'a' key was pressed, returns the ascii code of 'a'.
-  > If no key was pressed, returns 0.
-- available?
-  > check if the cardkb is available
-
 ### File (c_file.cpp) \[USE_FILE_CLASS\]
 Representing a File class of Arduino. The instance is created by another class (ex: SD.open())
 
@@ -179,6 +165,7 @@ To use these classes, copy the c_XXX.h and c_XXX.cpp to your project src directo
 - [NeoPixel](../../projects/neopixel/Classes.md)
 - [SPIFFS](../../projects/spiffs/Classes.md)
 - [Wifi, HTTPClient](../../projects/wifi/Classes.md)
+- [CardKB](../../projects/cardkb/Classes.md)
 
 
 
