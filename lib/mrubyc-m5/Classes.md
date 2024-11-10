@@ -22,8 +22,8 @@ Implemented uncategorized features of M5Unified.
 All methods return false. When SD is not available in the environment, `SD` constant is a FailObject.
 
 ### BtnClass (c_display_button.cpp)
-Constants BtnA, BtnB and BtnC are already prepared. No need to think about the class.
-Use like BtnA.is_pressed? 
+Constants BtnA, BtnB and BtnC are already prepared. No need to think about the class.Use like BtnA.is_pressed? 
+
 Constant BtnEXT and BtnPWR can be available if USE_FULL_BUTTONS is set in C++ side configuration.
 
 Note that M5.update() is necessary to update the button's status.
@@ -117,8 +117,14 @@ Representing M5.Imu.
 - available?
   > Checks its availability
 - accel
-  > Representing M5.Imu.getAccelData().
+  > Representing M5.Imu.getAccel().
   > The return value is in \[accX, accY, accZ\].
+- gyro
+  > Representing M5.Imu.getGyro().
+  > The return value is in \[gyrX, gyrY, gyrZ\].
+- temp
+  > Representing M5.Imu.getTemp().
+  > The return value is the temperature
 
 ### SD (c_sd.cpp) \[USE_SD_FUNCTION\]
 Representing arduino's SD class. When SD is not available, Constant SD is a FailObject.

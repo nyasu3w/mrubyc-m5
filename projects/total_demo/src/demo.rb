@@ -146,19 +146,32 @@ end
 
 if IMU.available? then
   puts "IMU"
-Display.clear
+  Display.clear
   Display.puts "The Circle moves by the accelerometer"
   Display.puts "Hit any key to continue"
   c=0
   w=0xffff
   g=Display.color565(128,128,128)
   while !hit_any_key do
+    M5.update
+
+    if temp=IMU.temp then
+      Display.set_cursor(0,70)
+      Display.set_text_color(0xffff,0)
+      Display.print "temp: #{temp}"
+    end
+
+    a=IMU.gyro
+    Display.fill_circle((80*xscale+a[0]*0.5*xscale).to_i,(80*yscale+a[1]*0.5*yscale).to_i,10,cyan)
+    c+=1
+    sleep 0.01
+    Display.fill_circle((80*xscale+a[0]*0.5*xscale).to_i,(80*yscale+a[1]*0.5*yscale).to_i,10,blue)
+
     a=IMU.accel
     Display.fill_circle((80*xscale+a[0]*50*xscale).to_i,(80*yscale+a[1]*50*yscale).to_i,10,w)
     c+=1
     sleep 0.01
     Display.fill_circle((80*xscale+a[0]*50*xscale).to_i,(80*yscale+a[1]*50*yscale).to_i,10,g)
-    M5.update
   end
   Display.puts "!"
   sleep 0.5
