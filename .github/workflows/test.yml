@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        test_type: [host, host_no_libc, arm, arm_no_libc]
+        test_type: [host_gcc, host_gcc_no_libc, host_clang, host_clang_no_libc, arm, arm_no_libc, mips, mips_no_libc]
       fail-fast: false
 
     steps:
@@ -51,15 +51,38 @@ jobs:
     - name: Run ${{ matrix.test_type }} tests
       run: |
         case ${{ matrix.test_type }} in
-          "host")
+          "host_gcc")
             docker run \
+              -e CC=gcc \
+              -e PICORUBY_DEBUG=1 \
               -e MRUBY_CONFIG=default \
               -e RUBY="bin/picoruby" \
               --rm -v ${{ github.workspace }}:/work/mrubyc mrubyc-test \
               bash -c "rake clean && rake && bin/picoruby /work/mrubyc/test/0_runner.rb"
             ;;
-          "host_no_libc")
+          "host_gcc_no_libc")
             docker run \
+              -e CC=gcc \
+              -e PICORUBY_DEBUG=1 \
+              -e MRUBY_CONFIG=default \
+              -e RUBY="bin/picoruby" \
+              -e PICORUBY_NO_LIBC_ALLOC=1 \
+              --rm -v ${{ github.workspace }}:/work/mrubyc mrubyc-test \
+              bash -c "rake clean && rake && bin/picoruby /work/mrubyc/test/0_runner.rb"
+            ;;
+          "host_clang")
+            docker run \
+              -e CC=clang \
+              -e PICORUBY_DEBUG=1 \
+              -e MRUBY_CONFIG=default \
+              -e RUBY="bin/picoruby" \
+              --rm -v ${{ github.workspace }}:/work/mrubyc mrubyc-test \
+              bash -c "rake clean && rake && bin/picoruby /work/mrubyc/test/0_runner.rb"
+            ;;
+          "host_clang_no_libc")
+            docker run \
+              -e CC=clang \
+              -e PICORUBY_DEBUG=1 \
               -e MRUBY_CONFIG=default \
               -e RUBY="bin/picoruby" \
               -e PICORUBY_NO_LIBC_ALLOC=1 \
@@ -68,20 +91,37 @@ jobs:
             ;;
           "arm")
             docker run \
-              -e QEMU_LD_PREFIX=/usr/arm-linux-gnueabihf \
+              -e PICORUBY_DEBUG=1 \
               -e MRUBY_CONFIG=arm-linux-gnueabihf \
-              -e RUBY="qemu-arm build/arm-linux-gnueabihf/bin/picoruby" \
+              -e RUBY="qemu-arm -L /usr/arm-linux-gnueabihf build/arm-linux-gnueabihf/bin/picoruby" \
               --rm -v ${{ github.workspace }}:/work/mrubyc mrubyc-test \
-              bash -c "rake clean && rake && qemu-arm build/arm-linux-gnueabihf/bin/picoruby /work/mrubyc/test/0_runner.rb"
+              bash -c "rake clean && rake && qemu-arm -L /usr/arm-linux-gnueabihf build/arm-linux-gnueabihf/bin/picoruby /work/mrubyc/test/0_runner.rb"
             ;;
           "arm_no_libc")
             docker run \
-              -e QEMU_LD_PREFIX=/usr/arm-linux-gnueabihf \
+              -e PICORUBY_DEBUG=1 \
               -e MRUBY_CONFIG=arm-linux-gnueabihf \
-              -e RUBY="qemu-arm build/arm-linux-gnueabihf/bin/picoruby" \
+              -e RUBY="qemu-arm -L /usr/arm-linux-gnueabihf build/arm-linux-gnueabihf/bin/picoruby" \
               -e PICORUBY_NO_LIBC_ALLOC=1 \
               --rm -v ${{ github.workspace }}:/work/mrubyc mrubyc-test \
-              bash -c "rake clean && rake && qemu-arm build/arm-linux-gnueabihf/bin/picoruby /work/mrubyc/test/0_runner.rb"
+              bash -c "rake clean && rake && qemu-arm -L /usr/arm-linux-gnueabihf build/arm-linux-gnueabihf/bin/picoruby /work/mrubyc/test/0_runner.rb"
+            ;;
+          "mips")
+            docker run \
+              -e PICORUBY_DEBUG=1 \
+              -e MRUBY_CONFIG=mips-linux-gnu \
+              -e RUBY="qemu-mips -L /usr/mips-linux-gnu build/mips-linux-gnu/bin/picoruby" \
+              --rm -v ${{ github.workspace }}:/work/mrubyc mrubyc-test \
+              bash -c "rake clean && rake && qemu-mips -L /usr/mips-linux-gnu build/mips-linux-gnu/bin/picoruby /work/mrubyc/test/0_runner.rb"
+            ;;
+          "mips_no_libc")
+            docker run \
+              -e PICORUBY_DEBUG=1 \
+              -e MRUBY_CONFIG=mips-linux-gnu \
+              -e RUBY="qemu-mips -L /usr/mips-linux-gnu build/mips-linux-gnu/bin/picoruby" \
+              -e PICORUBY_NO_LIBC_ALLOC=1 \
+              --rm -v ${{ github.workspace }}:/work/mrubyc mrubyc-test \
+              bash -c "rake clean && rake && qemu-mips -L /usr/mips-linux-gnu build/mips-linux-gnu/bin/picoruby /work/mrubyc/test/0_runner.rb"
             ;;
         esac
       shell: bash

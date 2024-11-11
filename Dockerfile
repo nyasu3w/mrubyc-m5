@@ -19,6 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     binfmt-support \
     build-essential \
     gcc \
+    clang \
+    libc++-dev \
+    libc++abi-dev \
     g++-arm-linux-gnueabihf \
     libc6-dev-armhf-cross \
     libc6:armhf \
@@ -33,6 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tzdata \
     pkg-config \
     file \
+    vim \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
