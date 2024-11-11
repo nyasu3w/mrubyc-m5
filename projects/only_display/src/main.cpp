@@ -42,5 +42,6 @@ void loop(){
   mrbc_run();
   mrbc_delete_task(tcb);
 
-  delay(2000);
+  ESP.restart();
+
 }

@@ -210,5 +210,6 @@ void loop(){
     mrbc_delete_task(tcb);
     Serial.println("mrbc done");
 
-    delay(2000);
+  ESP.restart();
+
 }
