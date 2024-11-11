@@ -3,92 +3,7 @@
 #include "c_display_button.h"
 #include "c_file.h"
 
-static void
-class_display_set_text_size(mrb_vm *vm, mrb_value *v, int argc)
-{
-    if(argc>0){
-        int sz = val_to_i(vm, v, GET_ARG(1),argc);
-        M5.Display.setTextSize(sz);
-        SET_TRUE_RETURN();
-    } else {
-        SET_FALSE_RETURN();
-    }
-}
-
-static void
-class_display_print(mrb_vm *vm, mrb_value *v, int argc)
-{
-    int r=0;
-    for(int i=1; i<=argc; i++){
-        const char* str = val_to_s(vm, v, GET_ARG(i),argc);
-        r+=M5.Display.print(str);
-    }
-    SET_INT_RETURN(r);
-}
-
-static void
-class_display_puts(mrb_vm *vm, mrb_value v[], int argc)
-{
-    int r=0;
-    if(argc==0) {
-        r+=M5.Display.println();
-    }
-    for(int i=1; i<=argc; i++){
-        const char* str = val_to_s(vm, v, GET_ARG(i),argc);
-        r+=M5.Display.println(str);
-    }
-    SET_INT_RETURN(r);
-}
-
-static void
-class_display_clear(mrb_vm *vm, mrb_value *v, int argc)
-{
-    int color=0;
-    if(argc>0){
-        color = val_to_i(vm, v, GET_ARG(1),argc);
-    }
-
-    M5.Display.clearDisplay(color);
-    M5.Display.setCursor(0,0);
-    SET_TRUE_RETURN();
-}
-
-
-static void
-class_display_set_text_color(mrb_vm *vm, mrb_value *v, int argc)
-{
-    if(argc>1){
-        M5.Display.setTextColor(val_to_i(vm, v, GET_ARG(1),argc),val_to_i(vm, v, GET_ARG(2),argc));
-        SET_TRUE_RETURN();
-    } else if(argc>0) {
-        M5.Display.setTextColor(val_to_i(vm, v, GET_ARG(1),argc));
-        SET_TRUE_RETURN();
-    } else {
-        SET_FALSE_RETURN();
-    }
-}
-
-static void
-class_display_set_cursor(mrb_vm *vm, mrb_value *v, int argc)
-{
-    if(argc>1){
-        M5.Display.setCursor(val_to_i(vm, v, GET_ARG(1),argc),val_to_i(vm, v, GET_ARG(2),argc));
-        SET_TRUE_RETURN();
-    } else {
-        SET_FALSE_RETURN();
-    }
-}
-
-static void
-class_display_getCursor(mrb_vm *vm, mrb_value *v, int argc)
-{
-    mrbc_value ret = mrbc_array_new(vm, 2);
-    mrbc_value x = mrbc_fixnum_value(M5.Display.getCursorX());
-    mrbc_value y = mrbc_fixnum_value(M5.Display.getCursorY());
-    mrbc_array_set(&ret, 0, &x);
-    mrbc_array_set(&ret, 1, &y);
-    SET_RETURN(ret);
-}
+#include "drawing.hpp"
 
 
 static void
@@ -115,134 +30,90 @@ class_display_dimension(mrb_vm *vm, mrb_value *v, int argc) {
     SET_RETURN(ret);
 }
 
+static void
+class_display_set_text_size(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_set_text_size<M5GFX>(M5.Display,vm,v,argc);
+}
+static void
+class_display_set_text_color(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_set_text_color<M5GFX>(M5.Display,vm,v,argc);
+}
+static void
+class_display_print(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_print<M5GFX>(M5.Display,vm,v,argc);
+}
+static void
+class_display_puts(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_puts<M5GFX>(M5.Display,vm,v,argc);
+}
+static void
+class_display_clear(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_clear<M5GFX>(M5.Display,vm,v,argc);
+}
+static void
+class_display_set_cursor(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_set_cursor<M5GFX>(M5.Display,vm,v,argc);
+}
+static void
+class_display_get_cursor(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_get_cursor<M5GFX>(M5.Display,vm,v,argc);
+}
+
 
 #ifdef USE_DISPLAY_GRAPHICS
-static void
-class_display_fill_rect(mrb_vm *vm, mrb_value *v, int argc)
+
+static void class_display_fill_rect(mrb_vm *vm, mrb_value *v, int argc)
 {
-    if(argc>4){
-        int x=val_to_i(vm, v, GET_ARG(1),argc);
-        int y=val_to_i(vm, v, GET_ARG(2),argc);
-        int w=val_to_i(vm, v, GET_ARG(3),argc);
-        int h=val_to_i(vm, v, GET_ARG(4),argc);
-        int color=val_to_i(vm, v, GET_ARG(5),argc);
-        M5.Display.fillRect(x,y,w,h,color);
-        SET_TRUE_RETURN();
-    } else {
-        SET_FALSE_RETURN();
-    }
+    draw_fill_rect<M5GFX>(M5.Display,vm,v,argc);
 }
 
-static void
-class_display_draw_rect(mrb_vm *vm, mrb_value *v, int argc)
+static void class_display_draw_rect(mrb_vm *vm, mrb_value *v, int argc)
 {
-    if(argc>4){
-        int x=val_to_i(vm, v, GET_ARG(1),argc);
-        int y=val_to_i(vm, v, GET_ARG(2),argc);
-        int w=val_to_i(vm, v, GET_ARG(3),argc);
-        int h=val_to_i(vm, v, GET_ARG(4),argc);
-        int color=val_to_i(vm, v, GET_ARG(5),argc);
-        M5.Display.drawRect(x,y,w,h,color);
-        SET_TRUE_RETURN();
-    } else {
-        SET_FALSE_RETURN();
-    }
+    draw_draw_rect<M5GFX>(M5.Display,vm,v,argc);
 }
 
-static void
-class_display_draw_line(mrb_vm *vm, mrb_value *v, int argc)
+static void class_display_flll_circle(mrb_vm *vm, mrb_value *v, int argc)
 {
-    if(argc>4){
-        int x1=val_to_i(vm, v, GET_ARG(1),argc);
-        int y1=val_to_i(vm, v, GET_ARG(2),argc);
-        int x2=val_to_i(vm, v, GET_ARG(3),argc);
-        int y2=val_to_i(vm, v, GET_ARG(4),argc);
-        int color=val_to_i(vm, v, GET_ARG(5),argc);
-        M5.Display.drawLine(x1,y1,x2,y2,color);
-        SET_TRUE_RETURN();
-    } else {
-        SET_FALSE_RETURN();
-    }
+    draw_flll_circle<M5GFX>(M5.Display,vm,v,argc);
+}
+
+static void class_display_draw_circle(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_draw_circle<M5GFX>(M5.Display,vm,v,argc);
+}
+
+static void class_display_draw_line(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_draw_line<M5GFX>(M5.Display,vm,v,argc);
+}
+
+static void class_display_draw_bmp(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_draw_bmp<M5GFX>(M5.Display,vm,v,argc);
+}
+
+static void class_display_draw_jpg(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_draw_jpg<M5GFX>(M5.Display,vm,v,argc);
+}
+
+static void class_display_draw_png(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_draw_png<M5GFX>(M5.Display,vm,v,argc);
 }
 
 
 static void
-class_display_flll_circle(mrb_vm *vm, mrb_value *v, int argc)
+class_display_wait_display(mrb_vm *vm, mrb_value *v, int argc)
 {
-    if(argc>3){
-        int x=val_to_i(vm, v, GET_ARG(1),argc);
-        int y=val_to_i(vm, v, GET_ARG(2),argc);
-        int r=val_to_i(vm, v, GET_ARG(3),argc);
-        int color=val_to_i(vm, v, GET_ARG(4),argc);
-        M5.Display.fillCircle(x,y,r,color);
-        SET_TRUE_RETURN();
-    } else {
-        SET_FALSE_RETURN();
-    }
-}
-
-static void
-class_display_draw_circle(mrb_vm *vm, mrb_value *v, int argc)
-{
-    if(argc>3){
-        int x=val_to_i(vm, v, GET_ARG(1),argc);
-        int y=val_to_i(vm, v, GET_ARG(2),argc);
-        int r=val_to_i(vm, v, GET_ARG(3),argc);
-        int color=val_to_i(vm, v, GET_ARG(4),argc);
-        M5.Display.drawCircle(x,y,r,color);
-        SET_TRUE_RETURN();
-    } else {
-        SET_FALSE_RETURN();
-    }
-}
-
-typedef enum{bmp,jpg,png} pic_type;
-static void
-class_display_draw_pic(pic_type t, mrb_vm *vm, mrb_value *v, int argc)
-{
-    if(argc<3){
-        mrbc_raise(vm, MRBC_CLASS(ArgumentError),"too few arguments");
-        return;
-    }
-    mrbc_value file = GET_ARG(1);
-    int r = mrbc_obj_is_kind_of(&file, class_file);
-    if(r==0){
-        mrbc_raise(vm, MRBC_CLASS(ArgumentError),"not a file");
-        SET_FALSE_RETURN();
-        return;
-    }
-    File *f = *(File**) file.instance->data;
-    int x = val_to_i(vm, v, GET_ARG(2),argc);
-    int y = val_to_i(vm, v, GET_ARG(3),argc);
-    switch(t){
-        case bmp:
-            M5.Display.drawBmp(f,x,y);
-            break;
-        case jpg:
-            M5.Display.drawJpg(f,x,y);
-            break;
-        case png:
-            M5.Display.drawPng(f,x,y);
-            break;
-    }
-    SET_TRUE_RETURN();
-}
-
-static void
-class_display_draw_bmp(mrb_vm *vm, mrb_value *v, int argc)
-{
-    class_display_draw_pic(bmp,vm,v,argc);
-}
-
-static void
-class_display_draw_jpg(mrb_vm *vm, mrb_value *v, int argc)
-{
-    class_display_draw_pic(jpg,vm,v,argc);
-}
-static void
-class_display_draw_png(mrb_vm *vm, mrb_value *v, int argc)
-{
-    class_display_draw_pic(png,vm,v,argc);
+        M5.Display.waitDisplay();
 }
 
 #endif // USE_DISPLAY_GRAPHICS
@@ -292,6 +163,7 @@ void class_display_button_init()
 {
     mrb_class *class_display;
     class_display = mrbc_define_class(0, "Display", mrbc_class_object);
+
     mrbc_define_method(0, class_display, "print", class_display_print);
     mrbc_define_method(0, class_display, "println", class_display_puts);
     mrbc_define_method(0, class_display, "puts", class_display_puts);
@@ -299,7 +171,8 @@ void class_display_button_init()
     mrbc_define_method(0, class_display, "set_text_color", class_display_set_text_color);
     mrbc_define_method(0, class_display, "clear", class_display_clear);
     mrbc_define_method(0, class_display, "set_cursor", class_display_set_cursor);
-    mrbc_define_method(0, class_display, "get_cursor", class_display_getCursor);
+    mrbc_define_method(0, class_display, "get_cursor", class_display_get_cursor);
+
     mrbc_define_method(0, class_display, "color565", class_display_color_value);
     mrbc_define_method(0, class_display, "dimension", class_display_dimension);
 
@@ -309,9 +182,10 @@ void class_display_button_init()
     mrbc_define_method(0, class_display, "fill_circle", class_display_flll_circle);
     mrbc_define_method(0, class_display, "draw_circle", class_display_draw_circle);
     mrbc_define_method(0, class_display, "draw_line", class_display_draw_line);
-    mrbc_define_method(0, class_display, "draw_bmp", class_display_draw_bmp);
-    mrbc_define_method(0, class_display, "draw_jpg", class_display_draw_jpg);
-    mrbc_define_method(0, class_display, "draw_png", class_display_draw_png);
+    mrbc_define_method(0, class_display, "draw_bmpfile", class_display_draw_bmp);
+    mrbc_define_method(0, class_display, "draw_jpgfile", class_display_draw_jpg);
+    mrbc_define_method(0, class_display, "draw_pngfile", class_display_draw_png);
+    mrbc_define_method(0, class_display, "wait_display", class_display_wait_display);
 #endif // USE_DISPLAY_GRAPHICS
 
     mrb_class *class_btn,*class_btna,*class_btnb,*class_btnc;

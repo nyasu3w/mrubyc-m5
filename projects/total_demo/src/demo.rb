@@ -6,9 +6,9 @@ def hit_any_key
 end
 
 #Display.clear
-#Display.draw_bmp(SD.open("/mrubyc/ruby.bmp"),0,0)
-#Display.draw_png(SD.open("/mrubyc/ruby.png"),40,0)
-#Display.draw_jpg(SD.open("/mrubyc/ruby.jpg"),80,0)
+#Display.draw_bmpfile(SD.open("/mrubyc/ruby.bmp"),0,0)
+#Display.draw_pngfile(SD.open("/mrubyc/ruby.png"),40,0)
+#Display.draw_jpgfile(SD.open("/mrubyc/ruby.jpg"),80,0)
 #while !hit_any_key do sleep 0.1 end
 
 white=0xffff
@@ -211,9 +211,34 @@ if SD.available? then
   sleep 0.5
 end
 
+puts "Sprite"
 Display.clear
+Display.puts "Sprite test"
+dimension=Display.dimension
+dimension[0]*=3
+dimension[1]/=2
+
+canvas = Canvas.new(*dimension)
+canvas.fill_rect( 10,10,100,30, 0x07e0)
+canvas.set_cursor(0,40)
+canvas.set_text_size(2)
+canvas.puts "この部分はCanvasで描画しています。そしてスクロールさせます"
+
+canvas.push_sprite(0,100)
+sleep 0.5
+9.upto(400) do 
+  canvas.push_sprite(0,100)
+  canvas.scroll(-2,0)
+  Display.wait_display
+#  sleep 0.05
+end
+Display.puts
+
+
 Display.puts "Hit any key to restart"
 while !hit_any_key do sleep 0.1 end
+
+
 
 Display.clear
 Display.puts "This VM will finish in 3 seconds"

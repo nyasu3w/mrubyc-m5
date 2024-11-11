@@ -23,6 +23,9 @@
 #ifdef USE_SPEAKER
 #include "c_speaker.h"
 #endif
+#ifdef USE_CANVAS
+#include "c_canvas.h"
+#endif
 
 
 void my_mrubyc_init(){
@@ -54,6 +57,11 @@ void my_mrubyc_init(){
 #else
     mrbc_set_const(mrbc_str_to_symid("Speaker"), &failed_object);
 #endif // USE_SPEAKER
+#ifdef USE_CANVAS
+    class_canvas_init();
+#else
+    mrbc_set_const(mrbc_str_to_symid("Canvas"), &failed_object);
+#endif // USE_CANVAS
 }
 
 #endif // MY_MRUBYC_INIT
