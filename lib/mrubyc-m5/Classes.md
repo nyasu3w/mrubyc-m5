@@ -157,6 +157,19 @@ Representing M5.Touch.
 - is_holding?(no=0)
   > Checks if the touch operation is being holding.
 
+### Canvas \[USE_CANVAS\]
+For utilizing Sprite.
+
+The many drawing methods of Display class are also available for Canvas.
+- new(width,height,color_depth)
+  > Create a new Canvas (Sprite) 
+- scroll(dx,dy)
+  > Scrolls the contents of the sprite.
+- push_sprite(x,y)
+  > Draws the contents of the sprite on Display at ('x','y')
+- delete_sprite()
+  > after calling this method, drawing methods will not work.
+
 ## Implemented classes in sample projects
 To use these classes, copy the c_XXX.h and c_XXX.cpp to your project src directory, and call class_XXXX_init() function after my_mrubyc_init().
 
