@@ -1,6 +1,7 @@
 
 
-if M5.board==128 then # for M5Atom(Matrix)
+puts M5.board
+if M5.board==141 then # for M5AtomMatrix
   n=25  
   led = NeoPixel.new n ,27  # 25 neopixels on gpio27
 else  # For NECO Unit
