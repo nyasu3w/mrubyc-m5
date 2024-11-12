@@ -3,7 +3,7 @@
 
 #ifdef USE_CANVAS
 #include "c_canvas.h"
-#include "drawing.hpp"
+#include "drawing.h"
 
 static void c_canvas_new(mrb_vm *vm, mrb_value *v, int argc) {
     v[0] = mrbc_instance_new(vm, v[0].cls, sizeof(M5Canvas));
@@ -74,87 +74,87 @@ static void c_canvas_delete_sprite(mrb_vm *vm, mrb_value *v, int argc) {
 
 static void c_canvas_set_text_color(mrb_vm *vm, mrb_value *v, int argc) {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_set_text_color<M5Canvas>(*canvas, vm, v, argc);
+    draw_set_text_color(canvas, vm, v, argc);
 }
 
 static void c_canvas_set_text_size(mrb_vm *vm, mrb_value *v, int argc) {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_set_text_size<M5Canvas>(*canvas, vm, v, argc);
+    draw_set_text_size(canvas, vm, v, argc);
 }
 
 static void c_canvas_set_cursor(mrb_vm *vm, mrb_value *v, int argc) {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_set_cursor<M5Canvas>(*canvas, vm, v, argc);
+    draw_set_cursor(canvas, vm, v, argc);
 }
 
 static void c_canvas_get_cursor(mrb_vm *vm, mrb_value *v, int argc) {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_get_cursor<M5Canvas>(*canvas, vm, v, argc);
+    draw_get_cursor(canvas, vm, v, argc);
 }
 
 
 static void c_canvas_print(mrb_vm *vm, mrb_value *v, int argc) {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_print<M5Canvas>(*canvas, vm, v, argc);
+    draw_print(canvas, vm, v, argc);
 }
 
 static void c_canvas_puts(mrb_vm *vm, mrb_value *v, int argc) {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_puts<M5Canvas>(*canvas, vm, v, argc);
+    draw_puts(canvas, vm, v, argc);
 }
 
 static void c_canvas_clear(mrb_vm *vm, mrb_value *v, int argc) {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_clear<M5Canvas>(*canvas, vm, v, argc);
+    draw_clear(canvas, vm, v, argc);
 }
 
 
 static void class_display_fill_rect(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_fill_rect<M5Canvas>(*canvas,vm,v,argc);
+    draw_fill_rect(canvas,vm,v,argc);
 }
 
 static void class_display_draw_rect(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_draw_rect<M5Canvas>(*canvas,vm,v,argc);
+    draw_draw_rect(canvas,vm,v,argc);
 }
 
 static void class_display_flll_circle(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_flll_circle<M5Canvas>(*canvas,vm,v,argc);
+    draw_flll_circle(canvas,vm,v,argc);
 }
 
 static void class_display_draw_circle(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_draw_circle<M5Canvas>(*canvas,vm,v,argc);
+    draw_draw_circle(canvas,vm,v,argc);
 }
 
 static void class_display_draw_line(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_draw_line<M5Canvas>(*canvas,vm,v,argc);
+    draw_draw_line(canvas,vm,v,argc);
 }
 
 static void class_display_draw_bmp(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_draw_bmp<M5Canvas>(*canvas,vm,v,argc);
+    draw_draw_bmp(canvas,vm,v,argc);
 }
 
 static void class_display_draw_jpg(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_draw_jpg<M5Canvas>(*canvas,vm,v,argc);
+    draw_draw_jpg(canvas,vm,v,argc);
 }
 
 static void class_display_draw_png(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5Canvas *canvas = *(M5Canvas **)v->instance->data;
-    draw_draw_png<M5Canvas>(*canvas,vm,v,argc);
+    draw_draw_png(canvas,vm,v,argc);
 }
 
 void class_canvas_init() {

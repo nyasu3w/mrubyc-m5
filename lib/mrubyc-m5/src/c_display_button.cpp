@@ -3,7 +3,7 @@
 #include "c_display_button.h"
 #include "c_file.h"
 
-#include "drawing.hpp"
+#include "drawing.h"
 
 
 static void
@@ -33,37 +33,37 @@ class_display_dimension(mrb_vm *vm, mrb_value *v, int argc) {
 static void
 class_display_set_text_size(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_set_text_size<M5GFX>(M5.Display,vm,v,argc);
+    draw_set_text_size(&M5.Display,vm,v,argc);
 }
 static void
 class_display_set_text_color(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_set_text_color<M5GFX>(M5.Display,vm,v,argc);
+    draw_set_text_color(&M5.Display,vm,v,argc);
 }
 static void
 class_display_print(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_print<M5GFX>(M5.Display,vm,v,argc);
+    draw_print(&M5.Display,vm,v,argc);
 }
 static void
 class_display_puts(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_puts<M5GFX>(M5.Display,vm,v,argc);
+    draw_puts(&M5.Display,vm,v,argc);
 }
 static void
 class_display_clear(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_clear<M5GFX>(M5.Display,vm,v,argc);
+    draw_clear(&M5.Display,vm,v,argc);
 }
 static void
 class_display_set_cursor(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_set_cursor<M5GFX>(M5.Display,vm,v,argc);
+    draw_set_cursor(&M5.Display,vm,v,argc);
 }
 static void
 class_display_get_cursor(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_get_cursor<M5GFX>(M5.Display,vm,v,argc);
+    draw_get_cursor(&M5.Display,vm,v,argc);
 }
 
 
@@ -71,42 +71,42 @@ class_display_get_cursor(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_display_fill_rect(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_fill_rect<M5GFX>(M5.Display,vm,v,argc);
+    draw_fill_rect(&M5.Display,vm,v,argc);
 }
 
 static void class_display_draw_rect(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_draw_rect<M5GFX>(M5.Display,vm,v,argc);
+    draw_draw_rect(&M5.Display,vm,v,argc);
 }
 
 static void class_display_flll_circle(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_flll_circle<M5GFX>(M5.Display,vm,v,argc);
+    draw_flll_circle(&M5.Display,vm,v,argc);
 }
 
 static void class_display_draw_circle(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_draw_circle<M5GFX>(M5.Display,vm,v,argc);
+    draw_draw_circle(&M5.Display,vm,v,argc);
 }
 
 static void class_display_draw_line(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_draw_line<M5GFX>(M5.Display,vm,v,argc);
+    draw_draw_line(&M5.Display,vm,v,argc);
 }
 
 static void class_display_draw_bmp(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_draw_bmp<M5GFX>(M5.Display,vm,v,argc);
+    draw_draw_bmp(&M5.Display,vm,v,argc);
 }
 
 static void class_display_draw_jpg(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_draw_jpg<M5GFX>(M5.Display,vm,v,argc);
+    draw_draw_jpg(&M5.Display,vm,v,argc);
 }
 
 static void class_display_draw_png(mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_draw_png<M5GFX>(M5.Display,vm,v,argc);
+    draw_draw_png(&M5.Display,vm,v,argc);
 }
 
 
