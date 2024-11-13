@@ -72,7 +72,6 @@ while !hit_any_key do sleep 0.05 end
   Display.puts "!"
 
 
-  
 xscale=2.0
 yscale=2.0
 xoffset=0
