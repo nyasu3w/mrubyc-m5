@@ -16,7 +16,7 @@ make docker_build
 
 ## Test
 
-### Test for host gcc and !MRBC_LIBC_ALLOC
+### Test for host under no MRBC_LIBC_ALLOC defined
 
 ```
 make test
@@ -27,5 +27,3 @@ make test
 ```
 make test_full
 ```
-
-About build options and target platforms, see `run_test.sh`.
