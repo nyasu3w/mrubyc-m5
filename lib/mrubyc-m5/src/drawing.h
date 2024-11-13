@@ -18,8 +18,9 @@ void draw_draw_rect(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
 void draw_draw_line(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
 void draw_flll_circle(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
 void draw_draw_circle(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
-void draw_draw_pic(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_value *v, int argc);
 void draw_draw_bmp(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
 void draw_draw_jpg(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
 void draw_draw_png(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
-
+void draw_draw_bmpstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
+void draw_draw_jpgstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
+void draw_draw_pngstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);

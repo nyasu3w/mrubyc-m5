@@ -157,6 +157,26 @@ static void class_display_draw_png(mrb_vm *vm, mrb_value *v, int argc)
     draw_draw_png(canvas,vm,v,argc);
 }
 
+static void class_display_draw_bmpstr(mrb_vm *vm, mrb_value *v, int argc)
+{
+    M5Canvas *canvas = *(M5Canvas **)v->instance->data;
+    draw_draw_bmpstr(canvas,vm,v,argc);
+}
+
+static void class_display_draw_jpgstr(mrb_vm *vm, mrb_value *v, int argc)
+{
+    M5Canvas *canvas = *(M5Canvas **)v->instance->data;
+    draw_draw_jpgstr(canvas,vm,v,argc);
+}
+
+static void class_display_draw_pngstr(mrb_vm *vm, mrb_value *v, int argc)
+{
+    M5Canvas *canvas = *(M5Canvas **)v->instance->data;
+    draw_draw_pngstr(canvas,vm,v,argc);
+}
+
+
+
 void class_canvas_init() {
     // define class
     mrbc_class *canvas_class= mrbc_define_class(0,"Canvas", mrbc_class_object);
@@ -182,7 +202,9 @@ void class_canvas_init() {
     mrbc_define_method(0, canvas_class, "draw_bmpfile", class_display_draw_bmp);
     mrbc_define_method(0, canvas_class, "draw_jpgfile", class_display_draw_jpg);
     mrbc_define_method(0, canvas_class, "draw_pngfile", class_display_draw_png);
-
+    mrbc_define_method(0, canvas_class, "draw_bmpstr", class_display_draw_bmpstr);
+    mrbc_define_method(0, canvas_class, "draw_jpgstr", class_display_draw_jpgstr);
+    mrbc_define_method(0, canvas_class, "draw_pngstr", class_display_draw_pngstr);
 }
 
 #endif // USE_CANVAS

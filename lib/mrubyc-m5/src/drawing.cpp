@@ -179,7 +179,22 @@ void draw_draw_circle(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
     }
 }
 
-void draw_draw_pic(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_value *v, int argc)
+static void draw_draw_pic_stream(LovyanGFX *dst, draw_pic_type t, Stream* instream, int x, int y){
+    switch(t){
+        case bmp:
+            dst->drawBmp(instream,x,y);
+            break;
+        case jpg:
+            dst->drawJpg(instream,x,y);
+            break;
+        case png:
+            dst->drawPng(instream,x,y);
+            break;
+    }
+}
+
+
+static void draw_draw_pic_file(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc<3){
         mrbc_raise(vm, MRBC_CLASS(ArgumentError),"too few arguments");
@@ -195,34 +210,75 @@ void draw_draw_pic(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_value *v, in
     File *f = *(File**) file.instance->data;
     int x = val_to_i(vm, v, GET_ARG(2),argc);
     int y = val_to_i(vm, v, GET_ARG(3),argc);
-    switch(t){
-        case bmp:
-            dst->drawBmp(f,x,y);
-            break;
-        case jpg:
-            dst->drawJpg(f,x,y);
-            break;
-        case png:
-            dst->drawPng(f,x,y);
-            break;
-    }
+
+    draw_draw_pic_stream(dst,t,f,x,y);
+
     SET_TRUE_RETURN();
 }
 
 
 void draw_draw_bmp(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_draw_pic(dst,bmp,vm,v,argc);
+    draw_draw_pic_file(dst,bmp,vm,v,argc);
 }
-
 
 void draw_draw_jpg(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_draw_pic(dst, jpg,vm,v,argc);
+    draw_draw_pic_file(dst, jpg,vm,v,argc);
 }
-
 
 void draw_draw_png(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
-    draw_draw_pic(dst, png,vm,v,argc);
+    draw_draw_pic_file(dst, png,vm,v,argc);
+}
+
+#include <Stream.h>
+// ByteStream is a class that inherits from Stream 
+class ByteStream : public Stream {  // implemented almost by copilot
+private:
+    const uint8_t *str;
+public:
+    uint16_t pos,length;
+
+    ByteStream(const uint8_t* s, uint16_t len) : str(s), pos(0), length(len) {}
+    int available() { return length - pos; }
+    int read() { return ((pos < length)? str[pos++] : -1); }
+    int peek() { return ((pos < length)? str[pos] : -1); }
+    size_t write(uint8_t c) { return 0;}  // do nothing
+};
+
+void draw_draw_pic_str(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_value *v, int argc)
+{
+    if(argc<3){
+        mrbc_raise(vm, MRBC_CLASS(ArgumentError),"too few arguments");
+        return;
+    }
+    if(GET_ARG(1).tt != MRBC_TT_STRING){
+        mrbc_raise(vm, MRBC_CLASS(ArgumentError),"not a string");
+        SET_FALSE_RETURN();
+        return;
+    }
+
+    ByteStream bs(GET_ARG(1).string->data, GET_ARG(1).string->size);
+    int x = val_to_i(vm, v, GET_ARG(2),argc);
+    int y = val_to_i(vm, v, GET_ARG(3),argc);
+
+    draw_draw_pic_stream(dst,t,&bs,x,y);
+    
+    SET_TRUE_RETURN();
+}
+
+void draw_draw_bmpstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_draw_pic_str(dst,bmp,vm,v,argc);
+}
+
+void draw_draw_jpgstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_draw_pic_str(dst, jpg,vm,v,argc);
+}
+
+void draw_draw_pngstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_draw_pic_str(dst, png,vm,v,argc);
 }
