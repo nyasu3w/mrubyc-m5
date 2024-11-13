@@ -68,7 +68,7 @@ void loop(){
     return;
   }
   int ret = mrbc_run();
-  if(ret == 2){
+  if(ret == 2 && M5.getBoard()<lgfx::boards::board_M5AtomLite){
     show_exception_screen();
   }
   mrbc_delete_task(tcb);
