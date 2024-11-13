@@ -1,6 +1,8 @@
 # mruby/c for m5
 This is a project for using mruby/c on M5Stack devices with M5Unified library on Arduino framework.
 
+Also targeting on easy implementation with Arduino libraries.
+
 The movie of total_demo in this project on M5Stack Core2:
 
 https://github.com/user-attachments/assets/b0aa8a82-fc44-421c-a1d7-70b15c6e211f
@@ -19,10 +21,9 @@ Supporting ruby scripts (mruby/c) for:
 - Writing chars/Drawing graphs on LCD 
 - Support of BtnA/B/C
 - Support of Touch panel
-- Read/Write SD cards
+- Read/Write SD cards and SPIFFS
 - Reading IMU value
-- Input from CardKB
-- Easy extention with many arduino library
+- Easy extention with many arduino libraries
 
 The compactness is important and implemented functions are rather little, but you can implement/extend more for your purpose. Though, this project do not pursue compactness so far. Many heaps are used for arduino libraries other than mruby/c memory pool.
 

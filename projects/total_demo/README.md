@@ -1,6 +1,8 @@
 # total_demo
 This is a demo of basic features of this project.
 
+`main.cpp` has an implementation to indicate some exception occurred but the `demo.rb` will not make exception.
+
 ## point to see
 It is almost same as original mruby/c example.
 See:
