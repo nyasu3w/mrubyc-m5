@@ -69,10 +69,15 @@ Representing M5.Display.
   > draw a filled circle
 - draw_line(x1,y1,x2,y2,color)
   > draw a line
-- draw_bmp(pic,x,y)
-- draw_jpg(pic,x,y)
-- draw_png(pic,x,y)
-  > draw a picture at (x,y). `pic` is a File object, such as SD.open("/test.jpg")
+- draw_bmpfile(picfile,x,y)
+- draw_jpgfile(picfile,x,y)
+- draw_pngfile(picfile,x,y)
+  > draw a picture at (x,y). `picfile` is a File object, such as SD.open("/test.jpg")
+- draw_bmpstr(picstr,x,y)
+- draw_jpgstr(picstr,x,y)
+- draw_pngstr(picstr,x,y)
+  > draw a picture at (x,y). `picstr` is a String that has picture file contents
+
 
 ### File (c_file.cpp) \[USE_FILE_CLASS\]
 Representing a File class of Arduino. The instance is created by another class (ex: SD.open())
