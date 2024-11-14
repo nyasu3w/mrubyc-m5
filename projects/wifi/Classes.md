@@ -1,5 +1,5 @@
 # Class Reference 
-To use WiFi and HTTPClient.
+A class to use WiFi and HTTPClient.
 
 Note that **mruby/c does not distingush between class methods and instance methods.**
 
@@ -29,6 +29,7 @@ Representing arduino's WiFi class. Misspelling lower case 'f'.
 
 ### HTTPClient (c_wifi.cpp) \[USE_HTTPCLIENT in c_wifi.h\]
 Representing arduino's HTTPClient class.
+When the object is not necessary, call `destroy` method to free its memory. The destroyed object is not valid.
 
 - new(url)
   > Connects to the `url`.
@@ -49,4 +50,5 @@ Representing arduino's HTTPClient class.
 - close
 - end
   > Close the connection.
-
+- destroy
+  > Deletes the object to free memory. The destroyed object is no loger valid.

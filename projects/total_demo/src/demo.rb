@@ -308,7 +308,8 @@ Display.puts
 Display.puts "Hit any key to restart"
 while !hit_any_key do sleep 0.05 end
 
-
+canvas.delete_sprite
+canvas.destroy
 
 Display.clear
 Display.puts "This VM will finish in 3 seconds"

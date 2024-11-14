@@ -13,7 +13,7 @@ class_neopixel_new(mrb_vm *vm, mrb_value *v, int argc)
 
     if(argc>0){
         int num=val_to_i(vm, v, GET_ARG(1),argc);
-        Adafruit_NeoPixel *strip = new Adafruit_NeoPixel(num, pin, NEO_GRB + NEO_KHZ800);
+        Adafruit_NeoPixel *strip = get_checked_data(Adafruit_NeoPixel, vm, v);
         mrbc_value obj = mrbc_instance_new(vm, v[0].cls, sizeof(Adafruit_NeoPixel*));
         *(Adafruit_NeoPixel**)obj.instance->data = strip;
         strip->setBrightness(20);
@@ -26,12 +26,11 @@ class_neopixel_new(mrb_vm *vm, mrb_value *v, int argc)
     }
 }
 
-
 static void
 class_neopixel_set_pixel_color(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>3){
-        Adafruit_NeoPixel *strip = *(Adafruit_NeoPixel**)v->instance->data;
+        Adafruit_NeoPixel *strip = get_checked_data(Adafruit_NeoPixel, vm, v);
         int n = val_to_i(vm, v, GET_ARG(1),argc);
         int r = val_to_i(vm, v, GET_ARG(2),argc);
         int g = val_to_i(vm, v, GET_ARG(3),argc);
@@ -50,7 +49,7 @@ class_neopixel_set_pixel_color(mrb_vm *vm, mrb_value *v, int argc)
 static void
 class_neopixel_show(mrb_vm *vm, mrb_value *v, int argc)
 {
-    Adafruit_NeoPixel *strip = *(Adafruit_NeoPixel**)v->instance->data;
+    Adafruit_NeoPixel *strip = get_checked_data(Adafruit_NeoPixel, vm, v);
     strip->show();
     SET_TRUE_RETURN();
 }
@@ -59,7 +58,7 @@ static void
 class_neopixel_fill(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>4){
-        Adafruit_NeoPixel *strip = *(Adafruit_NeoPixel**)v->instance->data;
+        Adafruit_NeoPixel *strip = get_checked_data(Adafruit_NeoPixel, vm, v);
         int r = val_to_i(vm, v, GET_ARG(1),argc);
         int g = val_to_i(vm, v, GET_ARG(2),argc);
         int b = val_to_i(vm, v, GET_ARG(3),argc);
@@ -73,7 +72,7 @@ class_neopixel_fill(mrb_vm *vm, mrb_value *v, int argc)
 static void
 class_neopixel_clear(mrb_vm *vm, mrb_value *v, int argc)
 {
-    Adafruit_NeoPixel *strip = *(Adafruit_NeoPixel**)v->instance->data;
+    Adafruit_NeoPixel *strip = get_checked_data(Adafruit_NeoPixel, vm, v);
     strip->clear();
     SET_TRUE_RETURN();
 }
@@ -81,7 +80,7 @@ class_neopixel_clear(mrb_vm *vm, mrb_value *v, int argc)
 static void
 class_neopixel_map1(mrb_vm *vm, mrb_value *v, int argc)
 {
-    Adafruit_NeoPixel *strip = *(Adafruit_NeoPixel**)v->instance->data;
+    Adafruit_NeoPixel *strip = get_checked_data(Adafruit_NeoPixel, vm, v);
     int sz = strip->numPixels();
 
     if(argc<1) {
@@ -125,7 +124,7 @@ class_neopixel_map1(mrb_vm *vm, mrb_value *v, int argc)
 static void
 class_neopixel_map3(mrb_vm *vm, mrb_value *v, int argc)
 {
-    Adafruit_NeoPixel *strip = *(Adafruit_NeoPixel**)v->instance->data;
+    Adafruit_NeoPixel *strip = get_checked_data(Adafruit_NeoPixel, vm, v);
     int sz = strip->numPixels();
 
     if(argc<3) {
@@ -165,7 +164,14 @@ class_neopixel_map3(mrb_vm *vm, mrb_value *v, int argc)
     }
 }
 
-
+static void
+class_neopixel_destroy(mrb_vm *vm, mrb_value *v, int argc)
+{
+    Adafruit_NeoPixel *strip = get_checked_data(Adafruit_NeoPixel, vm, v);
+    strip->~Adafruit_NeoPixel();
+    delete strip;
+    put_null_data(v);
+}
 
 void class_neopixel_init()
 {
@@ -177,5 +183,6 @@ void class_neopixel_init()
     mrbc_define_method(0, class_neopixel, "clear", class_neopixel_clear);
     mrbc_define_method(0, class_neopixel, "map1", class_neopixel_map1);
     mrbc_define_method(0, class_neopixel, "map3", class_neopixel_map3);
+    mrbc_define_method(0, class_neopixel, "destroy", class_neopixel_destroy);
 }
 

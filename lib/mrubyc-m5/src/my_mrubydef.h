@@ -58,9 +58,9 @@ inline void put_null_data(mrb_value *v) {
     *(uint8_t**)v->instance->data = nullptr;
 }
 
-#define get_checked_data(vm, v)  v->instance->data;\
-    if( *(uint8_t**)v->instance->data == nullptr){\
-        mrbc_raise(vm, MRBC_CLASS(RuntimeError), "instance destroyed");\
+#define get_checked_data(cls, vm, v) *(cls**)v->instance->data;\
+    if( *(cls**)v->instance->data == nullptr){\
+        mrbc_raise(vm, MRBC_CLASS(RuntimeError), "already destroyed");\
         return;\
     }
 

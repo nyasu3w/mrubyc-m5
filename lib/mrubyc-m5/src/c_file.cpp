@@ -9,7 +9,7 @@ mrb_class *class_file;
 static void
 class_file_read(mrb_vm *vm, mrb_value *v, int argc)
 {
-    File *f = *(File**) v->instance->data;
+    File *f = get_checked_data(File, vm, v);
     if(f){
         int len = 255;
         if(argc>0){
@@ -32,7 +32,7 @@ class_file_read(mrb_vm *vm, mrb_value *v, int argc)
 static void
 class_file_write(mrb_vm *vm, mrb_value *v, int argc)
 {
-    File *f = *(File**) v->instance->data;
+    File *f = get_checked_data(File, vm, v);
     if(f){
         int r=0;
         if(argc>0){
@@ -54,7 +54,7 @@ class_file_write(mrb_vm *vm, mrb_value *v, int argc)
 static void
 class_file_close(mrb_vm *vm, mrb_value *v, int argc)
 {
-    File *f = *(File**) v->instance->data;
+    File *f = get_checked_data(File, vm, v);
     if(f){
         f->close();
         delete f;
@@ -66,7 +66,7 @@ class_file_close(mrb_vm *vm, mrb_value *v, int argc)
 static void
 class_file_available(mrb_vm *vm, mrb_value *v, int argc)
 {
-    File *f = *(File**) v->instance->data;
+    File *f = get_checked_data(File, vm, v);
     if(f->available()){
         SET_TRUE_RETURN();
     } else {
@@ -76,7 +76,7 @@ class_file_available(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_file_is_directory(mrb_vm *vm, mrb_value *v, int argc)
 {
-    File *f = *(File**) v->instance->data;
+    File *f = get_checked_data(File, vm, v);
     if(f->isDirectory()){
         SET_TRUE_RETURN();
     } else {
@@ -86,13 +86,13 @@ static void class_file_is_directory(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_file_size(mrb_vm *vm, mrb_value *v, int argc)
 {
-    File *f = *(File**) v->instance->data;
+    File *f = get_checked_data(File, vm, v);
     SET_INT_RETURN(f->size());
 }
 
 static void class_file_open_next_file(mrb_vm *vm, mrb_value *v, int argc)
 {
-    File *f = *(File**) v->instance->data;
+    File *f = get_checked_data(File, vm, v);
     if(!f->isDirectory()){
         mrbc_raise(vm, MRBC_CLASS(ArgumentError),"not directory");
         return;
@@ -109,14 +109,28 @@ static void class_file_open_next_file(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_file_name(mrb_vm *vm, mrb_value *v, int argc)
 {
-    File *f = *(File**) v->instance->data;
+    File *f = get_checked_data(File, vm, v);
     SET_RETURN(mrbc_string_new_cstr(vm, f->name()));
 }
 static void class_file_path(mrb_vm *vm, mrb_value *v, int argc)
 {
-    File *f = *(File**) v->instance->data;
+    File *f = get_checked_data(File, vm, v);
     SET_RETURN(mrbc_string_new_cstr(vm, f->path()));
 }
+
+static void
+class_file_destroy(mrb_vm *vm, mrb_value *v, int argc)
+{
+    File *f = get_checked_data(File, vm, v);
+    if(f){
+        f->close();
+        delete f;
+        put_null_data(v);
+        SET_TRUE_RETURN();
+    }
+}
+
+
 
 void class_file_init()
 {
@@ -130,6 +144,7 @@ void class_file_init()
     mrbc_define_method(0, class_file, "open_next_file", class_file_open_next_file);
     mrbc_define_method(0, class_file, "name", class_file_name);
     mrbc_define_method(0, class_file, "path", class_file_path);
+    mrbc_define_method(0, class_file, "destroy", class_file_destroy);
 }
 
 #endif // USE_FILE_FUNCTION

@@ -1,5 +1,4 @@
 # Class Reference 
-To use M5Stack CardKB
 
 Note that **mruby/c does not distingush between class methods and instance methods.**
 
@@ -8,6 +7,8 @@ Note that **mruby/c does not distingush between class methods and instance metho
 ### CardKBClass (c_cardkb.cpp) \[USE_CARDKB in c_cardkb.h\]
 A class to use M5Stack CardKB. A Constant CardKB is already prepared for default I2C address. If the address is different, you need to create a new instance for it.
 If CardKB is not available, CardKB is a FailObject.
+
+No need to call `destroy` unlike the other classes, even if the object is created by `new`.
 
 - new(addr)
   > create a new instance of CardKBClass for the card whose i2c address is `addr`

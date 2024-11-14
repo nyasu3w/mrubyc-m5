@@ -18,7 +18,7 @@ static void class_avatar_initialize(mrb_vm *vm, mrb_value *v, int argc){
     avatar->setSpeechFont(&fonts::lgfxJapanGothic_12);
 }
 static void class_avatar_set(mrb_vm *vm, mrb_value *v, int argc){
-    m5avatar::Avatar *avatar = *(m5avatar::Avatar**)v->instance->data;
+    m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
     if(argc == 2){
             int x = val_to_i(vm, v, GET_ARG(1), argc);
             int y = val_to_i(vm, v, GET_ARG(2), argc);
@@ -30,7 +30,7 @@ static void class_avatar_set(mrb_vm *vm, mrb_value *v, int argc){
 }
 
 static void class_avatar_scale(mrb_vm *vm, mrb_value *v, int argc){
-    m5avatar::Avatar *avatar = *(m5avatar::Avatar**)v->instance->data;
+    m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
     if(argc == 1){
         float scale = val_to_f(vm, v, GET_ARG(1), argc);
         avatar->setScale(scale);
@@ -39,12 +39,12 @@ static void class_avatar_scale(mrb_vm *vm, mrb_value *v, int argc){
 }
 
 static void class_avatar_start(mrb_vm *vm, mrb_value *v, int argc){
-    m5avatar::Avatar *avatar = *(m5avatar::Avatar**)v->instance->data;
+    m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
     avatar->start();
 }
 
 static void class_avatar_set_speech_text(mrb_vm *vm, mrb_value *v, int argc){
-    m5avatar::Avatar *avatar = *(m5avatar::Avatar**)v->instance->data;
+    m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
     if(argc == 1){
         const char* text = val_to_s(vm, v, GET_ARG(1), argc);
         avatar->setSpeechText(text);
@@ -52,7 +52,7 @@ static void class_avatar_set_speech_text(mrb_vm *vm, mrb_value *v, int argc){
 }
 
 static void class_avatar_set_rotation(mrb_vm *vm, mrb_value *v, int argc){
-    m5avatar::Avatar *avatar = *(m5avatar::Avatar**)v->instance->data;
+    m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
     if(argc == 1){
         float radian = val_to_f(vm, v, GET_ARG(1), argc);
         avatar->setRotation(radian);
@@ -61,11 +61,18 @@ static void class_avatar_set_rotation(mrb_vm *vm, mrb_value *v, int argc){
 }
 
 static void class_avatar_set_expression(mrb_vm *vm, mrb_value *v, int argc){
-    m5avatar::Avatar *avatar = *(m5avatar::Avatar**)v->instance->data;
+    m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
     if(argc == 1){
         int exp = val_to_i(vm, v, GET_ARG(1), argc);
         avatar->setExpression((m5avatar::Expression)exp);
     }
+}
+
+static void class_avatar_destroy(mrb_vm *vm, mrb_value *v, int argc){
+    m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
+    avatar->stop();
+    delete avatar;
+    put_null_data(v);
 }
 
 void class_avatar_init(){
@@ -80,4 +87,5 @@ void class_avatar_init(){
 
     mrbc_define_method(0, class_avatar, "scale=", class_avatar_scale);
     mrbc_define_method(0, class_avatar, "start", class_avatar_start);
+    mrbc_define_method(0, class_avatar, "destroy", class_avatar_destroy);
 }
