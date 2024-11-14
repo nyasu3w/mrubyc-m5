@@ -1,11 +1,13 @@
 # Class Reference 
-To use M5Stack-Avatar.
 
 Note that **mruby/c does not distingush between class methods and instance methods.**
 
 ## Implemented classes
 
 ### Avatar (c_avatar.cpp)
+A class to use M5Stack-Avatar.
+When the object is not necessary, call `destroy` method to free its memory. The destroyed object is not valid.
+
 - new
   > Creates a new instance of Avatar
   > The font in speech baloon is set to fonts::lgfxJapanGothic_12.
@@ -23,4 +25,6 @@ Note that **mruby/c does not distingush between class methods and instance metho
 - set_expression(expr)
   > Sets expression to `expr` in number.
   > `expr`is one of 1:Happy, 2:Angry, 3:Sad, 4:Doubt, 5:Sleepy, 6:Neutral
+- destroy
+  > Deletes the object to free memory. The destroyed object is no longer valid.
 

@@ -1,12 +1,10 @@
 # Class Reference 
-To use SPIFFS
-
 Note that **mruby/c does not distingush between class methods and instance methods.**
 
 ## Implemented classes
 
 ### SPIFFS (c_spiffs.cpp)
-Almost same as SD class.
+A class to use SPIFFS. Almost same as SD class.
 Representing arduino's SPIFFS class. When SPIFFS is not available, Constant SPIFFS is a FailObject.
 
 - open(filename, mode="r")

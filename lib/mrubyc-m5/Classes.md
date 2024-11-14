@@ -36,6 +36,8 @@ Note that M5.update() is necessary to update the button's status.
 
 ### Display (c_display_button.cpp)
 Representing M5.Display.
+- available?
+  > check if Display available
 - print(args...)
   > Prints all arguments with M5.Display.print()
 - println(args...)
@@ -81,6 +83,7 @@ Representing M5.Display.
 
 ### File (c_file.cpp) \[USE_FILE_CLASS\]
 Representing a File class of Arduino. The instance is created by another class (ex: SD.open())
+When the object is not necessary, call `destroy` method to free its memory. The destroyed object is not valid.
 
 - read(len=255)
   > Returns a String read from the file. `len` can be specified to limit the bytes to be read.
@@ -101,6 +104,8 @@ Representing a File class of Arduino. The instance is created by another class (
 - open_next_file
   > Returns a new File instance of the next entry in the directory.
   > Representing arduino's File::openNextFile()
+- destroy
+  > Destroys the object to free memory.
 
 ### IMU (c_imu.cpp) \[USE_M5UNIFIED_IMU\]
 Representing M5.Imu.
@@ -163,7 +168,8 @@ Representing M5.Touch.
   > Checks if the touch operation is being holding.
 
 ### Canvas \[USE_CANVAS\]
-For utilizing Sprite.
+For utilizing Sprite. 
+When the object is not necessary, call `destroy` method to free its memory. The destroyed object is not valid.
 
 The many drawing methods of Display class are also available for Canvas.
 - new(width,height,color_depth)
@@ -174,6 +180,10 @@ The many drawing methods of Display class are also available for Canvas.
   > Draws the contents of the sprite on Display at ('x','y')
 - delete_sprite()
   > after calling this method, drawing methods will not work.
+- create_sprite(width, height)
+  > Create Sprite
+- destroy()
+  > Deletes the inner object to its free memory. Called instance is no longer valid.
 
 ## Implemented classes in sample projects
 To use these classes, copy the c_XXX.h and c_XXX.cpp to your project src directory, and call class_XXXX_init() function after my_mrubyc_init().

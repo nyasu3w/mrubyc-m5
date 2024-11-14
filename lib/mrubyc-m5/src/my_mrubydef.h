@@ -53,3 +53,22 @@ inline float val_to_f(mrb_vm *vm,  mrb_value *v, mrbc_value &recv, int regofs) {
     }
     return f;
 }
+
+inline void put_null_data(mrb_value *v) {
+    *(uint8_t**)v->instance->data = nullptr;
+}
+
+#define get_checked_data(cls, vm, v) *(cls**)v->instance->data;\
+    if( *(cls**)v->instance->data == nullptr){\
+        mrbc_raise(vm, MRBC_CLASS(RuntimeError), "already destroyed");\
+        return;\
+    }
+
+/*  This does not work
+inline uint8_t* get_checked_data(mrb_vm *vm, mrbc_value *v) {
+    if( *(uint8_t**)v->instance->data == nullptr){
+        mrbc_raise(vm, MRBC_CLASS(RuntimeError), "instance destroyed");
+    }
+    return v->instance->data;
+}
+*/

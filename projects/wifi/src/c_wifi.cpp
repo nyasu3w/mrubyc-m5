@@ -161,6 +161,14 @@ static void c_httpclient_end(mrb_vm *vm, mrb_value *v, int argc) {
     return;
 }
 
+static void c_httpclient_destroy(mrb_vm *vm, mrb_value *v, int argc) {
+    auto client = *(HTTPClient**) v[0].instance->data;
+    client->end();
+    delete client;
+    put_null_data(v);
+    return;
+}
+
 #endif // USE_HTTPCLIENT
 
 void class_wifi_init(){
@@ -185,7 +193,7 @@ void class_wifi_init(){
     mrbc_define_method(0, class_httpclient, "put", c_httpclient_put);
     mrbc_define_method(0, class_httpclient, "close", c_httpclient_end);
     mrbc_define_method(0, class_httpclient, "end", c_httpclient_end);
-
+    mrbc_define_method(0, class_httpclient, "destroy", c_httpclient_destroy);
 #endif // USE_HTTPCLIENT   
 
 }

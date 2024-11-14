@@ -31,6 +31,16 @@ class_display_dimension(mrb_vm *vm, mrb_value *v, int argc) {
 }
 
 static void
+class_display_available(mrb_vm *vm, mrb_value *v, int argc)
+{
+    if(M5.getBoard()<lgfx::boards::board_M5AtomLite){
+        SET_TRUE_RETURN();
+    } else {
+        SET_FALSE_RETURN();
+    }
+}
+
+static void
 class_display_set_text_size(mrb_vm *vm, mrb_value *v, int argc)
 {
     draw_set_text_size(&M5.Display,vm,v,argc);
@@ -178,6 +188,7 @@ void class_display_button_init()
 {
     mrb_class *class_display;
     class_display = mrbc_define_class(0, "Display", mrbc_class_object);
+    mrbc_define_method(0, class_display, "available?", class_display_available);
 
     mrbc_define_method(0, class_display, "print", class_display_print);
     mrbc_define_method(0, class_display, "println", class_display_puts);
