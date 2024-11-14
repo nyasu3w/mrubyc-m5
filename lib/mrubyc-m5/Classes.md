@@ -174,6 +174,10 @@ The many drawing methods of Display class are also available for Canvas.
   > Draws the contents of the sprite on Display at ('x','y')
 - delete_sprite()
   > after calling this method, drawing methods will not work.
+- create_sprite(width, height)
+  > Create Sprite
+- destroy()
+  > Deletes the inner object. Called instance is no more valid.
 
 ## Implemented classes in sample projects
 To use these classes, copy the c_XXX.h and c_XXX.cpp to your project src directory, and call class_XXXX_init() function after my_mrubyc_init().
