@@ -3,18 +3,16 @@ This is a project for using mruby/c on M5Stack devices with M5Unified library on
 
 Also targeting on easy implementation with Arduino libraries.
 
-The movie of total_demo in this project on M5Stack Core2:
+This is a movie of (old) total_demo in this project on M5Stack Core2:
 
 https://github.com/user-attachments/assets/b0aa8a82-fc44-421c-a1d7-70b15c6e211f
 
+## prerequisites
+- mruby
+- platformio
 
-## for the first try
-Build by PlatformIO in the top directory, then upload to your M5Stack device.
-
-`platformio.ini` is already set to build `project/total_demo` sample.
-You can change the built sample by editing `src_dir` variable in `platformio.ini`
-
-When src_dir is changing, VSCode might need some seconds to apply the change. If VSCode notifies such like "unknown ids", try again a few seconds later.
+mruby needs to byte compile ruby files.
+platformio is necessary because the build system depends on it.
 
 ## Features 
 Supporting ruby scripts (mruby/c) for:
@@ -42,23 +40,30 @@ Placed in "projects" directory.
        |   +- mrubyc-m5 : main library of this project
        +- projects/     : example projects of mruby/c-m5
        |   + total_demo
+       |   + spiffs
+       |   + carddb
+       |   + m5dial
+       |   + m5stack-avatar
        |        :
+       |
        +- src : almost same as original mruby/c. hal.c and hal.h are added
        | 
        the other directories are the same as original mruby/c
 
+## For the first try
+Build by PlatformIO in the top directory, then upload to your M5Stack device.
 
-## prerequisites
-- mruby
-- platformio
+`platformio.ini` is already set to build `project/total_demo` sample.
+You can change the built sample by editing `src_dir` variable in `platformio.ini`
 
-mruby needs to byte compile ruby files.
-platformio is necessary because the build system depends on it.
+When src_dir is changing, VSCode might need some seconds to apply the change. If VSCode notifies such like "unknown ids", try again a few seconds later.
 
-## preparation
+### preparation
 Please note that the directory structure is not as usual. It might be my mistake but it works for me for the moment.
 
 Each project files are placed under projects directory. Now some projects are there, and one of them is selected in src_dir variable in `platformio.ini` in the top directory.
+
+At first, please install the prerequisites above.
 
 mruby compiler needs to be available to run from `extra_script.py`. 
 The calling line in `extra_script.py` is like:
@@ -79,8 +84,8 @@ If you do not like the automatic byte compile, you can do it by hand:
 In that case, please remove a line to call before_build function in near the bottom of `extra_script.py`. Otherwise, the build system would stop.
 
 
-## build
-Confirm the board setting in `platformio.ini`. You might want to change default_envs variable.
+### build
+Confirm the board setting in `platformio.ini`. You might want to change default_envs variable. The board can be selected by the command line option `-e <envname>` for pio command.
 
 > pio run
 
@@ -99,7 +104,7 @@ If you are using PlatformIO on VSCode,you can build and upload from the bottom l
   1. `libdeps.txt` format is same as lib_deps variable in `platformio.ini`
 1. create your source files in src directory in the new directory.
 
-### configuration of vm
+### Configuration of vm
 See a main.cpp from example projects under `projects` directory.
 Those are almost same and 
 
