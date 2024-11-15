@@ -66,6 +66,7 @@ end
 Display.set_text_size(2);
 Display.set_text_color(0xffff)
 
+
 Display.puts
 Display.puts "Hit any key"
 while !hit_any_key do sleep 0.05 end
@@ -210,6 +211,7 @@ if SD.available? then
   sleep 0.5
 end
 
+
 puts "Sprite"
 
 ### picture load section
@@ -247,7 +249,7 @@ def b64c(ary)
     r=0b111110
   when 0x2f
     r=0b111111
-  when 0x3d
+  when 0x3d,nil
     r=-1
   else # ignore
     r = b64c(ary)
@@ -280,6 +282,11 @@ Display.clear
 Display.puts "Sprite test"
 Display.draw_pngstr(mrubycpng,50,40*yscale)
 
+font=Font.by_name("DejaVu12")
+Display.set_font(font); Display.puts "DejaVu12"
+font=Font.by_name("efontJA_12")
+Display.set_font(font); Display.puts "#{font}:日本語フォント"
+
 dimension=Display.dimension
 dimension[0]*= 3
 dimension[1]/= 2
@@ -292,6 +299,7 @@ canvas.draw_pngstr(mrubycpng,150*xscale,10*yscale)
 
 canvas.set_cursor(0,40)
 canvas.set_text_size(2)
+canvas.set_font(font)
 canvas.puts "この部分はCanvasで描画しています。そしてスクロールさせています"
 
 canvas.push_sprite(0,50*yscale)

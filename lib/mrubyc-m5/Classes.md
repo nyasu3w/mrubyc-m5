@@ -34,7 +34,7 @@ Note that M5.update() is necessary to update the button's status.
   > check if the button was pressed. Representing BtnX.was_pressed()
 
 
-### Display (c_display_button.cpp)
+### Display (c_display_button.cpp) \[USE_DISPLAY_GRAPHICS\]
 Representing M5.Display.
 - available?
   > check if Display available
@@ -79,7 +79,9 @@ Representing M5.Display.
 - draw_jpgstr(picstr,x,y)
 - draw_pngstr(picstr,x,y)
   > draw a picture at (x,y). `picstr` is a String that has picture file contents
-
+- set_font(fontnumber)
+  > Sets font of drawing texts. The number can be calculated by `Font.by_name()`
+  > If giving 0 as `fontnumber`, it resets to the default font.
 
 ### File (c_file.cpp) \[USE_FILE_CLASS\]
 Representing a File class of Arduino. The instance is created by another class (ex: SD.open())
@@ -167,7 +169,7 @@ Representing M5.Touch.
 - is_holding?(no=0)
   > Checks if the touch operation is being holding.
 
-### Canvas \[USE_CANVAS\]
+### Canvas (c_canvas.cpp) \[USE_CANVAS\]
 For utilizing Sprite. 
 When the object is not necessary, call `destroy` method to free its memory. The destroyed object is not valid.
 
@@ -184,6 +186,14 @@ The many drawing methods of Display class are also available for Canvas.
   > Create Sprite
 - destroy()
   > Deletes the inner object to its free memory. Called instance is no longer valid.
+
+### Font (c_font.cpp) \[USE_DISPLAY_GRAPHICS\]
+A class to calculate around font number.
+To support another font, see `c_font.cpp` and modify it.  Too many fonts shall stress flash area.
+
+A font is specified by an integer in graphic `set_font` methods.
+- by_name(fontname)
+  > Gets the font number to give `set_font()`
 
 ## Implemented classes in sample projects
 To use these classes, copy the c_XXX.h and c_XXX.cpp to your project src directory, and call class_XXXX_init() function after my_mrubyc_init().

@@ -19,7 +19,7 @@ Supporting ruby scripts (mruby/c) for:
 - Writing chars/Drawing graphs on LCD 
 - Support of BtnA/B/C
 - Support of Touch panel
-- Read/Write SD cards and SPIFFS
+- Read/Write SD cards (and SPIFFS)
 - Reading IMU value
 - Easy extention with many arduino libraries
 

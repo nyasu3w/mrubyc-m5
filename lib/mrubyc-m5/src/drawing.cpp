@@ -6,6 +6,7 @@
 #include "my_mrubydef.h"
 
 #include "drawing.h"
+#include "c_font.h"
 #include "c_file.h"
 
 
@@ -281,4 +282,17 @@ void draw_draw_jpgstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 void draw_draw_pngstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     draw_draw_pic_str(dst, png,vm,v,argc);
+}
+
+void draw_set_font(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
+{
+    if(argc>0){
+        unsigned int  fontnumber = val_to_i(vm, v, GET_ARG(1),argc);
+        if(fontnumber < max_font_number){
+            dst->setFont(supported_fonts[fontnumber]);
+            SET_TRUE_RETURN();
+            return;
+        }
+    }
+    SET_FALSE_RETURN();
 }

@@ -8,6 +8,9 @@
 #include "c_m5.h"
 #include "c_display_button.h"
 
+#ifdef USE_DISPLAY_GRAPHICS
+#include "c_font.h"
+#endif
 #ifdef USE_SD_FUNCTION
 #include "c_imu.h"
 #endif
@@ -62,6 +65,11 @@ void my_mrubyc_init(){
 #else
     mrbc_set_const(mrbc_str_to_symid("Canvas"), &failed_object);
 #endif // USE_CANVAS
+#ifdef USE_DISPLAY_GRAPHICS
+    class_font_init();
+#else
+    mrbc_set_const(mrbc_str_to_symid("Font"), &failed_object);
+#endif // USE_DISPLAY_GRAPHICS 
 }
 
 #endif // MY_MRUBYC_INIT
