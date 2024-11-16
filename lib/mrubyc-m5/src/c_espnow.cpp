@@ -12,7 +12,8 @@ static uint8_t paired_num=0;
 static esp_now_peer_info_t peer_info[PEER_MAX];
 
 // Ring buffer
-static enum { RECV_POLICY_RING, RECV_POLICY_REJECT_BY_FULL} recv_policy = RECV_POLICY_RING;
+typedef enum { RECV_POLICY_RING, RECV_POLICY_REJECT_BY_FULL} policy_t;
+static policy_t recv_policy = RECV_POLICY_RING;
 constexpr uint8_t RECV_MAX = 8;
 static struct {
     uint8_t peer_addr[6];
@@ -65,6 +66,7 @@ static uint8_t find_free_peernumber(){
             return i;
         }
     }
+    return 0xff;
 }
 
 static bool
@@ -97,6 +99,9 @@ add_espnow_peer(uint8_t no, mrb_value *ary, mrb_vm *vm, mrb_value *v, int argc){
     // format check done
 
     uint8_t peer_no = find_free_peernumber();
+    if(peer_no>=PEER_MAX){
+        return false;  // no free peer number
+    }
     peer_info[peer_no].channel = chan;
     for(int i=0;i<6;i++){   // 6 is a size of MAC addr
         mrbc_value octed_val = mrbc_array_get(&temp_val,i);
