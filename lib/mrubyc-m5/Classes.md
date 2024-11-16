@@ -195,6 +195,41 @@ A font is specified by an integer in graphic `set_font` methods.
 - by_name(fontname)
   > Gets the font number to give `set_font()`
 
+### EspNow (c_espnow.cpp) \[USE_ESPNOW\]
+A class to use ESP-NOW.
+
+Wrapping rather thick than the other classes.
+A sample is stored in projects/sample_rb/espnow.rb
+
+- begin
+  > Initializes to use ESP Now.
+- add_peer(devinfo)
+  > Opens connection to a device only this side. It means enabling of accepting a packet from the device and sending a packet to the device.
+  > `devinfo` is an array as \[channel, \[mac-address-octets\]\].
+  > For example, to open connection with a device with mac address 12-34-56-78-9a-bc in WiFi channel 3, `devinfo` is \[3,\[0x12,0x34,0x56,0x78,0x9a,0xbc\]\].
+  > Broadcasting is supported by mac address ff-ff-ff-ff-ff-ff. For now, only 4 devices (incl. broadcasting) can be paired. 
+  > The return value is an integer to handle connection and target of sending data.
+- del_peer(dev_no)
+  > Closes connection only this side. `dev_no` is a return value of `add_peer`
+- send(dev_no, data)
+  > Sends `data` to a device of `dev_no`.
+- last_send_status
+  > true or false. The status of the last call of `send`, but it can be jammed.
+- received
+  > number of stocked incomming packet. For now, 8 packets can be stocked.
+- recv
+  > Reads 1 packet data.
+  > Returns an array of \[data, \[sender-mac-addr\]\]
+  > If no packet can be read, returns nil
+- policy
+- get_policy
+  > Returns true or false. This indicates stocking policy of incoming packets.
+  > If true, the incoming packets are stored in ring buffer. old one is overwritten by new one when the buffer is full.
+  > If false, an overflow packets are thrown and old data are kept.
+- policy=
+- set_policy(bool_value)
+  > Sets the policy described above.
+
 ## Implemented classes in sample projects
 To use these classes, copy the c_XXX.h and c_XXX.cpp to your project src directory, and call class_XXXX_init() function after my_mrubyc_init().
 

@@ -237,7 +237,7 @@ class_espnow_last_send_status(mrb_vm *vm, mrb_value *v, int argc){ // written by
 void class_espnow_init() {
     mrb_class *class_espnow = mrbc_define_class(0,"EspNow",mrbc_class_object);
     mrbc_define_method(0, class_espnow, "begin", class_espnow_begin);
-    mrbc_define_method(0, class_espnow, "pair", class_espnow_pair);
+    mrbc_define_method(0, class_espnow, "add_peer", class_espnow_pair);
     mrbc_define_method(0, class_espnow, "del_peer", class_espnow_del_peer);
     mrbc_define_method(0, class_espnow, "send", class_espnow_send);
     mrbc_define_method(0, class_espnow, "recv", class_espnow_recv);
