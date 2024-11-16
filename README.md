@@ -72,7 +72,7 @@ The calling line in `extra_script.py` is like:
 
 This is just for my environment on MSYS2. It might be ready with 
 
-> ret=subprocess.run([ f'mrbc -B {bname} {rubyfile}']) 
+> ret=subprocess.run([ 'mrbc', ’-B', 'bname', 'rubyfile']) 
 
 `extra_script.py` will check the necessity and do byte compile.
 If you do not like the automatic byte compile, you can do it by hand:
