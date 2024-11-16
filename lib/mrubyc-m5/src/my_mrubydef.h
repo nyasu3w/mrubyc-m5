@@ -13,6 +13,7 @@
 #define USE_TOUCH // to support Touch functions
 #define USE_SPEAKER // to support Speaker functions
 #define USE_CANVAS // to support Canvas functions
+#define USE_ESPNOW // to support ESP Now
 #endif // ! SUPPRESS_USEDEF
 
 #define USE_TEMPORAL_RANDOM_FUNCTION  // it seems that mruby/c does not have randome number function

@@ -29,7 +29,9 @@
 #ifdef USE_CANVAS
 #include "c_canvas.h"
 #endif
-
+#ifdef USE_ESPNOW
+#include "c_espnow.h"
+#endif
 
 void my_mrubyc_init(){
     class_m5_init();
@@ -70,6 +72,12 @@ void my_mrubyc_init(){
 #else
     mrbc_set_const(mrbc_str_to_symid("Font"), &failed_object);
 #endif // USE_DISPLAY_GRAPHICS 
+#ifdef USE_ESPNOW
+    class_espnow_init();
+#else
+    mrbc_set_const(mrbc_str_to_symid("EspNow"), &failed_object);
+#endif // USE_ESPNOW
+
 }
 
 #endif // MY_MRUBYC_INIT
