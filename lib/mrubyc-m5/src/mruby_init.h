@@ -1,3 +1,7 @@
+//
+// This file can be included only once from main file.
+//
+
 #include "my_mrubydef.h"
 
 // configured init function
@@ -6,6 +10,7 @@
 #define MY_MRUBYC_INIT
 
 #include "c_m5.h"
+#include "c_utils.h"
 #include "c_display_button.h"
 
 #ifdef USE_DISPLAY_GRAPHICS
@@ -36,6 +41,7 @@
 void my_mrubyc_init(){
     class_m5_init();
     class_display_button_init();
+    class_utils_init();
 
 #ifdef USE_M5UNIFIED_IMU
     class_imu_init();

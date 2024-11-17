@@ -9,7 +9,7 @@ else  # For NECO Unit
   led = NeoPixel.new n  # 70 led strip on portA 
 end
 
-M5.randomseed  # for temporal until mruby/c supports random number
+Utils.randomseed  # for temporal until mruby/c supports random number
 
 
 while true do
@@ -44,16 +44,16 @@ while true do
 
   0.upto(10) do
     0.upto(69) do |i|
-      r[i]=M5.random(256)
-      g[i]=M5.random(256)
-      b[i]=M5.random(256)
+      r[i]=Utils.random(256)
+      g[i]=Utils.random(256)
+      b[i]=Utils.random(256)
     end
     led.map3(r,g,b)
     led.show
     sleep 0.5
 
     0.upto(69) do |i|
-      rgb[i] = [M5.random(256),M5.random(256),M5.random(256)]
+      rgb[i] = [Utils.random(256),Utils.random(256),Utils.random(256)]
     end
     led.map1(rgb)
     led.show
