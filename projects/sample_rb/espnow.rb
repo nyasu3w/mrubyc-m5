@@ -28,7 +28,7 @@ while true do
   EspNow.send(bcpeer, req_pairing)
   sleep 1
   if EspNow.received>0 then
-    str,mac = *EspNow.recv
+    str,mac = *EspNow.recv(1)
     if str==req_pairing then
       Display.puts "req received: #{str} from #{mac}"
       peer = EspNow.add_peer([ch,mac])
