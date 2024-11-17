@@ -16,7 +16,7 @@
 #ifdef USE_DISPLAY_GRAPHICS
 #include "c_font.h"
 #endif
-#ifdef USE_SD_FUNCTION
+#ifdef USE_IMU_FUNCTION
 #include "c_imu.h"
 #endif
 #ifdef USE_SD_FUNCTION
@@ -43,7 +43,7 @@ void my_mrubyc_init(){
     class_display_button_init();
     class_utils_init();
 
-#ifdef USE_M5UNIFIED_IMU
+#ifdef USE_IMU_FUNCTION
     class_imu_init();
 #else
     mrbc_set_const(mrbc_str_to_symid("IMU"), &failed_object);

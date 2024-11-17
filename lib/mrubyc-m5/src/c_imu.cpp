@@ -2,7 +2,7 @@
 #include "my_mrubydef.h"
 #include "c_imu.h"
 
-#ifdef USE_M5UNIFIED_IMU
+#ifdef USE_IMU_FUNCTION
 
 static void
 class_imu_get_accel(mrb_vm *vm, mrb_value *v, int argc)
@@ -87,4 +87,4 @@ void class_imu_init(){
 }
 
 
-#endif // USE_M5UNIFIED_IMU
+#endif // USE_IMU_FUNCTION
