@@ -3,17 +3,19 @@
  *  configuration of my mruby/c library
 *****/
 
+#ifndef _MY_MRUBYDEF_H_
+#define _MY_MRUBYDEF_H_
 
 #ifndef SUPPRESS_USEDEFS
 //#define FULL_BUTTONS    // to enable BtnEXT and BtnPWR
 #define USE_DISPLAY_GRAPHICS  // Display to support graphics functions
-#define USE_M5UNIFIED_IMU  // IMU to support M5Unified IMU functions
+#define USE_IMU_FUNCTION  // IMU to support M5Unified IMU functions
 #define USE_SD_FUNCTION  // to support SD functions
 #define USE_FILE_CLASS  // to support File functions
 #define USE_TOUCH // to support Touch functions
 #define USE_SPEAKER // to support Speaker functions
 #define USE_CANVAS // to support Canvas functions
-#define USE_ESPNOW // to support ESP Now
+// #define USE_ESPNOW // to support ESP Now
 #endif // ! SUPPRESS_USEDEF
 
 #define USE_TEMPORAL_RANDOM_FUNCTION  // it seems that mruby/c does not have randome number function
@@ -73,3 +75,4 @@ inline uint8_t* get_checked_data(mrb_vm *vm, mrbc_value *v) {
     return v->instance->data;
 }
 */
+#endif // _MY_MRUBYDEF_H_
