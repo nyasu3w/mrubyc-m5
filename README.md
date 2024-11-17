@@ -111,6 +111,7 @@ Those are almost same and
 1. MEMSIZE can change the size of memory pool for vm. Note that this is only for mruby/c itself.
 1. Configration block is placed just before #include `#include "mruby_init.h"`. It can remove some functions from the vm.
   See "only_display" project.
+  1. Declimental configuration is available. Undef some symbols between `#include "my_mrubydefs.h"` and `#include "mruby_init.h"`. See "total_demo" project.
 1. New implementation of classes of arduino libraries is acceptable like m5stack-avatar and m5dial project.
 1. if *.rb file is in the `src` directory, those are byte compiled to mrb files and the code is accessed as a array of the same name.  For convinience, `mrubycode` is the coded array name which is converted from such as `#define mrubycode demo`, where demo is from demo.rb.
 
