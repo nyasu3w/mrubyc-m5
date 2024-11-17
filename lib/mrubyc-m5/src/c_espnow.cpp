@@ -179,17 +179,31 @@ static void
 class_espnow_recv(mrb_vm *vm, mrb_value *v, int argc){
     if(recv_data_out==recv_data_in){
         SET_NIL_RETURN();
-        return;
+    } else if(argc>0){
+        int rtype=val_to_i(vm,v,v[1],argc);
+        switch(rtype) {
+            case 0: // return only data
+                SET_RETURN(m_espnow_recvdata[recv_data_out].string);
+                break;
+            case 1: {// return array of [data, peer]
+                    mrbc_value recv_data =mrbc_array_new(vm,2);
+                    mrbc_array_set(&recv_data,0,&m_espnow_recvdata[recv_data_out].string);
+                    mrbc_value recv_data_peer = mrbc_array_new(vm,6);
+                    mrbc_array_set(&recv_data,1,&recv_data_peer);
+                    for(int i=0;i<6;i++){
+                        mrbc_value octed=mrbc_fixnum_value(m_espnow_recvdata[recv_data_out].peer_addr[i]);
+                        mrbc_array_set(&recv_data_peer,i,&octed);
+                    }
+                    SET_RETURN(recv_data);
+                }
+                break; 
+            default:
+                SET_FALSE_RETURN();
+                break;
+        }
+    } else { // argc>0
+        SET_RETURN(m_espnow_recvdata[recv_data_out].string);
     }
-    mrbc_value recv_data =mrbc_array_new(vm,2);
-    mrbc_array_set(&recv_data,0,&m_espnow_recvdata[recv_data_out].string);
-    mrbc_value recv_data_peer = mrbc_array_new(vm,6);
-    mrbc_array_set(&recv_data,1,&recv_data_peer);
-    for(int i=0;i<6;i++){
-        mrbc_value octed=mrbc_fixnum_value(m_espnow_recvdata[recv_data_out].peer_addr[i]);
-        mrbc_array_set(&recv_data_peer,i,&octed);
-    }
-    SET_RETURN(recv_data);
     recv_data_out = (recv_data_out+1)%RECV_MAX;
 }
 

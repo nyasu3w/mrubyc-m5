@@ -217,9 +217,11 @@ A sample is stored in projects/sample_rb/espnow.rb
   > true or false. The status of the last call of `send`, but it can be jammed.
 - received
   > number of stocked incomming packet. For now, 8 packets can be stocked.
-- recv
+- recv(rtype)
   > Reads 1 packet data.
-  > Returns an array of \[data, \[sender-mac-addr\]\]
+  > When `rtype` is not given or `rtype==0', then returns packet data as String.
+  > When `rtype==1` then returns an array of \[data, \[sender-mac-addr\]\].
+  >For another `rtype`, returns false.
   > If no packet can be read, returns nil
 - policy
 - get_policy
