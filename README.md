@@ -127,7 +127,7 @@ Class reference implemented for M5Unified and Arduino libraries.
 ---
 # mruby/c
 
-[![Ruby](https://github.com/mrubyc/mrubyc/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/mrubyc/mrubyc/actions/workflows/c-cpp.yml)
+[![Ruby](https://github.com/mrubyc/mrubyc/actions/workflows/test.yml/badge.svg)](https://github.com/mrubyc/mrubyc/actions/workflows/test.yml)
 
 [![Join the chat at https://gitter.im/mrubyc/mrubyc](https://badges.gitter.im/mrubyc/mrubyc.svg)](https://gitter.im/mrubyc/mrubyc?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
