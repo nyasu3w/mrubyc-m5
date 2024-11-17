@@ -44,6 +44,15 @@ static void c_speaker_get_volume(mrb_vm *vm, mrb_value *v, int argc) {
     SET_INT_RETURN(volume);
 }
 
+static void c_speaker_is_playing(mrb_vm *vm, mrb_value *v, int argc) {
+    int channel = (argc>0)? val_to_i(vm, v, GET_ARG(1), argc) : -1;
+    if(M5.Speaker.isPlaying(channel)){
+        SET_TRUE_RETURN();
+    } else {
+        SET_FALSE_RETURN(); 
+    }
+}
+
 void class_speaker_init() {
     mrbc_class *speaker = mrbc_define_class(0,"Speaker", mrbc_class_object);
     mrbc_define_method(0, speaker, "tone", c_speaker_tone);
@@ -52,6 +61,7 @@ void class_speaker_init() {
     mrbc_define_method(0, speaker, "volume=", c_speaker_set_volume);
     mrbc_define_method(0, speaker, "get_volume", c_speaker_get_volume);
     mrbc_define_method(0, speaker, "volume", c_speaker_set_volume);
+    mrbc_define_method(0, speaker, "is_playing?", c_speaker_is_playing);
 }
 
 #endif // USE_SPEAKER
