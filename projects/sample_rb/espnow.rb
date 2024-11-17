@@ -10,6 +10,13 @@ This sample does the following:
 - send message to the peer 
 =end
 
+unless EspNow then
+  Display.puts "EspNow is disabled"
+  Display.puts "modify your main.cpp"
+  sleep 10
+  raise "EspNow is disabled"
+  exit
+end
 
 EspNow.begin
 ch=1

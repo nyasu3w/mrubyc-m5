@@ -3,8 +3,9 @@
 #include <Wire.h>
 
 
+#include "my_mrubydef.h"
 /* This configuration block shall be before including mruby_init.h */
-/* write nothing to apply the default configuration*/
+// #undef USE_ESPNOW // changed
 /* configration block end*/
 #include "mruby_init.h"
 
