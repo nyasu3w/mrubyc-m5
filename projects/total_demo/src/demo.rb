@@ -292,7 +292,14 @@ dimension=Display.dimension
 dimension[0]*= 3
 dimension[1]/= 2
 
-canvas = Canvas.new(*dimension)
+begin
+  canvas = Canvas.new(*dimension)
+rescue Exception=>e  # retry when canvas(sprite) creation failed
+  dimension[0]/=2
+  dimension[1]=dimension[1]*2/3
+  canvas = Canvas.new(*dimension)
+end
+
 canvas.fill_rect( 10,10*yscale,100,15*yscale, 0x07e0)
 canvas.draw_pngstr(mrubycpng,110*xscale,10*yscale)
 canvas.draw_pngstr(mrubycpng,130*xscale,10*yscale)

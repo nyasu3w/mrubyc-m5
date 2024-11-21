@@ -21,7 +21,12 @@ static void c_canvas_initialize(mrb_vm *vm, mrb_value *v, int argc) {
    if(argc>1) {
         int width = val_to_i(vm, v, GET_ARG(1), argc);
         int height = val_to_i(vm, v, GET_ARG(2), argc);
-        canvas->createSprite(width,height);
+        auto ptr = canvas->createSprite(width,height);
+        if(ptr == nullptr) {
+            delete canvas;
+            *(M5Canvas **)v->instance->data = nullptr;
+            mrbc_raise(vm, MRBC_CLASS(RuntimeError), "sprite creation failed");
+        }
     }else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "w/h");
     }
