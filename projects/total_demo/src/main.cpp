@@ -30,6 +30,7 @@ void show_exception_screen(){
     M5.Display.waitDisplay();
   }
   M5.Lcd.setTextSize(sz);
+  M5.Lcd.setFont(nullptr);
   M5.Lcd.setCursor(w/2-26*sz, h/2-12*sz);
   M5.Lcd.setTextColor(TFT_YELLOW);
   M5.Lcd.println("EXCEPTION");
