@@ -76,6 +76,15 @@ class_display_get_cursor(mrb_vm *vm, mrb_value *v, int argc)
     draw_get_cursor(&M5.Display,vm,v,argc);
 }
 
+static void
+class_display_set_rotation(mrb_vm *vm, mrb_value *v, int argc)
+{
+    if(argc>0){
+        int rot = val_to_i(vm, v, GET_ARG(1),argc);
+        M5.Display.setRotation(rot);
+    }
+}
+
 
 #ifdef USE_DISPLAY_GRAPHICS
 
@@ -147,6 +156,7 @@ class_display_wait_display(mrb_vm *vm, mrb_value *v, int argc)
 
 #endif // USE_DISPLAY_GRAPHICS
 
+
 static void
 class_btn_is_pressed(mrb_vm *vm, mrb_value *v, int argc)
 {
@@ -205,6 +215,7 @@ void class_display_button_init()
 
     mrbc_define_method(0, class_display, "color565", class_display_color_value);
     mrbc_define_method(0, class_display, "dimension", class_display_dimension);
+    mrbc_define_method(0, class_display, "set_rotation", class_display_set_rotation);
 
 #ifdef USE_DISPLAY_GRAPHICS
     mrbc_define_method(0, class_display, "fill_rect", class_display_fill_rect);

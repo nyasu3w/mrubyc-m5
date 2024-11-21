@@ -296,3 +296,14 @@ void draw_set_font(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
     }
     SET_FALSE_RETURN();
 }
+
+void draw_set_rotation(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
+{
+    if(argc>0){
+        int rotation = val_to_i(vm, v, GET_ARG(1),argc);
+        dst->setRotation(rotation);
+        SET_TRUE_RETURN();
+    } else {
+        SET_FALSE_RETURN();
+    }
+}

@@ -17,7 +17,8 @@ static void c_canvas_initialize(mrb_vm *vm, mrb_value *v, int argc) {
    if (argc > 2) {
         int depth = val_to_i(vm, v, GET_ARG(3), argc);
         canvas->setColorDepth(depth);
-   } else if(argc==2) {
+   }
+   if(argc>1) {
         int width = val_to_i(vm, v, GET_ARG(1), argc);
         int height = val_to_i(vm, v, GET_ARG(2), argc);
         canvas->createSprite(width,height);

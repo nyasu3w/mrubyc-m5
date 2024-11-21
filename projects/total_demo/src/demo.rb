@@ -50,7 +50,8 @@ Display.puts "Display: #{Display.dimension.inspect}"
 Display.puts "Touch: " + ((Touch.available?)? "OK":"NG")
 Display.puts "Imu: " + ((IMU.available?)? "OK":"NG")
 Display.puts "SD:" + ((SD.available?)? "OK":"NG")
-Display.puts
+Display.puts "M5U: " + M5.unified_version
+Display.puts 
 
 cur=Display.get_cursor
 cur[0]+=12 if Display.dimension[0]>300
@@ -308,7 +309,7 @@ sleep 0.5
   canvas.push_sprite(0,50*yscale)
   canvas.scroll(-2,0)
   Display.wait_display
-#  sleep 0.05
+  #  sleep 0.05
 end
 Display.puts
 
