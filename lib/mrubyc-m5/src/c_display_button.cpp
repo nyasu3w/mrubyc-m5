@@ -33,7 +33,7 @@ class_display_dimension(mrb_vm *vm, mrb_value *v, int argc) {
 static void
 class_display_available(mrb_vm *vm, mrb_value *v, int argc)
 {
-    if(M5.getBoard()<lgfx::boards::board_M5AtomLite){
+    if(M5.getDisplayCount()>0){
         SET_TRUE_RETURN();
     } else {
         SET_FALSE_RETURN();
