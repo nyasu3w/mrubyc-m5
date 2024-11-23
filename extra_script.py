@@ -17,8 +17,7 @@ def before_build(source, target, env):
     bname=os.path.splitext(os.path.basename(rubyfile))[0]
     if need_new_conversion(rubyfile, cfile):
       print(f"updating {cfile}")
-      ret=subprocess.run(['c:/msys64/usr/bin/bash','-l', '-c', f'mrbc -B {bname} {rubyfile}'])
-      # ret=subprocess.run(['mrbc', '-B', bname, rubyfile])
+      ret=subprocess.run(['mrbc', '-B', bname, rubyfile])
       if ret.returncode!=0 : exit(ret.returncode)
     else:
       print(f"skipping updating {cfile}")
