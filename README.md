@@ -1,9 +1,9 @@
 # mruby/c for m5
-This is a project for using mruby/c on M5Stack devices with M5Unified library on Arduino framework.
+This is a project for using mruby/c on M5Stack devices with M5Unified library on Arduino framework. Forked from the original mruby/c and added classes for the purpose.
 
 Also targeting on easy implementation with Arduino libraries.
 
-This is a movie of (old) total_demo in this project on M5Stack Core2:
+The below movie is a(n old) total_demo in this project on M5Stack Core2:
 
 https://github.com/user-attachments/assets/b0aa8a82-fc44-421c-a1d7-70b15c6e211f
 
@@ -58,21 +58,19 @@ You can change the built sample by editing `src_dir` variable in `platformio.ini
 
 When src_dir is changing, VSCode might need some seconds to apply the change. If VSCode notifies such like "unknown ids", try again a few seconds later.
 
-### preparation
 Please note that the directory structure is not as usual. It might be my mistake but it works for me for the moment.
 
 Each project files are placed under projects directory. Now some projects are there, and one of them is selected in src_dir variable in `platformio.ini` in the top directory.
 
+### preparation
 At first, please install the prerequisites above.
 
-mruby compiler needs to be available to run from `extra_script.py`. 
-The calling line in `extra_script.py` is like:
+`mrbc` command from mruby is necessary in your PATH. `extra_script.py` in the build system calls it to byte-compile ruby file.
 
-> ret=subprocess.run(['c:/msys64/usr/bin/bash','-l', '-c', f'mrbc -B {bname} {rubyfile}'])
-
-This is just for my environment on MSYS2. It might be ready with 
-
+The code in the script is:
 > ret=subprocess.run([ 'mrbc', ’-B', 'bname', 'rubyfile']) 
+
+If this line got "file not found" error or such error, please adjust the parameters for your environment.
 
 `extra_script.py` will check the necessity and do byte compile.
 If you do not like the automatic byte compile, you can do it by hand:
