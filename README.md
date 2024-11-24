@@ -77,7 +77,7 @@ If you do not like the automatic byte compile, you can do it by hand:
 
 > mrbc -B {name} {name}.rb
 
-`{name}.c` is generated. The generated C file is to be on src directory of the project. {name} would be specified in your cpp file.
+`{name}.c` is generated. The generated C file is to be on src directory of the project. {name} will be specified in your cpp file.
 
 In that case, please remove a line to call before_build function in near the bottom of `extra_script.py`. Otherwise, the build system would stop.
 

@@ -5,6 +5,9 @@
 #include "c_canvas.h"
 #include "drawing.h"
 
+
+static mrbc_class *canvas_class;
+
 static void c_canvas_new(mrb_vm *vm, mrb_value *v, int argc) {
     v[0] = mrbc_instance_new(vm, v[0].cls, sizeof(M5Canvas));
     mrbc_instance_call_initialize(vm, v, argc);
@@ -13,7 +16,7 @@ static void c_canvas_new(mrb_vm *vm, mrb_value *v, int argc) {
 static void c_canvas_initialize(mrb_vm *vm, mrb_value *v, int argc) {
     M5Canvas *canvas = new M5Canvas(&M5.Display);
     *(M5Canvas **)v->instance->data = canvas;
- 
+
    if (argc > 2) {
         int depth = val_to_i(vm, v, GET_ARG(3), argc);
         canvas->setColorDepth(depth);
@@ -45,24 +48,23 @@ static void c_canvas_create_sprite(mrb_vm *vm, mrb_value *v, int argc) {
     }
 }
 
-static void c_canvas_scroll(mrb_vm *vm, mrb_value *v, int argc) {
-    M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);;
-    if (argc == 2) {
-        int dx = val_to_i(vm, v, GET_ARG(1), argc);
-        int dy = val_to_i(vm, v, GET_ARG(2), argc);
-        canvas->scroll(dx, dy);
-    } else {
-        mrbc_raise(vm, MRBC_CLASS(ArgumentError), "dx and dy");
-        SET_FALSE_RETURN();
-    }
-}
-
-static void c_canvas_push_sprite_to_display(mrb_vm *vm, mrb_value *v, int argc) {
+static void c_canvas_push_sprite(mrb_vm *vm, mrb_value *v, int argc) {
     M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);
+
     if(argc == 2) {
         int x = val_to_i(vm, v, GET_ARG(1), argc);
         int y = val_to_i(vm, v, GET_ARG(2), argc);
         canvas->pushSprite(x, y);
+    } else if(argc == 3){
+        LovyanGFX* dst;
+        if(mrbc_obj_is_kind_of(&GET_ARG(1), canvas_class)){
+            dst = get_checked_data(M5Canvas, vm, (&GET_ARG(1)));
+        } else {
+            dst = &M5.Display;   // no error, fall on default
+        }
+        int x = val_to_i(vm, v, GET_ARG(2), argc);
+        int y = val_to_i(vm, v, GET_ARG(3), argc);
+        canvas->pushSprite(dst, x, y);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "x-y");
         SET_FALSE_RETURN();
@@ -75,6 +77,15 @@ static void c_canvas_delete_sprite(mrb_vm *vm, mrb_value *v, int argc) {
 }
 
 
+static void c_canvas_scroll(mrb_vm *vm, mrb_value *v, int argc) {
+    M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);;
+    draw_scroll(canvas, vm, v, argc);
+}
+
+static void c_canvas_get_dimension(mrb_vm *vm, mrb_value *v, int argc) {
+    M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);
+    draw_get_dimension(canvas, vm, v, argc);
+}
 
 static void c_canvas_set_text_color(mrb_vm *vm, mrb_value *v, int argc) {
     M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);
@@ -200,11 +211,11 @@ static void class_canvas_destroy(mrb_vm *vm, mrb_value *v, int argc)
 
 void class_canvas_init() {
     // define class
-    mrbc_class *canvas_class= mrbc_define_class(0,"Canvas", mrbc_class_object);
+    canvas_class= mrbc_define_class(0,"Canvas", mrbc_class_object);
     mrbc_define_method(0, canvas_class, "new", c_canvas_new);
     mrbc_define_method(0, canvas_class, "initialize", c_canvas_initialize);
     mrbc_define_method(0, canvas_class, "scroll", c_canvas_scroll);
-    mrbc_define_method(0, canvas_class, "push_sprite", c_canvas_push_sprite_to_display);
+    mrbc_define_method(0, canvas_class, "push_sprite", c_canvas_push_sprite);
     mrbc_define_method(0, canvas_class, "delete_sprite", c_canvas_delete_sprite);
     mrbc_define_method(0, canvas_class, "create_sprite", c_canvas_create_sprite);
     mrbc_define_method(0, canvas_class, "destroy", class_canvas_destroy);
@@ -230,6 +241,7 @@ void class_canvas_init() {
     mrbc_define_method(0, canvas_class, "draw_pngstr", class_canvas_draw_pngstr);
     mrbc_define_method(0, canvas_class, "set_font", class_canvas_set_font);
     mrbc_define_method(0, canvas_class, "set_rotation", class_canvas_set_rotation);
+    mrbc_define_method(0, canvas_class, "dimension", c_canvas_get_dimension);
 }
 
 #endif // USE_CANVAS

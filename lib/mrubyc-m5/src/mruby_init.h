@@ -37,6 +37,9 @@
 #ifdef USE_ESPNOW
 #include "c_espnow.h"
 #endif
+#ifdef USE_MULTIDISPLAY
+#include "c_mdisplays.h"
+#endif
 
 void my_mrubyc_init(){
     class_m5_init();
@@ -83,6 +86,11 @@ void my_mrubyc_init(){
 #else
     mrbc_set_const(mrbc_str_to_symid("EspNow"), &failed_object);
 #endif // USE_ESPNOW
+#ifdef USE_MULTIDISPLAY
+    mdisplays_init();
+#else
+// nothing
+#endif
 
 }
 

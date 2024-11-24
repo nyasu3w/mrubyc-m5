@@ -6,6 +6,8 @@
 #ifndef _MY_MRUBYDEF_H_
 #define _MY_MRUBYDEF_H_
 
+
+//* ******* default configuration block ****** */
 #ifndef SUPPRESS_USEDEFS
 //#define FULL_BUTTONS    // to enable BtnEXT and BtnPWR
 #define USE_DISPLAY_GRAPHICS  // Display to support graphics functions
@@ -15,10 +17,12 @@
 #define USE_TOUCH // to support Touch functions
 #define USE_SPEAKER // to support Speaker functions
 #define USE_CANVAS // to support Canvas functions
+#define USE_MULTIDISPLAY // to support multiple displays
 // #define USE_ESPNOW // to support ESP Now
-#endif // ! SUPPRESS_USEDEF
 
-#define USE_TEMPORAL_RANDOM_FUNCTION  // it seems that mruby/c does not have randome number function
+#define USE_TEMPORAL_RANDOM_FUNCTION  // it seems that mruby/c does not have random number function
+#endif // ! SUPPRESS_USEDEF
+//* ******* default configuration block end****** */
 
 
 #include "mrubyc.h"
@@ -59,10 +63,11 @@ inline float val_to_f(mrb_vm *vm,  mrb_value *v, mrbc_value &recv, int regofs) {
 
 inline void put_null_data(mrb_value *v) {
     *(uint8_t**)v->instance->data = nullptr;
+    // try in future // v->tt = MRBC_TT_EMPTY;
 }
 
-#define get_checked_data(cls, vm, v) *(cls**)v->instance->data;\
-    if( *(cls**)v->instance->data == nullptr){\
+#define get_checked_data(cls, vm, v) *(cls**)(v->instance->data);\
+    if( *(cls**)(v->instance->data) == nullptr){\
         mrbc_raise(vm, MRBC_CLASS(RuntimeError), "already destroyed");\
         return;\
     }

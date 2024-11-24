@@ -307,3 +307,25 @@ void draw_set_rotation(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
         SET_FALSE_RETURN();
     }
 }
+
+void draw_get_dimension(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
+{
+    mrbc_value ret = mrbc_array_new(vm, 2);
+    mrbc_value w = mrbc_fixnum_value(dst->width());
+    mrbc_value h = mrbc_fixnum_value(dst->height());
+    mrbc_array_set(&ret, 0, &w);
+    mrbc_array_set(&ret, 1, &h);
+    SET_RETURN(ret);
+}
+
+void draw_scroll(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
+{
+    if (argc == 2) {
+        int dx = val_to_i(vm, v, GET_ARG(1), argc);
+        int dy = val_to_i(vm, v, GET_ARG(2), argc);
+        dst->scroll(dx, dy);
+    } else {
+        mrbc_raise(vm, MRBC_CLASS(ArgumentError), "dx and dy");
+        SET_FALSE_RETURN();
+    }
+}

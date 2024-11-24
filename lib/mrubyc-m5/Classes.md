@@ -82,6 +82,8 @@ Representing M5.Display.
 - set_font(fontnumber)
   > Sets font of drawing texts. The number can be calculated by `Font.by_name()`
   > If giving 0 as `fontnumber`, it resets to the default font.
+- scroll(dx,dy)
+  > Scrolls/Shift the contents. The delta is (dx,dy)
 
 ### File (c_file.cpp) \[USE_FILE_CLASS\]
 Representing a File class of Arduino. The instance is created by another class (ex: SD.open())
@@ -176,10 +178,10 @@ When the object is not necessary, call `destroy` method to free its memory. The 
 The many drawing methods of Display class are also available for Canvas.
 - new(width,height,color_depth)
   > Create a new Canvas (Sprite) 
-- scroll(dx,dy)
-  > Scrolls the contents of the sprite.
 - push_sprite(x,y)
+- push_sprite(dst_canvas, x, y)
   > Draws the contents of the sprite on Display at ('x','y')
+  > If canvas parameter is given, Draws on the `dst_canvas`
 - delete_sprite()
   > after calling this method, drawing methods will not work.
 - create_sprite(width, height)

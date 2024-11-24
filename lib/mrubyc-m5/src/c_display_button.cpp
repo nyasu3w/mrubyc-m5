@@ -21,16 +21,6 @@ class_display_color_value(mrb_vm *vm, mrb_value *v, int argc)
 }
 
 static void
-class_display_dimension(mrb_vm *vm, mrb_value *v, int argc) {
-    mrbc_value ret = mrbc_array_new(vm, 2);
-    mrbc_value w = mrbc_fixnum_value(M5.Display.width());
-    mrbc_array_push(&ret, &w);
-    mrbc_value h = mrbc_fixnum_value(M5.Display.height());
-    mrbc_array_push(&ret, &h);
-    SET_RETURN(ret);
-}
-
-static void
 class_display_available(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(M5.getDisplayCount()>0){
@@ -38,6 +28,12 @@ class_display_available(mrb_vm *vm, mrb_value *v, int argc)
     } else {
         SET_FALSE_RETURN();
     }
+}
+
+
+static void
+class_display_dimension(mrb_vm *vm, mrb_value *v, int argc) {
+    draw_get_dimension(&M5.Display,vm,v,argc);
 }
 
 static void
@@ -145,10 +141,17 @@ static void class_display_set_font(mrb_vm *vm, mrb_value *v, int argc)
 }
 
 static void
+class_display_scroll(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_scroll(&M5.Display,vm,v,argc);
+}
+
+static void
 class_display_wait_display(mrb_vm *vm, mrb_value *v, int argc)
 {
         M5.Display.waitDisplay();
 }
+
 
 #endif // USE_DISPLAY_GRAPHICS
 
@@ -227,6 +230,7 @@ void class_display_button_init()
     mrbc_define_method(0, class_display, "draw_jpgstr", class_display_draw_jpgstr);
     mrbc_define_method(0, class_display, "draw_pngstr", class_display_draw_pngstr);
     mrbc_define_method(0, class_display, "set_font", class_display_set_font);
+    mrbc_define_method(0, class_display, "scroll", class_display_scroll);
 #endif // USE_DISPLAY_GRAPHICS
 
     mrb_class *class_btn,*class_btna,*class_btnb,*class_btnc;
