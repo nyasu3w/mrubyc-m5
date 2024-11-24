@@ -79,12 +79,8 @@ class_display_get_cursor(mrb_vm *vm, mrb_value *v, int argc)
 static void
 class_display_set_rotation(mrb_vm *vm, mrb_value *v, int argc)
 {
-    if(argc>0){
-        int rot = val_to_i(vm, v, GET_ARG(1),argc);
-        M5.Display.setRotation(rot);
-    }
+    draw_set_rotation(&M5.Display,vm,v,argc);
 }
-
 
 #ifdef USE_DISPLAY_GRAPHICS
 

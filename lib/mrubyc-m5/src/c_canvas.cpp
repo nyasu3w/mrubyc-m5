@@ -185,6 +185,12 @@ static void class_canvas_set_font(mrb_vm *vm, mrb_value *v, int argc)
     draw_set_font(canvas,vm,v,argc);
 }
 
+static void class_canvas_set_rotation(mrb_vm *vm, mrb_value *v, int argc)
+{
+    M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);
+    draw_set_rotation(canvas,vm,v,argc);
+}
+
 static void class_canvas_destroy(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);
@@ -223,6 +229,7 @@ void class_canvas_init() {
     mrbc_define_method(0, canvas_class, "draw_jpgstr", class_canvas_draw_jpgstr);
     mrbc_define_method(0, canvas_class, "draw_pngstr", class_canvas_draw_pngstr);
     mrbc_define_method(0, canvas_class, "set_font", class_canvas_set_font);
+    mrbc_define_method(0, canvas_class, "set_rotation", class_canvas_set_rotation);
 }
 
 #endif // USE_CANVAS
