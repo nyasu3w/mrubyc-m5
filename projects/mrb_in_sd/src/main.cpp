@@ -1,11 +1,9 @@
 
-#include "M5Unified.h"
+#include <M5Unified.h>
 #include <Wire.h>
 #include <vector>
 
-/* This configuration block shall be before including mruby_init.h */
-/* write nothing to apply the default configuration*/
-/* configration block end*/
+
 #include "mruby_init.h"
 
 #define MEMSIZE (1024*50)

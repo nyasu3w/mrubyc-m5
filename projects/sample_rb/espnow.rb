@@ -1,6 +1,10 @@
 =begin Example to use Esp-Now
 
+
+!!! VM need to support EspNow. define USE_ESPNOW in libconfig.h.
+
 Run this program on two devices. The devies will pair each other and send messages each other.
+
 
 This sample does the following:
 - paring (add_peer each other) on WiFi channel 1

@@ -1,6 +1,8 @@
 
+#ifndef A_LIBCONFIG_H
+#define A_LIBCONFIG_H
+
 //* ******* default configuration block ****** */
-#ifndef SUPPRESS_USEDEFS
 //#define FULL_BUTTONS    // to enable BtnEXT and BtnPWR
 #define USE_DISPLAY_GRAPHICS  // Display to support graphics functions
 #define USE_IMU_FUNCTION  // IMU to support M5Unified IMU functions
@@ -13,5 +15,7 @@
 // #define USE_ESPNOW // to support ESP Now
 
 #define USE_TEMPORAL_RANDOM_FUNCTION  // it seems that mruby/c does not have random number function
-#endif // ! SUPPRESS_USEDEF
 //* ******* default configuration block end****** */
+
+#endif // A_LIBCONFIG_H
+

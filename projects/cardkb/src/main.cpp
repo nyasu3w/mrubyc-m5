@@ -1,10 +1,6 @@
 
 #include <M5Unified.h>
 
-/* This configuration block shall be before including mruby_init.h */
-/* write nothing to apply the default configuration*/
-/* configration block end*/
-
 #include "mruby_init.h"
 #include "c_cardkb.h"
 
