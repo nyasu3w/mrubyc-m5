@@ -12,6 +12,8 @@ Implemented uncategorized features of M5Unified.
   > Representating M5.getBoard(). Returns board number defined in [M5GFX](https://github.com/m5stack/M5GFX/blob/master/src/lgfx/boards.hpp).
 - update
   > Representating M5.update(). If you call this methods multiple times within 50ms, it is ignored.
+- display_counts  \[USE_MULTIDISPLAY\]
+  > Returns how many displays/LCDs are controlled by M5Unified  
 - random
   > Temporarly implemented random function, because I cannot find random function in mruby/c.
   > Representing arduino's random(max) or random(min,max)
@@ -60,7 +62,9 @@ Representing M5.Display.
   > Converts 3x8bit RGB value to 16bit RGB565 value.
 - dimension
   > Returns screen dimension in \[widht, height\] of M5.Display,
-(USE_DISPLAY_GRAPHICS)
+
+\[USE_DISPLAY_GRAPHICS\]
+
 - draw_rect(x,y,w,h,color)
   > draw a rectangle
 - fill_rect(x,y,w,h,color)
@@ -84,6 +88,17 @@ Representing M5.Display.
   > If giving 0 as `fontnumber`, it resets to the default font.
 - scroll(dx,dy)
   > Scrolls/Shift the contents. The delta is (dx,dy)
+
+\[USE_MULTIDISPLAY\]
+
+- change(no)
+  > Changes primary display to number`no`.
+  > `Display` controls the primary display.
+- get_index
+  > Currently selected display number
+- device_type( n= *the primary display* )
+  > Returns the device type of the display.
+  > In case of 1 display board, it is same as `M5.board`. See its description.
 
 ### File (c_file.cpp) \[USE_FILE_CLASS\]
 Representing a File class of Arduino. The instance is created by another class (ex: SD.open())
