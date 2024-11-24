@@ -1,11 +1,5 @@
 
-#include "M5Unified.h"
-
-/* This configuration block shall be before including mruby_init.h */
-//#define SUPPRESS_USEDEFS  // mandatory to configure: suppress default configuration
-//#define USE_DISPLAY_GRAPHICS
-//#define USE_TOUCH
-/* configration block end*/
+#include <M5Unified.h>
 
 #include "mruby_init.h"
 #include "c_wifi.h"
