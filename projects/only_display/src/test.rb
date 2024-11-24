@@ -18,7 +18,7 @@ Display.puts "Display: #{Display.dimension.inspect}"
 Display.puts "Touch: " + ((Touch.available?)? "OK":"NG")
 Display.puts "Imu: " + ((IMU.available?)? "OK":"NG")
 Display.puts "SD:" + ((SD.available?)? "OK":"NG")
-Display.puts "CardKB:" + ((CardKB.available?)? "0x#{CardKB.addr.to_s(16)}" :"NG")
+# Display.puts "CardKB:" + ((CardKB.available?)? "0x#{CardKB.addr.to_s(16)}" :"NG")
 Display.puts
 
 sleep 100000

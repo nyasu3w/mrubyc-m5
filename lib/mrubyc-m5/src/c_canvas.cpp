@@ -154,6 +154,7 @@ static void class_canvas_draw_line(mrb_vm *vm, mrb_value *v, int argc)
     draw_draw_line(canvas,vm,v,argc);
 }
 
+#ifdef USE_FILE_FUNCTION
 static void class_canvas_draw_bmp(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);
@@ -171,6 +172,8 @@ static void class_canvas_draw_png(mrb_vm *vm, mrb_value *v, int argc)
     M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);
     draw_draw_png(canvas,vm,v,argc);
 }
+
+#endif // USE_FILE_FUNCTION
 
 static void class_canvas_draw_bmpstr(mrb_vm *vm, mrb_value *v, int argc)
 {
@@ -233,9 +236,11 @@ void class_canvas_init() {
     mrbc_define_method(0, canvas_class, "fill_circle", class_canvas_flll_circle);
     mrbc_define_method(0, canvas_class, "draw_circle", class_canvas_draw_circle);
     mrbc_define_method(0, canvas_class, "draw_line", class_canvas_draw_line);
+#ifdef USE_FILE_FUNCTION
     mrbc_define_method(0, canvas_class, "draw_bmpfile", class_canvas_draw_bmp);
     mrbc_define_method(0, canvas_class, "draw_jpgfile", class_canvas_draw_jpg);
     mrbc_define_method(0, canvas_class, "draw_pngfile", class_canvas_draw_png);
+#endif // USE_FILE_FUNCTION
     mrbc_define_method(0, canvas_class, "draw_bmpstr", class_canvas_draw_bmpstr);
     mrbc_define_method(0, canvas_class, "draw_jpgstr", class_canvas_draw_jpgstr);
     mrbc_define_method(0, canvas_class, "draw_pngstr", class_canvas_draw_pngstr);

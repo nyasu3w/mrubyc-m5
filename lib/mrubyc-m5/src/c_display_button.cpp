@@ -105,6 +105,7 @@ static void class_display_draw_line(mrb_vm *vm, mrb_value *v, int argc)
     draw_draw_line(&M5.Display,vm,v,argc);
 }
 
+#ifdef USE_FILE_FUNCTION
 static void class_display_draw_bmp(mrb_vm *vm, mrb_value *v, int argc)
 {
     draw_draw_bmp(&M5.Display,vm,v,argc);
@@ -119,6 +120,7 @@ static void class_display_draw_png(mrb_vm *vm, mrb_value *v, int argc)
 {
     draw_draw_png(&M5.Display,vm,v,argc);
 }
+#endif // USE_FILE_FUNCTION
 
 static void class_display_draw_bmpstr(mrb_vm *vm, mrb_value *v, int argc)
 {
@@ -222,9 +224,11 @@ void class_display_button_init()
     mrbc_define_method(0, class_display, "fill_circle", class_display_flll_circle);
     mrbc_define_method(0, class_display, "draw_circle", class_display_draw_circle);
     mrbc_define_method(0, class_display, "draw_line", class_display_draw_line);
+#ifdef USE_FILE_FUNCTION
     mrbc_define_method(0, class_display, "draw_bmpfile", class_display_draw_bmp);
     mrbc_define_method(0, class_display, "draw_jpgfile", class_display_draw_jpg);
     mrbc_define_method(0, class_display, "draw_pngfile", class_display_draw_png);
+#endif // USE_FILE_FUNCTION
     mrbc_define_method(0, class_display, "wait_display", class_display_wait_display);
     mrbc_define_method(0, class_display, "draw_bmpstr", class_display_draw_bmpstr);
     mrbc_define_method(0, class_display, "draw_jpgstr", class_display_draw_jpgstr);

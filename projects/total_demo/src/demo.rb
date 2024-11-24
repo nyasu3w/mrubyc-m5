@@ -295,7 +295,7 @@ dimension[1]/= 2
 begin
   canvas = Canvas.new(*dimension)
 rescue Exception=>e  # retry when canvas(sprite) creation failed
-  dimension[0]/=2
+  dimension[0]/=2.5
   dimension[1]=dimension[1]*2/3
   canvas = Canvas.new(*dimension)
 end

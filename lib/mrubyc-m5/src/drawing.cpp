@@ -101,7 +101,7 @@ void draw_get_cursor(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 // for USE_DISPLAY_GRAPHICS
 //
 
-
+#ifdef USE_DISPLAY_GRAPHICS
 void draw_fill_rect(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>4){
@@ -194,6 +194,7 @@ static void draw_draw_pic_stream(LovyanGFX *dst, draw_pic_type t, Stream* instre
     }
 }
 
+#ifdef USE_FILE_FUNCTION
 
 static void draw_draw_pic_file(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_value *v, int argc)
 {
@@ -232,6 +233,8 @@ void draw_draw_png(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     draw_draw_pic_file(dst, png,vm,v,argc);
 }
+
+#endif // USE_FILE_FUNCTION
 
 #include <Stream.h>
 // ByteStream is a class that inherits from Stream 
@@ -329,3 +332,5 @@ void draw_scroll(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
         SET_FALSE_RETURN();
     }
 }
+
+#endif // USE_DISPLAY_GRAPHICS
