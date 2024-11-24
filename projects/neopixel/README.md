@@ -2,7 +2,7 @@
 A sample for neopixel strip.
 This sample is for M5Stack NECO unit. (70 leds)
 
-
+Almost all functions except USE_TEMPORAL_RANDOM_FUNCTION can be disabled in libconfig.h for this sample.
 
 https://github.com/user-attachments/assets/4b9efb2f-a0f3-4ea0-9328-d62dcc82dede
 

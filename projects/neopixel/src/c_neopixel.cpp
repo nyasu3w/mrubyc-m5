@@ -13,7 +13,7 @@ class_neopixel_new(mrb_vm *vm, mrb_value *v, int argc)
 
     if(argc>0){
         int num=val_to_i(vm, v, GET_ARG(1),argc);
-        Adafruit_NeoPixel *strip = get_checked_data(Adafruit_NeoPixel, vm, v);
+        Adafruit_NeoPixel *strip = new Adafruit_NeoPixel(num, pin, NEO_GRB + NEO_KHZ800);
         mrbc_value obj = mrbc_instance_new(vm, v[0].cls, sizeof(Adafruit_NeoPixel*));
         *(Adafruit_NeoPixel**)obj.instance->data = strip;
         strip->setBrightness(20);
