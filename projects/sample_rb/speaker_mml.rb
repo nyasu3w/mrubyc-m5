@@ -1,5 +1,5 @@
 # for Core series.
-e
+
 def calc_freq(octave, note)  # almost written by copilot (except to_i)
   (case note
   when "C" then 16.35
