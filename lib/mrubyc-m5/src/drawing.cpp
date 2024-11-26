@@ -96,6 +96,15 @@ void draw_get_cursor(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
     SET_RETURN(ret);
 }
 
+void draw_get_dimension(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
+{
+    mrbc_value ret = mrbc_array_new(vm, 2);
+    mrbc_value w = mrbc_fixnum_value(dst->width());
+    mrbc_value h = mrbc_fixnum_value(dst->height());
+    mrbc_array_set(&ret, 0, &w);
+    mrbc_array_set(&ret, 1, &h);
+    SET_RETURN(ret);
+}
 
 //
 // for USE_DISPLAY_GRAPHICS
@@ -287,6 +296,7 @@ void draw_draw_pngstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
     draw_draw_pic_str(dst, png,vm,v,argc);
 }
 
+#ifdef USE_FONT
 void draw_set_font(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){
@@ -299,6 +309,7 @@ void draw_set_font(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
     }
     SET_FALSE_RETURN();
 }
+#endif // USE_FONT
 
 void draw_set_rotation(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
@@ -309,16 +320,6 @@ void draw_set_rotation(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
     } else {
         SET_FALSE_RETURN();
     }
-}
-
-void draw_get_dimension(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
-{
-    mrbc_value ret = mrbc_array_new(vm, 2);
-    mrbc_value w = mrbc_fixnum_value(dst->width());
-    mrbc_value h = mrbc_fixnum_value(dst->height());
-    mrbc_array_set(&ret, 0, &w);
-    mrbc_array_set(&ret, 1, &h);
-    SET_RETURN(ret);
 }
 
 void draw_scroll(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
