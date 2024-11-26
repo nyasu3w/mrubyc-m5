@@ -74,7 +74,7 @@ class_display_get_device_type(mrb_vm *vm, mrb_value *v, int argc)
 }
 
 
-void mdisplays_init()
+void mdisplays_init()  // order dependency. must becalled after m5_init and m5_display_init
 {
     mrbc_class *class_display = mrbc_get_class_by_name("Display");
     mrbc_class *class_m5 = mrbc_get_class_by_name("M5");

@@ -3,7 +3,9 @@
 #include "my_mrubydef.h"
 #include "c_font.h"
 
-#ifdef USE_DISPLAY_GRAPHICS
+#ifdef USE_FONT
+
+#include "drawing.h"
 
 /* These enum and array supported_fonts must be paired */
 /* To make another font supported, add the entry on the both, and implement it in class_font_by_name */
@@ -45,12 +47,27 @@ class_font_by_name(mrb_vm *vm, mrb_value *v, int argc)
         SET_FALSE_RETURN();
     }
 }
-void class_font_init()
+
+static void class_display_set_font(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_set_font(&M5.Display,vm,v,argc);
+}
+
+static void class_canvas_set_font(mrb_vm *vm, mrb_value *v, int argc)
+{
+    M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);
+    draw_set_font(canvas,vm,v,argc);
+}
+
+void class_font_init()  // order dependency. Font must be defined after Display and Canvas
 {
     mrb_class *class_font = mrbc_define_class(0, "Font", mrbc_class_object);
     mrbc_define_method(0, class_font, "by_name", class_font_by_name);
 
-
+    mrbc_class *class_display = mrbc_get_class_by_name("Display");
+    mrbc_class *class_canvas = mrbc_get_class_by_name("Canvas");
+    mrbc_define_method(0, class_display, "set_font", class_display_set_font);
+    mrbc_define_method(0, class_canvas, "set_font", class_canvas_set_font);
 }
 
-#endif // USE_DISPLAY_GRAPHICS
+#endif // USE_FONT

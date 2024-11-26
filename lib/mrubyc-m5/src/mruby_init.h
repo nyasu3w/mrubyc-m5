@@ -16,6 +16,9 @@
 #ifdef USE_DISPLAY_GRAPHICS
 #include "c_font.h"
 #endif
+#ifdef USE_FONT
+#include "c_font.h"
+#endif
 #ifdef USE_IMU_FUNCTION
 #include "c_imu.h"
 #endif
@@ -76,11 +79,6 @@ void my_mrubyc_init(){
 #else
     mrbc_set_const(mrbc_str_to_symid("Canvas"), &failed_object);
 #endif // USE_CANVAS
-#ifdef USE_DISPLAY_GRAPHICS
-    class_font_init();
-#else
-    mrbc_set_const(mrbc_str_to_symid("Font"), &failed_object);
-#endif // USE_DISPLAY_GRAPHICS 
 #ifdef USE_ESPNOW
     class_espnow_init();
 #else
@@ -91,6 +89,11 @@ void my_mrubyc_init(){
 #else
 // nothing
 #endif
+#ifdef USE_FONT      // order dependency. Font must be defined after Display and Canvas
+    class_font_init();
+#else
+    mrbc_set_const(mrbc_str_to_symid("Font"), &failed_object);
+#endif // USE_FONT
 
 }
 

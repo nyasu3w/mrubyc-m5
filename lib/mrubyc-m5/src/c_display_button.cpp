@@ -137,11 +137,6 @@ static void class_display_draw_pngstr(mrb_vm *vm, mrb_value *v, int argc)
     draw_draw_pngstr(&M5.Display,vm,v,argc);
 }
 
-static void class_display_set_font(mrb_vm *vm, mrb_value *v, int argc)
-{
-    draw_set_font(&M5.Display,vm,v,argc);
-}
-
 static void
 class_display_scroll(mrb_vm *vm, mrb_value *v, int argc)
 {
@@ -216,7 +211,6 @@ void class_display_button_init()
 
     mrbc_define_method(0, class_display, "color565", class_display_color_value);
     mrbc_define_method(0, class_display, "dimension", class_display_dimension);
-    mrbc_define_method(0, class_display, "set_rotation", class_display_set_rotation);
 
 #ifdef USE_DISPLAY_GRAPHICS
     mrbc_define_method(0, class_display, "fill_rect", class_display_fill_rect);
@@ -233,8 +227,8 @@ void class_display_button_init()
     mrbc_define_method(0, class_display, "draw_bmpstr", class_display_draw_bmpstr);
     mrbc_define_method(0, class_display, "draw_jpgstr", class_display_draw_jpgstr);
     mrbc_define_method(0, class_display, "draw_pngstr", class_display_draw_pngstr);
-    mrbc_define_method(0, class_display, "set_font", class_display_set_font);
     mrbc_define_method(0, class_display, "scroll", class_display_scroll);
+    mrbc_define_method(0, class_display, "set_rotation", class_display_set_rotation);
 #endif // USE_DISPLAY_GRAPHICS
 
     mrb_class *class_btn,*class_btna,*class_btnb,*class_btnc;
