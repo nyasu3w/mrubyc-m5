@@ -8,6 +8,7 @@
 ////#define FULL_BUTTONS    // to enable BtnEXT and BtnPWR
 #define USE_DISPLAY_GRAPHICS  // Display to support graphics functions
 #define USE_FONT  // to support Font functions
+////#define USE_EFONTJA10  // to support efontJA10 
 #define USE_IMU_FUNCTION  // IMU to support M5Unified IMU functions
 #define USE_SD_FUNCTION  // to support SD functions
 #define USE_FILE_CLASS  // to support File functions

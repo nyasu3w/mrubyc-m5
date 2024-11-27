@@ -105,7 +105,9 @@ void class_font_init()  // order dependency. Font must be defined after Display 
     mrbc_define_method(0, class_font, "names", class_font_names);
 
     c_font_add("default", nullptr);
-//    c_font_add("efontJA_10", &efontJA_10);
+#ifdef USE_EFONTJA10
+    c_font_add("efontJA_10", &efontJA_10);
+#endif // USE_EFONTJA10
 
     mrbc_class *class_display = mrbc_get_class_by_name("Display");
     mrbc_class *class_canvas = mrbc_get_class_by_name("Canvas");
