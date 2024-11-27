@@ -732,6 +732,34 @@ static void c_string_getbyte(struct VM *vm, mrbc_value v[], int argc)
 
 
 //================================================================
+/*! (method) setbyte
+*/
+static void c_string_setbyte(struct VM *vm, mrbc_value v[], int argc)
+{
+  if( argc != 2 ) {
+    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
+    return;
+  }
+
+  int len = mrbc_string_size(&v[0]);
+  mrbc_int_t idx = mrbc_integer(v[1]);
+  mrbc_int_t dat = mrbc_integer(v[2]);
+
+  if( idx < 0 ) {
+    idx += len;
+  }
+  if( idx < 0 || idx >= len ) {
+    mrbc_raise(vm, MRBC_CLASS(IndexError), "index out of string");
+    return;
+  }
+
+  mrbc_string_cstr(&v[0])[idx] = dat;
+
+  SET_INT_RETURN( dat );
+}
+
+
+//================================================================
 /*! (method) index
 */
 static void c_string_index(struct VM *vm, mrbc_value v[], int argc)
@@ -1385,6 +1413,7 @@ static void c_string_downcase_self(struct VM *vm, mrbc_value v[], int argc)
   METHOD( "dup",	c_string_dup )
   METHOD( "empty?",	c_string_empty )
   METHOD( "getbyte",	c_string_getbyte )
+  METHOD( "setbyte",	c_string_setbyte )
   METHOD( "index",	c_string_index )
   METHOD( "inspect",	c_string_inspect )
   METHOD( "ord",	c_string_ord )
