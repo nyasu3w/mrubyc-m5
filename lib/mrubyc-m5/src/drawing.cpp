@@ -296,21 +296,6 @@ void draw_draw_pngstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
     draw_draw_pic_str(dst, png,vm,v,argc);
 }
 
-#ifdef USE_FONT
-void draw_set_font(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
-{
-    if(argc>0){
-        unsigned int  fontnumber = val_to_i(vm, v, GET_ARG(1),argc);
-        if(fontnumber < max_font_number){
-            dst->setFont(supported_fonts[fontnumber]);
-            SET_TRUE_RETURN();
-            return;
-        }
-    }
-    SET_FALSE_RETURN();
-}
-#endif // USE_FONT
-
 void draw_set_rotation(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){

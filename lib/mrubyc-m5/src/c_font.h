@@ -1,9 +1,9 @@
 
 extern "C" {
     void class_font_init();
+    uint8_t c_font_add(const char* fontname, const lgfx::v1::IFont* font);
 }
 
-extern uint16_t max_font_number;
-extern const lgfx::v1::IFont* supported_fonts[];
+
 
 

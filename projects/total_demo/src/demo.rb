@@ -281,12 +281,9 @@ mrubycpng=b64decode(mrubycb64)
 
 Display.clear
 Display.puts "Sprite test"
-Display.draw_pngstr(mrubycpng,50,40*yscale)
+Display.puts "Supported fonts: #{Font.names.inspect}"
 
-font=Font.by_name("DejaVu12")
-Display.set_font(font); Display.puts "DejaVu12"
-font=Font.by_name("efontJA_12")
-Display.set_font(font); Display.puts "#{font}:日本語フォント"
+Display.draw_pngstr(mrubycpng,50,40*yscale)
 
 dimension=Display.dimension
 dimension[0]*= 3
@@ -307,8 +304,14 @@ canvas.draw_pngstr(mrubycpng,150*xscale,10*yscale)
 
 canvas.set_cursor(0,40)
 canvas.set_text_size(2)
-canvas.set_font(font)
-canvas.puts "この部分はCanvasで描画しています。そしてスクロールさせています"
+testfont= "efontJA_10"
+if Font.names.include?(testfont) then
+  canvas.set_font(testfont)
+  canvas.puts "この部分はCanvasで描画しています。そしてスクロールしています"
+else
+  canvas.puts "This part is drawed with Canvas, and scrolling"
+end
+
 
 canvas.push_sprite(0,50*yscale)
 sleep 0.5

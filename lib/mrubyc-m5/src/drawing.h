@@ -24,7 +24,6 @@ void draw_draw_png(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
 void draw_draw_bmpstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
 void draw_draw_jpgstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
 void draw_draw_pngstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
-void draw_set_font(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
 void draw_set_rotation(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
 void draw_get_dimension(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);
 void draw_scroll(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc);

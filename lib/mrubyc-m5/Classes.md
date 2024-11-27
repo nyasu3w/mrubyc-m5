@@ -83,9 +83,10 @@ Representing M5.Display.
 - draw_jpgstr(picstr,x,y)
 - draw_pngstr(picstr,x,y)
   > draw a picture at (x,y). `picstr` is a String that has picture file contents
-- set_font(fontnumber)
-  > Sets font of drawing texts. The number can be calculated by `Font.by_name()`
-  > If giving 0 as `fontnumber`, it resets to the default font.
+- set_font(font)
+  > Sets font of drawing texts. `font` can be eigher an integer or a string.
+  > The string parameter is a name of the fonts. Integer parameter is just an old interface.
+  > If giving 0 as `font`, it resets to the default font.
 - scroll(dx,dy)
   > Scrolls/Shift the contents. The delta is (dx,dy)
 
@@ -205,12 +206,17 @@ The many drawing methods of Display class are also available for Canvas.
   > Deletes the inner object to its free memory. Called instance is no longer valid.
 
 ### Font (c_font.cpp) \[USE_DISPLAY_GRAPHICS\]
-A class to calculate around font number.
-To support another font, see `c_font.cpp` and modify it.  Too many fonts shall stress flash area.
+A class to calculate around Font.
+To support another font, call `c_add_font(name,lgfx_font)` to register the font. This function is declared in `c_font.h`
 
-A font is specified by an integer in graphic `set_font` methods.
+- count
+  > Returns the number of registered fonts.
+- names
+  > Returns an array of registered font names.
 - by_name(fontname)
   > Gets the font number to give `set_font()`
+  > This is an old interface to calculate font number.
+
 
 ### EspNow (c_espnow.cpp) \[USE_ESPNOW\]
 A class to use ESP-NOW.
