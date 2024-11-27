@@ -21,9 +21,7 @@ std::vector<struct font_info> m5fonts;
 static void
 class_font_by_name(mrb_vm *vm, mrb_value *v, int argc)
 {
-    if(argc==0){
-        SET_FALSE_RETURN();
-    } else {
+    if(argc>0){
         const char* fontname = val_to_s(vm, v, GET_ARG(1),argc);
         //search the fonrname from m5fonts vector and return the order number of the font
         for(int i=0; i<m5fonts.size(); i++){
@@ -33,6 +31,7 @@ class_font_by_name(mrb_vm *vm, mrb_value *v, int argc)
             }
         }
     }
+    SET_FALSE_RETURN();
 }
 
 static void
