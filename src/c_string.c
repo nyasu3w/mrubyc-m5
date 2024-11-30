@@ -28,6 +28,7 @@
 #include "class.h"
 #include "c_string.h"
 #include "c_array.h"
+#include "c_range.h"
 #include "vm.h"
 #include "console.h"
 
@@ -548,34 +549,56 @@ static void c_string_append(struct VM *vm, mrbc_value v[], int argc)
 
 
 //================================================================
-/*! (method) []
+/*! (method) [], slice
 */
 static void c_string_slice(struct VM *vm, mrbc_value v[], int argc)
 {
   int target_len = mrbc_string_size(v);
-  int pos = mrbc_integer(v[1]);
-  int len;
+  int pos, len;
 
-  // in case of slice!(nth) -> String | nil
-  if( argc == 1 && mrbc_type(v[1]) == MRBC_TT_INTEGER ) {
+  // in case of slice(nth) -> String | nil
+  if( argc == 1 && v[1].tt == MRBC_TT_INTEGER ) {
+    pos = mrbc_integer(v[1]);
+    if( pos < 0 ) pos += target_len;
+    if( pos >= target_len ) goto RETURN_NIL;
     len = 1;
+  }
 
-  // in case of slice!(nth, len) -> String | nil
-  } else if( argc == 2 && mrbc_type(v[1]) == MRBC_TT_INTEGER &&
-	                  mrbc_type(v[2]) == MRBC_TT_INTEGER ) {
+  // in case of slice(nth, len) -> String | nil
+  else if( argc == 2 && v[1].tt == MRBC_TT_INTEGER &&
+	                  v[2].tt == MRBC_TT_INTEGER ) {
+    pos = mrbc_integer(v[1]);
+    if( pos < 0 ) pos += target_len;
     len = mrbc_integer(v[2]);
+  }
+
+  // in case of slice(Range) -> String | nil
+  else if( argc == 1 && v[1].tt == MRBC_TT_RANGE ) {
+    mrbc_value v1 = mrbc_range_first(&v[1]);
+    mrbc_value v2 = mrbc_range_last(&v[1]);
+    if( v1.tt != MRBC_TT_INTEGER || v2.tt != MRBC_TT_INTEGER ) {
+      mrbc_raise( vm, MRBC_CLASS(TypeError), 0 );
+      return;
+    }
+
+    pos = mrbc_integer(v1);
+    if( pos < 0 ) pos += target_len;
+    int pos2 = mrbc_integer(v2);
+    if( pos2 < 0 ) pos2 += target_len;
+    len = pos2 - pos;
+    if( !mrbc_range_exclude_end(&v[1]) ) len++;
+  }
 
   // other case
-  } else {
+  else {
     mrbc_raise( vm, MRBC_CLASS(ArgumentError), 0 );
     return;
   }
 
-  if( pos < 0 ) pos += target_len;
-  if( pos < 0 ) goto RETURN_NIL;
-  if( len > (target_len - pos) ) len = target_len - pos;
+  if( pos < 0 || pos > target_len ) goto RETURN_NIL;
+  if( len > target_len - pos ) len = target_len - pos;
+  if( v[1].tt == MRBC_TT_RANGE && len < 0 ) len = 0;
   if( len < 0 ) goto RETURN_NIL;
-  if( argc == 1 && len <= 0 ) goto RETURN_NIL;
 
   mrbc_value ret = mrbc_string_new(vm, mrbc_string_cstr(v) + pos, len);
   if( !ret.string ) goto RETURN_NIL;		// ENOMEM
@@ -1417,6 +1440,7 @@ static void c_string_downcase_self(struct VM *vm, mrbc_value v[], int argc)
   METHOD( "index",	c_string_index )
   METHOD( "inspect",	c_string_inspect )
   METHOD( "ord",	c_string_ord )
+  METHOD( "slice",	c_string_slice )
   METHOD( "slice!",	c_string_slice_self )
   METHOD( "split",	c_string_split )
   METHOD( "lstrip",	c_string_lstrip )
