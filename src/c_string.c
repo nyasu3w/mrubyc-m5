@@ -616,43 +616,63 @@ static void c_string_slice(struct VM *vm, mrbc_value v[], int argc)
 */
 static void c_string_insert(struct VM *vm, mrbc_value v[], int argc)
 {
-  mrbc_int_t nth;
-  mrbc_int_t len;
+  int pos, len;
   mrbc_value *val;
 
-  /*
-    in case of self[nth] = val
-  */
-  if( argc == 2 && mrbc_type(v[1]) == MRBC_TT_INTEGER &&
-                   mrbc_type(v[2]) == MRBC_TT_STRING ) {
-    nth = v[1].i;
+  // in case of self[pos] = val
+  if( argc == 2 && v[1].tt == MRBC_TT_INTEGER &&
+                   v[2].tt == MRBC_TT_STRING ) {
+    pos = mrbc_integer(v[1]);
     len = 1;
     val = &v[2];
   }
-  /*
-    in case of self[nth, len] = val
-  */
-  else if( argc == 3 && mrbc_type(v[1]) == MRBC_TT_INTEGER &&
-	                mrbc_type(v[2]) == MRBC_TT_INTEGER &&
-	                mrbc_type(v[3]) == MRBC_TT_STRING ) {
-    nth = v[1].i;
-    len = v[2].i;
+
+  // in case of self[pos, len] = val
+  else if( argc == 3 && v[1].tt == MRBC_TT_INTEGER &&
+	                v[2].tt == MRBC_TT_INTEGER &&
+	                v[3].tt == MRBC_TT_STRING ) {
+    pos = mrbc_integer(v[1]);
+    len = mrbc_integer(v[2]);
     val = &v[3];
   }
-  /*
-    other cases
-  */
+
+  // in case of self[Range] = val
+  else if( argc == 2 && v[1].tt == MRBC_TT_RANGE &&
+	                v[2].tt == MRBC_TT_STRING ) {
+    mrbc_value v1 = mrbc_range_first(&v[1]);
+    mrbc_value v2 = mrbc_range_last(&v[1]);
+    if( v1.tt != MRBC_TT_INTEGER || v2.tt != MRBC_TT_INTEGER ) {
+      mrbc_raise( vm, MRBC_CLASS(TypeError), 0 );
+      return;
+    }
+
+    pos = mrbc_integer(v1);
+    if( pos < 0 ) pos += mrbc_string_size(v);
+    if( pos < 0 || pos > mrbc_string_size(v) ) {
+      mrbc_raise( vm, MRBC_CLASS(RangeError), 0 );
+      return;
+    }
+
+    int pos2 = mrbc_integer(v2);
+    if( pos2 < 0 ) pos2 += mrbc_string_size(v);
+    len = pos2 - pos;
+    if( !mrbc_range_exclude_end(&v[1]) ) len++;
+    if( len < 0 ) len = 0;
+    val = &v[2];
+  }
+
+  // other cases
   else {
     mrbc_raise( vm, MRBC_CLASS(TypeError), "Not supported." );
     return;
   }
 
-  int len1 = v->string->size;
-  int len2 = val->string->size;
-  if( nth < 0 ) nth = len1 + nth;		// adjust to positive number.
-  if( len > len1 - nth ) len = len1 - nth;
-  if( nth < 0 || nth > len1 || len < 0) {
-    mrbc_raisef( vm, MRBC_CLASS(IndexError), "index %d out of string", nth );
+  int len1 = mrbc_string_size(v);
+  int len2 = mrbc_string_size(val);
+  if( pos < 0 ) pos = len1 + pos;		// adjust to positive number.
+  if( len > len1 - pos ) len = len1 - pos;
+  if( pos < 0 || pos > len1 || len < 0) {
+    mrbc_raisef( vm, MRBC_CLASS(IndexError), "index %d out of string", pos );
     return;
   }
 
@@ -663,8 +683,8 @@ static void c_string_insert(struct VM *vm, mrbc_value v[], int argc)
     if( !str ) return;
   }
 
-  memmove( str + nth + len2, str + nth + len, len1 - nth - len + 1 );
-  memcpy( str + nth, mrbc_string_cstr(val), len2 );
+  memmove( str + pos + len2, str + pos + len, len1 - pos - len + 1 );
+  memcpy( str + pos, mrbc_string_cstr(val), len2 );
 
   if( len1 > len3 ) {
     str = mrbc_realloc(vm, str, len3+1);	// shrink
