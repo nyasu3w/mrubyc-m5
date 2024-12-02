@@ -788,14 +788,11 @@ int mrbc_mutex_trylock( mrbc_mutex *mutex, mrbc_tcb *tcb )
 */
 void mrbc_cleanup(void)
 {
+  mrbc_cleanup_alloc();
   mrbc_cleanup_vm();
   mrbc_cleanup_symbol();
-  mrbc_cleanup_alloc();
 
-  q_dormant_ = 0;
-  q_ready_ = 0;
-  q_waiting_ = 0;
-  q_suspended_ = 0;
+  memset( task_queue_, 0, sizeof(task_queue_) );
 }
 
 
@@ -1421,19 +1418,32 @@ static void c_vm_tick(mrbc_vm *vm, mrbc_value v[], int argc)
 */
 void mrbc_init(void *heap_ptr, unsigned int size)
 {
-  hal_init();
+  static uint8_t flag_hal_init_called = 0;
+
+  if( !flag_hal_init_called ) {
+    hal_init();
+    flag_hal_init_called = 1;
+  }
+
   mrbc_init_alloc(heap_ptr, size);
   mrbc_init_global();
   mrbc_init_class();
 
-  mrbc_value cls = {.tt = MRBC_TT_CLASS, .cls = MRBC_CLASS(Task)};
-  mrbc_set_const( MRBC_SYM(Task), &cls );
+  // (re) Initialize included classes
+  static mrbc_class * const rrt0_cls[] = {
+    MRBC_CLASS(Task), MRBC_CLASS(Mutex), MRBC_CLASS(VM)
+  };
+  mrbc_value vcls = {.tt = MRBC_TT_CLASS};
 
-  cls.cls = MRBC_CLASS(Mutex);
-  mrbc_set_const( MRBC_SYM(Mutex), &cls );
+  for( int i = 0; i < sizeof(rrt0_cls)/sizeof(rrt0_cls[0]); i++ ) {
+    mrbc_class *cls = rrt0_cls[i];
 
-  cls.cls = MRBC_CLASS(VM);
-  mrbc_set_const( MRBC_SYM(VM), &cls );
+    cls->super = MRBC_CLASS(Object);
+    cls->method_link = 0;
+    vcls.cls = cls;
+
+    mrbc_set_const( vcls.cls->sym_id, &vcls );
+  }
 
   mrbc_define_method(0, 0, "sleep", c_sleep);
   mrbc_define_method(0, 0, "sleep_ms", c_sleep_ms);
