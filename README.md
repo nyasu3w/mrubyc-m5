@@ -28,11 +28,16 @@ The compactness is important and implemented functions are rather little, but yo
 ## Example projects
 Placed in "projects" directory.
 - demo of functions (total_demo)
-- limiting functions for compactness (only_display)
+- sample project for trying function limitation (only_display)
+- adding other fonts to system (newfont)
+- extension for M5Stack CardKB (cardkb)
 - loading compiled rubyscript (mrb) from SD (mrb_in_sd)
 - extension of M5Stack-Avatar (m5stack-avatar)
 - extension for Encoder of M5Dial (m5dial)
 - extension for wifi to http get (wifi)
+- extension for accessing SPIFFS (spiffs)
+- extension for neopixel strip
+- EspNow, Speaker (sample_rb)
 
 ## directory structure
     mrubyc-m5/
@@ -52,6 +57,8 @@ Placed in "projects" directory.
 
 ## For the first try
 Build by PlatformIO in the top directory, then upload to your M5Stack device.
+
+If you have already installed mruby and PlatformIO in the PATH, you are ready. 
 
 `platformio.ini` is already set to build `project/total_demo` sample.
 You can change the built sample by editing `src_dir` variable in `platformio.ini`
@@ -83,16 +90,23 @@ In that case, please remove a line to call before_build function in near the bot
 
 
 ### build
-Confirm the board setting in `platformio.ini`. You might want to change default_envs variable. The board can be selected by the command line option `-e <envname>` for pio command.
+If you try this with VisualStudio Code, just do "PlatformIO: Build" command or hit check mark on the bottom status line of vscode.
 
-> pio run
+Confirm the board setting in `platformio.ini`. You might want to change default_envs variable. 
+
+If you using CLI of Platform IO, the board can be selected by the command line option `-e <envname>` for pio command.
+
+> pio run -e `your-board-name-in-platformio.ini`
 
 Simple. Thank you, PlatformIO.
+
+Perhaps `pio` command name is an alias of `platformio.exe` on Windows.
+
 In the case of manual mrbc activation above, run the mrbc command before `pio run`.
 
 You can upload the built firmware by
 
-> pio run --target=upload
+> pio run --target=upload -e `your-board-name-in-platformio.ini`
 
 If you are using PlatformIO on VSCode,you can build and upload from the bottom line of VSCode.
 
@@ -111,8 +125,28 @@ Those are almost same and
 1. New implementation of classes of arduino libraries is acceptable like m5stack-avatar and m5dial project.
 1. if *.rb file is in the `src` directory, those are byte compiled to mrb files and the code is accessed as a array of the same name.  For convinience, `mrubycode` is the coded array name which is converted from such as `#define mrubycode demo`, where demo is from demo.rb.
 
+### Configuration List
+These are defined in `libconfig.h`. Comment or uncomment to configure.
+Additional CJK fonts and USE_ESPNOW may costs too much flash memory.
 
-### Reference
+| macro | default | purpose |
+|-------|---------|---------| 
+|USE_FULL_BUTTONS|off| to enable BtnEXT and BtnPWR|
+|USE_DISPLAY_GRAPHICS|on| to support more graphics functions |
+|USE_FONT |on| to support Font functions |
+|USE_EFONTJA10|off| to prepare Japanese efontJA10 |
+|USE_IMU_FUNCTION|on| to support M5Unified IMU functions|
+|USE_SD_FUNCTION|on| to support SD functions (need File functions)|
+|USE_FILE_CLASS|on| to support File functions|
+|USE_TOUCH|on|to support Touch panel functions|
+|USE_SPEAKER|on|to support Speaker functions|
+|USE_CANVAS|on|to support Canvas(Sprite) function
+|USE_MULTIDISPLAY|on| to support multiple displays|
+|USE_ESPNOW|off| to support ESP Now |
+|USE_TEMPORAL_RANDOM_FUNCTION | on | to support random number function | 
+
+
+## Reference
 Class reference implemented for M5Unified and Arduino libraries.
 
 [Classes.md](lib/mrubyc-m5/Classes.md)

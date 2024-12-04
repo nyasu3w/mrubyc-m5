@@ -5,7 +5,7 @@
 //* ******* default configuration block ****** */
 // on the early stage of M5StackBasic, USE_FONT and USE_ESPNOW are exclusive due to memory size
 
-////#define FULL_BUTTONS    // to enable BtnEXT and BtnPWR
+////#define USE_FULL_BUTTONS    // to enable BtnEXT and BtnPWR
 #define USE_DISPLAY_GRAPHICS  // Display to support graphics functions
 #define USE_FONT  // to support Font functions
 ////#define USE_EFONTJA10  // to support efontJA10 
