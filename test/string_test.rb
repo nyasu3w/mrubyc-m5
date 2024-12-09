@@ -342,6 +342,103 @@ class StringTest < Picotest::Test
     assert_equal "012345678ab9", s1
   end
 
+  description "self[Range] -> String"
+  def test_self_range
+    # rangeオブジェクトが終端を含む場合
+    assert_equal 'abcd'[ 2 ..  1], ""
+    assert_equal 'abcd'[ 2 ..  2], "c"
+    assert_equal 'abcd'[ 2 ..  3], "cd"
+    assert_equal 'abcd'[ 2 ..  4], "cd"
+
+    assert_equal 'abcd'[ 2 .. -1], "cd"   # str[f..-1] は「f 文字目から
+    assert_equal 'abcd'[ 3 .. -1], "d"    # 文字列の最後まで」を表す慣用句
+
+    assert_equal 'abcd'[ 1 ..  2], "bc"
+    assert_equal 'abcd'[ 2 ..  2], "c"
+    assert_equal 'abcd'[ 3 ..  2], ""
+    assert_equal 'abcd'[ 4 ..  2], ""
+    assert_equal 'abcd'[ 5 ..  2], nil
+
+    assert_equal 'abcd'[-3 ..  2], "bc"
+    assert_equal 'abcd'[-4 ..  2], "abc"
+    assert_equal 'abcd'[-5 ..  2], nil
+
+    # rangeオブジェクトが終端を含まない場合
+    assert_equal 'abcd'[ 2 ... 3], "c"
+    assert_equal 'abcd'[ 2 ... 4], "cd"
+    assert_equal 'abcd'[ 2 ... 5], "cd"
+
+    assert_equal 'abcd'[ 1 ... 2], "b"
+    assert_equal 'abcd'[ 2 ... 2], ""
+    assert_equal 'abcd'[ 3 ... 2], ""
+    assert_equal 'abcd'[ 4 ... 2], ""
+    assert_equal 'abcd'[ 5 ... 2], nil
+
+    assert_equal 'abcd'[-3 ... 2], "b"
+    assert_equal 'abcd'[-4 ... 2], "ab"
+    assert_equal 'abcd'[-5 ... 2], nil
+  end
+
+  description "self[Range]="
+  def test_self_range_replace
+    s = 'abcd'; s[ 2 ..  1] = "X"
+    assert_equal "abXcd", s
+    s = 'abcd'; s[ 2 ..  2] = "X"
+    assert_equal "abXd", s
+    s = 'abcd'; s[ 2 ..  3] = "X"
+    assert_equal "abX", s
+    s = 'abcd'; s[ 2 ..  4] = "X"
+    assert_equal "abX", s
+
+    s = 'abcd'; s[ 2 .. -1] = "X"
+    assert_equal "abX", s
+    s = 'abcd'; s[ 3 .. -1] = "X"
+    assert_equal "abcX", s
+
+    s = 'abcd'; s[ 1 ..  2] = "X"
+    assert_equal "aXd", s
+    s = 'abcd'; s[ 2 ..  2] = "X"
+    assert_equal "abXd", s
+    s = 'abcd'; s[ 3 ..  2] = "X"
+    assert_equal "abcXd", s
+    s = 'abcd'; s[ 4 ..  2] = "X"
+    assert_equal "abcdX", s
+    s = 'abcd'
+    assert_raise(RangeError) { s[ 5 ..  2] = "X" }
+
+    s = 'abcd'; s[-3 ..  2] = "X"
+    assert_equal "aXd", s
+    s = 'abcd'; s[-4 ..  2] = "X"
+    assert_equal "Xd", s
+    s = 'abcd'
+    assert_raise(RangeError) { s[-5 ..  2] = "X" }
+
+    s = 'abcd'; s[ 2 ... 3] = "X"
+    assert_equal "abXd", s
+    s = 'abcd'; s[ 2 ... 4] = "X"
+    assert_equal "abX", s
+    s = 'abcd'; s[ 2 ... 5] = "X"
+    assert_equal "abX", s
+
+    s = 'abcd'; s[ 1 ... 2] = "X"
+    assert_equal "aXcd", s
+    s = 'abcd'; s[ 2 ... 2] = "X"
+    assert_equal "abXcd", s
+    s = 'abcd'; s[ 3 ... 2] = "X"
+    assert_equal "abcXd", s
+    s = 'abcd'; s[ 4 ... 2] = "X"
+    assert_equal "abcdX", s
+    s = 'abcd'
+    assert_raise(RangeError) { s[ 5 ... 2] = "X" }
+
+    s = 'abcd'; s[-3 ... 2] = "X"
+    assert_equal "aXcd", s
+    s = 'abcd'; s[-4 ... 2] = "X"
+    assert_equal "Xcd", s
+    s = 'abcd'
+    assert_raise(RangeError) { s[-5 ... 2] = "X" }
+  end
+
   description "String#slice!"
   def test_slice_self
     s = "bar"
@@ -620,6 +717,23 @@ class StringTest < Picotest::Test
     assert_equal 99, s.getbyte(2)
     assert_equal nil, s.getbyte(3)
     assert_equal 99, s.getbyte(-1)
+  end
+
+  description "String#setbyte"
+  def test_string_setbyte
+    s = "ABCDE"
+    assert_equal 0x61, s.setbyte(0, 0x61)
+    assert_equal "aBCDE", s
+    assert_equal 0x65, s.setbyte(4, 0x65)
+    assert_equal "aBCDe", s
+    assert_raise(IndexError) { s.setbyte(5, 0) }
+
+    s = "ABCDE"
+    assert_equal 0x65, s.setbyte(-1, 0x65)
+    assert_equal "ABCDe", s
+    assert_equal 0x61, s.setbyte(-5, 0x61)
+    assert_equal "aBCDe", s
+    assert_raise(IndexError) { s.setbyte(-6, 0) }
   end
 
   description "String#inspect"
