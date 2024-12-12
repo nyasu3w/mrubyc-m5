@@ -32,6 +32,7 @@ static const mrbc_sym method_symbols_String[] = {
   MRBC_SYM(rstrip_E),
   MRBC_SYM(setbyte),
   MRBC_SYM(size),
+  MRBC_SYM(slice),
   MRBC_SYM(slice_E),
   MRBC_SYM(split),
   MRBC_SYM(start_with_Q),
@@ -79,6 +80,7 @@ static const mrbc_func_t method_functions_String[] = {
   c_string_rstrip_self,
   c_string_setbyte,
   c_string_size,
+  c_string_slice,
   c_string_slice_self,
   c_string_split,
   c_string_start_with,
@@ -101,7 +103,6 @@ struct RBuiltinClass mrbc_class_String = {
   .flag_builtin = 1,
   .num_builtin_method = sizeof(method_symbols_String) / sizeof(mrbc_sym),
   .super = MRBC_CLASS(Object),
-  .method_link = 0,
 #if defined(MRBC_DEBUG)
   .name = "String",
 #endif
