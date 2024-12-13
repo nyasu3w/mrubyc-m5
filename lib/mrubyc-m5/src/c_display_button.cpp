@@ -149,6 +149,17 @@ class_display_wait_display(mrb_vm *vm, mrb_value *v, int argc)
         M5.Display.waitDisplay();
 }
 
+static void
+class_display_start_write(mrb_vm *vm, mrb_value *v, int argc)
+{
+    M5.Display.startWrite();
+}
+
+static void
+class_display_end_write(mrb_vm *vm, mrb_value *v, int argc)
+{
+    M5.Display.endWrite();
+}
 
 #endif // USE_DISPLAY_GRAPHICS
 
@@ -213,6 +224,8 @@ void class_display_button_init()
     mrbc_define_method(0, class_display, "dimension", class_display_dimension);
 
 #ifdef USE_DISPLAY_GRAPHICS
+    mrbc_define_method(0, class_display, "start_write", class_display_start_write);
+    mrbc_define_method(0, class_display, "end_write", class_display_end_write);
     mrbc_define_method(0, class_display, "fill_rect", class_display_fill_rect);
     mrbc_define_method(0, class_display, "draw_rect", class_display_draw_rect);
     mrbc_define_method(0, class_display, "fill_circle", class_display_flll_circle);
