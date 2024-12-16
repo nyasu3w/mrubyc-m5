@@ -20,7 +20,6 @@ constexpr int menu_off_x=30;
 constexpr int menu_off_y=40;
 
 void draw_menu(unsigned int start,std::vector<String> items, unsigned int focused) {
-//    Serial.printf("menudraw: start: %d, focused: %d\n", start, focused);
     for(uint8_t i=0; i<menu_max_items; i++){
         if(i+start >= items.size()) break;
         if(i == focused-start){
@@ -125,7 +124,7 @@ const char* sd_file_selector(){
 
         String name = entry.name();
         if(name.endsWith(".mrb")){
-            Serial.println(name);
+            M5.Log.println(name.c_str());
             mrb_files.push_back(name);
         }
     }
@@ -136,14 +135,14 @@ const char* sd_file_selector(){
 unsigned int sd_file_loader(const char* path){
     File file = SD.open(path);
     if(!file){
-        Serial.println("file open error");
+        M5.Log.println("file open error");
         return 0;
     }
     int size = file.size();
 
     mrubycode = (uint8_t*)malloc(size);
     if(mrubycode == NULL){
-        Serial.println("malloc error");
+        M5.Log.println("malloc error");
         return 0;
     }
     file.read(mrubycode, size);
@@ -175,16 +174,15 @@ void setup() {
     auto cfg = M5.config();
     M5.begin(cfg);
     M5.Display.setTextSize(2);
-    Serial.begin(115200);
     Wire.begin(); // for cardkb
-    Serial.println("start");
+    M5.Log.println("start");
 
     if(SD.begin(GPIO_NUM_4, SPI, 15000000)){
         const char* load_file = sd_file_selector();
         if(load_file == NULL){
             stop4ever("file selection failed");
         }
-        Serial.printf("load_file: %s\n", const_cast<char*>(load_file));
+        M5.Log.printf("load_file: %s\n", const_cast<char*>(load_file));
         unsigned int r = sd_file_loader(load_file);
         if (r==0) {
             stop4ever("mrb load failed");
@@ -192,7 +190,7 @@ void setup() {
     } else {
         stop4ever("SD mount failed");
     }
-    Serial.println("mrb load done");
+    M5.Log.println("mrb load done");
     mrbc_init(mempool, MEMSIZE);
     my_mrubyc_init();
 }
@@ -201,12 +199,12 @@ void loop(){
     auto tcb = mrbc_create_task( mrubycode, 0 );
     if(NULL == tcb){
         M5.Display.print("setup error");
-        Serial.println("mrbc_create_task error");  // may not be printed
+        M5.Log.println("mrbc_create_task error");  // may not be printed
         return;
     }
     mrbc_run();
     mrbc_delete_task(tcb);
-    Serial.println("mrbc done");
+    M5.Log.println("mrbc done");
 
   ESP.restart();
 

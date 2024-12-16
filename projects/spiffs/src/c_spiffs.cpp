@@ -69,7 +69,7 @@ static void class_spiffs_remove(mrb_vm *vm, mrb_value *v, int argc)
 void class_spiffs_init() {
     constexpr bool FORMAT_SPIFFS_IF_FAILED=true;
     if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)){  // if failed
-        Serial.println("SPIFFS.begin failed");
+        M5.Log.println("SPIFFS.begin failed");
         mrbc_set_const(mrbc_str_to_symid("SPIFFS"),&failed_object);
         return;
     }

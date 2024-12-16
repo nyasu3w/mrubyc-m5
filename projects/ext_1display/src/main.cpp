@@ -50,9 +50,8 @@ void setup() {
   M5.begin(cfg);
   M5.Display.setTextSize(2);
 
-  Serial.begin(115200);
   Wire.begin(); // for cardkb
-  Serial.println("start");
+  M5.Log.println("start");
 
   mrbc_init(mempool, MEMSIZE);
   my_mrubyc_init();
@@ -63,7 +62,7 @@ void loop(){
   auto tcb = mrbc_create_task( mrubycode, 0 );
   if(NULL == tcb){
     M5.Display.print("setup error");
-    Serial.println("mrbc_create_task error");  // may not be printed
+    M5.Log.println("mrbc_create_task error");  // may not be printed
     return;
   }
   int ret = mrbc_run();
@@ -71,7 +70,7 @@ void loop(){
     show_exception_screen();
   }
   mrbc_delete_task(tcb);
-  Serial.println("mrbc done");
+  M5.Log.println("mrbc done");
 
   ESP.restart();
 }
