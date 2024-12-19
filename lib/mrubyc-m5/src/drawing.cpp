@@ -89,8 +89,8 @@ void draw_set_cursor(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 void draw_get_cursor(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     mrbc_value ret = mrbc_array_new(vm, 2);
-    mrbc_value x = mrbc_fixnum_value(M5.Display.getCursorX());
-    mrbc_value y = mrbc_fixnum_value(M5.Display.getCursorY());
+    mrbc_value x = mrbc_fixnum_value(dst->getCursorX());
+    mrbc_value y = mrbc_fixnum_value(dst->getCursorY());
     mrbc_array_set(&ret, 0, &x);
     mrbc_array_set(&ret, 1, &y);
     SET_RETURN(ret);
