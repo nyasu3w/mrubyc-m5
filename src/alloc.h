@@ -42,13 +42,16 @@ struct MRBC_ALLOC_STATISTICS {
   unsigned int fragmentation;	//!< returns memory fragmentation count.
 };
 
-#if defined(MRBC_USE_ALLOC_PROF)
+/*!@brief
+  for memory allocation profiling functions.
+  if you use this, define MRBC_USE_ALLOC_PROF pre-processor macro.
+*/
 struct MRBC_ALLOC_PROF {
   unsigned long initial;
   unsigned long max;
   unsigned long min;
 };
-#endif
+
 
 struct VM;
 
@@ -68,16 +71,6 @@ void *mrbc_raw_realloc(void *ptr, unsigned int size);
 #define mrbc_free(vm,ptr)		mrbc_raw_free(ptr)
 #define mrbc_realloc(vm,ptr,size)	mrbc_raw_realloc(ptr, size)
 unsigned int mrbc_alloc_usable_size(void *ptr);
-void mrbc_alloc_statistics(struct MRBC_ALLOC_STATISTICS *ret);
-void mrbc_alloc_print_pool_header(void *pool_header);
-void mrbc_alloc_print_memory_block(void *pool_header);
-void mrbc_alloc_print_memory_pool(void);
-
-#if defined(MRBC_USE_ALLOC_PROF)
-void mrbc_alloc_start_profiling(void);
-void mrbc_alloc_stop_profiling(void);
-void mrbc_alloc_get_profiling(struct MRBC_ALLOC_PROF *prof);
-#endif
 
 #if defined(MRBC_ALLOC_VMID)
 // Enables memory management by VMID.
@@ -93,6 +86,16 @@ int mrbc_get_vm_id(void *ptr);
 #define mrbc_set_vm_id(ptr,id)	((void)0)
 #define mrbc_get_vm_id(ptr)	0
 #endif
+
+void mrbc_alloc_statistics(struct MRBC_ALLOC_STATISTICS *ret);
+void mrbc_alloc_start_profiling(void);
+void mrbc_alloc_stop_profiling(void);
+void mrbc_alloc_get_profiling(struct MRBC_ALLOC_PROF *prof);
+void mrbc_alloc_print_statistics(void);
+void mrbc_alloc_print_pool_header(void *pool_header);
+void mrbc_alloc_print_memory_block(void *pool_header);
+void mrbc_alloc_print_memory_pool(void);
+
 
 
 #elif defined(MRBC_ALLOC_LIBC)
