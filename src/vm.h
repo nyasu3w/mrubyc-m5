@@ -43,6 +43,7 @@ typedef struct IREP {
   uint8_t type[2];		//!< set "RP" for debug.
 #endif
 
+  uint16_t ref_count;		//!< reference counter
   uint16_t nlocals;		//!< num of local variables
   uint16_t nregs;		//!< num of register variables
   uint16_t rlen;		//!< num of child IREP blocks
