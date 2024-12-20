@@ -144,7 +144,7 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
 #endif
 
   irep.ref_count = 0;
-  irep.nlocals = bin_to_uint16(p);	p += 2;
+  p += 2;	// skip nlocals
   irep.nregs = bin_to_uint16(p);	p += 2;
   irep.rlen = bin_to_uint16(p);		p += 2;
   irep.clen = bin_to_uint16(p);		p += 2;
@@ -154,10 +154,10 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
   // POOL block
   p += irep.ilen + SIZE_RITE_CATCH_HANDLER * irep.clen;
   irep.pool = p;
-  irep.plen = bin_to_uint16(p);		p += 2;
+  uint16_t plen = bin_to_uint16(p);	p += 2;
 
   // skip pool
-  for( int i = 0; i < irep.plen; i++ ) {
+  for( int i = 0; i < plen; i++ ) {
     int siz = 0;
     switch( *p++ ) {
     case IREP_TT_STR:
@@ -176,8 +176,13 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
   }
 
   // num of symbols, offset of tbl_ireps.
-  irep.slen = bin_to_uint16(p);		p += 2;
-  int siz = sizeof(mrbc_sym) * irep.slen + sizeof(uint16_t) * irep.plen;
+  uint16_t slen = bin_to_uint16(p);	p += 2;
+
+  int siz;
+  siz = sizeof(mrbc_sym) * slen;
+  irep.ofs_pools = siz;
+
+  siz += sizeof(uint16_t) * plen;
   siz += (-siz & 0x03);	// padding. 32bit align.
   irep.ofs_ireps = siz >> 2;
 
@@ -192,7 +197,7 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
 
   // make a symbol ID table. (tbl_syms[slen])
   mrbc_sym *tbl_syms = mrbc_irep_tbl_syms(p_irep);
-  for( int i = 0; i < irep.slen; i++ ) {
+  for( int i = 0; i < slen; i++ ) {
     int siz = bin_to_uint16(p) + 1;	p += 2;
     char *sym_str;
     if (vm->flag_permanence == 1) {
@@ -213,7 +218,7 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
   // make a pool data's offset table. (tbl_pools[plen])
   uint16_t *ofs_pools = mrbc_irep_tbl_pools(p_irep);
   p = p_irep->pool + 2;
-  for( int i = 0; i < irep.plen; i++ ) {
+  for( int i = 0; i < plen; i++ ) {
     int siz = 0;
     if( (p - irep.pool) > UINT16_MAX ) {
       mrbc_raise(vm, MRBC_CLASS(Exception), "Overflow IREP data offset table.");
@@ -343,7 +348,6 @@ void mrbc_irep_free(struct IREP *irep)
 */
 mrbc_value mrbc_irep_pool_value(struct VM *vm, int n)
 {
-  assert( vm->cur_irep->plen > n );
   const uint8_t *p = mrbc_irep_pool_ptr(vm->cur_irep, n);
   mrbc_value obj;
 
