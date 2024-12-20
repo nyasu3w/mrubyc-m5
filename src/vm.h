@@ -86,7 +86,7 @@ typedef struct IREP mrb_irep;
 
 //! get a child irep table pointer.
 #define mrbc_irep_tbl_ireps(irep) \
-  ( (mrbc_irep **) ((irep)->data + (irep)->ofs_ireps * 4) )
+  ( (mrbc_irep **)((irep)->data + (irep)->ofs_ireps) )
 
 //! get a n'th child irep
 #define mrbc_irep_child_irep(irep, n) \

@@ -148,7 +148,9 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
   irep.nregs = bin_to_uint16(p);	p += 2;
   irep.rlen = bin_to_uint16(p);		p += 2;
   irep.clen = bin_to_uint16(p);		p += 2;
-  irep.ilen = bin_to_uint32(p);		p += 4;
+  uint32_t ilen = bin_to_uint32(p);	p += 4;
+  if( ilen > 0xffff ) goto ERROR_TOO_LARGE;
+  irep.ilen = ilen;
   irep.inst = p;
 
   // POOL block
@@ -178,13 +180,14 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
   // num of symbols, offset of tbl_ireps.
   uint16_t slen = bin_to_uint16(p);	p += 2;
 
-  int siz;
-  siz = sizeof(mrbc_sym) * slen;
+  uint32_t siz = sizeof(mrbc_sym) * slen;
+  if( siz > 0xffff ) goto ERROR_TOO_LARGE;
   irep.ofs_pools = siz;
 
   siz += sizeof(uint16_t) * plen;
+  if( siz > 0xffff ) goto ERROR_TOO_LARGE;
   siz += (-siz & 0x03);	// padding. 32bit align.
-  irep.ofs_ireps = siz >> 2;
+  irep.ofs_ireps = siz;
 
   // allocate new irep
   siz = sizeof(mrbc_irep) + siz + sizeof(mrbc_irep*) * irep.rlen;
@@ -238,6 +241,11 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
   // return length
   *len = bin_to_uint32(bin);
   return p_irep;
+
+
+ ERROR_TOO_LARGE:
+  mrbc_raise(vm, MRBC_CLASS(Exception), "Too large IREP size.");
+  return NULL;
 }
 
 
