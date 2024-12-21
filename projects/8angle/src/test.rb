@@ -24,7 +24,7 @@ while(true) do
 
   (0..7).each do |i|
     Angle8.set_led_color(i, colors[i])
-    canvas.print "LED#{i}:"
+    canvas.print "POS#{i}:"
     x,y = canvas.get_cursor
     canvas.puts
     val = 255 - Angle8.get_analog_input(i)   
