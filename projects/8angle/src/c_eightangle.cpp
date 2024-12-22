@@ -34,7 +34,7 @@ static void class_eightangle_initialize(mrb_vm *vm, mrb_value *v, int argc)
         delay(100);
     }
     mrbc_raise(vm, MRBC_CLASS(RuntimeError), "init failed");
-    SET_FALSE_RETURN();
+    SET_RETURN(failed_object);
 }  
 
 static void

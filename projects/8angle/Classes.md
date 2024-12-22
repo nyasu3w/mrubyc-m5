@@ -9,6 +9,7 @@ An enough instance is already created as "Angle8". Use this `Angle8`.
 
 - new(i2caddr)
   > Creates a new instance, but normally this method is useless.
+  > When the unit is not connected, this returns FailObject.
 - dswitch
   > Returns `true` or `false` according to the status of the digital switch.
 - set_led_color(n,color)
