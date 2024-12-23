@@ -2730,7 +2730,7 @@ static void sub_def_alias( mrbc_class *cls, mrbc_method *method )
   method->next = cls->method_link;
   cls->method_link = method;
 
-  sub_irep_incref( method->irep );
+  if( !method->c_func ) sub_irep_incref( method->irep );
 
   // checking same method
   for( ;method->next != NULL; method = method->next ) {
