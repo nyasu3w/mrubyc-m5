@@ -2772,7 +2772,6 @@ static inline void op_def( mrbc_vm *vm, mrbc_value *regs EXT )
   method->irep = proc->irep;
 
   sub_def_alias( cls, method );
-
   mrbc_set_symbol(&regs[a], sym_id);
 }
 

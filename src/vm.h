@@ -49,8 +49,10 @@ typedef struct IREP {
   uint16_t rlen;		//!< num of child IREP blocks
   uint16_t clen;		//!< num of catch handlers
   uint16_t ilen;		//!< num of bytes in OpCode
-//  uint16_t plen;		//!< num of pools
-//  uint16_t slen;		//!< num of symbols
+#if defined(MRBC_DEBUG)
+  uint16_t plen;		//!< num of pools
+  uint16_t slen;		//!< num of symbols
+#endif
   uint16_t ofs_pools;		//!< offset of data->tbl_pools.
   uint16_t ofs_ireps;		//!< offset of data->tbl_ireps. (32bit aligned)
 
