@@ -731,11 +731,17 @@ static inline void op_getconst( mrbc_vm *vm, mrbc_value *regs EXT )
   FETCH_BB();
 
   mrbc_sym sym_id = mrbc_irep_symbol_id(vm->cur_irep, b);
-  mrbc_class *self_cls = find_class_by_object( mrbc_get_self(vm, regs) );
+  mrbc_class *crit_cls;
   mrbc_value *ret;
 
+  if( vm->callinfo_tail && vm->callinfo_tail->own_class ) {
+    crit_cls = vm->callinfo_tail->own_class;
+  } else {
+    crit_cls = find_class_by_object( mrbc_get_self(vm, regs) );
+  }
+
   // search in my class, then search nested outer class.
-  mrbc_class *cls = self_cls;
+  mrbc_class *cls = crit_cls;
   while( 1 ) {
     ret = mrbc_get_class_const(cls, sym_id);
     if( ret ) goto DONE;
@@ -747,7 +753,7 @@ static inline void op_getconst( mrbc_vm *vm, mrbc_value *regs EXT )
   }
 
   // search in super class.
-  cls = self_cls->super;
+  cls = crit_cls->super;
   while( cls ) {
     ret = mrbc_get_class_const(cls, sym_id);
     if( ret ) goto DONE;
