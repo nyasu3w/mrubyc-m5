@@ -21,3 +21,32 @@ class ConstTest < Picotest::Test
 
 end
 
+
+class ClassTest1 < Picotest::Test
+
+  module A
+    class B
+      def self.hello
+        C.hello
+      end
+    end
+
+    class C
+      def self.hello
+        return 'Hello from C'
+      end
+    end
+  end
+
+  class MyClass < A::B
+  end
+
+  def test_test1
+    assert_equal('Hello from C', A::B.hello)
+  end
+
+  def test_test2
+    assert_equal('Hello from C', MyClass.hello)
+  end
+
+end
