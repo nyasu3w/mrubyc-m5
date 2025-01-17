@@ -44,7 +44,9 @@ typedef struct IREP {
 #endif
 
   uint16_t ref_count;		//!< reference counter
-//  uint16_t nlocals;		//!< num of local variables
+#if defined(MRBC_DEBUG)
+  uint16_t nlocals;		//!< num of local variables
+#endif
   uint16_t nregs;		//!< num of register variables
   uint16_t rlen;		//!< num of child IREP blocks
   uint16_t clen;		//!< num of catch handlers
