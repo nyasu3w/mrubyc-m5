@@ -410,12 +410,26 @@ static inline void uint16_to_bin( uint16_t v, void *d )
 
   @param  vm	A pointer to VM.
   @param  regs	registor
+  @return	pointer to self object
 */
 static inline mrbc_value * mrbc_get_self( struct VM *vm, mrbc_value *regs )
 {
   return regs[0].tt == MRBC_TT_PROC ? &(regs[0].proc->self) : &regs[0];
 }
 
+
+//================================================================
+/*! (BETA) check if a block is passed to a method.
+
+  @param  vm	A pointer to VM.
+  @param  v	register top.
+  @param  argc	n of arguments.
+  @return	0 or 1
+*/
+static inline int mrbc_c_block_given( struct VM *vm, mrbc_value v[], int argc )
+{
+  return v[argc+1].tt == MRBC_TT_PROC;
+}
 
 #ifdef __cplusplus
 }
