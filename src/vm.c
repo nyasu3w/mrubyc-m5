@@ -55,18 +55,6 @@ static uint16_t free_vm_bitmap[MAX_VM_COUNT / 16 + 1];
 /***** Signal catching functions ********************************************/
 /***** Local functions ******************************************************/
 //================================================================
-/*! Shift arguments for method_missing
-
-  @param  recv		pointer to receiver
-  @param  narg		number of arguments
-*/
-static void shift_arguments(mrb_value *recv, int narg) {
-  for (int i = narg + 1; 0 < i; i--) {
-    recv[i + 1] = recv[i];
-  }
-}
-
-//================================================================
 /*! Method call by method name's id
 
   @param  vm		pointer to VM.
@@ -79,8 +67,7 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
 {
   int narg = c & 0x0f;
   int karg = (c >> 4) & 0x0f;
-  mrbc_value *regs = vm->cur_regs;
-  mrbc_value *recv = regs + a;
+  mrbc_value *recv = vm->cur_regs + a;
 
   // If it's packed in an array, expand it.
   if( narg == CALL_MAXARGS ) {
@@ -120,44 +107,49 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
     mrbc_set_nil( recv + narg + 1 );
   }
 
+  // find a method
   mrbc_class *cls = find_class_by_object(recv);
   mrbc_method method;
-  if( mrbc_find_method( &method, cls, sym_id ) == 0 ) {
-    if( mrbc_find_method( &method, cls, MRBC_SYM(method_missing) ) == 0 ) {
-      mrbc_raisef(vm, MRBC_CLASS(NoMethodError),
-        "undefined local variable or method '%s' for %s",
-        mrbc_symid_to_str(sym_id), mrbc_symid_to_str( cls->sym_id ));
+  if( mrbc_find_method( &method, cls, sym_id ) != 0 ) goto CALL_METHOD;
 
-      if( vm->callinfo_tail != 0 ) {
-        vm->exception.exception->method_id = vm->callinfo_tail->method_id;
-      }
-      return;
-    }
-
-    // call 'method_missing' method.
-    shift_arguments(recv, narg);
-    recv[1] = mrbc_symbol_value(sym_id);
-    sym_id = MRBC_SYM(method_missing);
-    narg++;
-  }
-
-  // call C function and return.
-  if( method.c_func ) {
-    method.func(vm, recv, narg);
-
-    if( mrbc_israised(vm) && vm->exception.exception->method_id == 0 ) {
-      vm->exception.exception->method_id = sym_id;
-    }
-    if( sym_id == MRBC_SYM(call) ) return;
-    if( sym_id == MRBC_SYM(new) ) return;
-
-    for( int i = 1; i <= narg+1; i++ ) {
-      mrbc_decref_empty( recv + i );
+  // method missing?
+  if( mrbc_find_method( &method, cls, MRBC_SYM(method_missing) ) == 0 ) {
+    mrbc_raisef(vm, MRBC_CLASS(NoMethodError),
+		"undefined local variable or method '%s' for %s",
+		mrbc_symid_to_str(sym_id), mrbc_symid_to_str(cls->sym_id));
+    if( vm->callinfo_tail != 0 ) {
+      vm->exception.exception->method_id = vm->callinfo_tail->method_id;
     }
     return;
   }
 
-  // call Ruby method.
+  // prepare to call 'method_missing' method.
+  for( int i = narg+1; i != 0; i-- ) {	// shift arguments
+    recv[i+1] = recv[i];
+  }
+  recv[1] = mrbc_symbol_value(sym_id);
+  sym_id = MRBC_SYM(method_missing);
+  narg++;
+
+
+ CALL_METHOD:
+  if( !method.c_func ) goto CALL_RUBY_METHOD;
+
+  method.func(vm, recv, narg);
+
+  if( mrbc_israised(vm) && vm->exception.exception->method_id == 0 ) {
+    vm->exception.exception->method_id = sym_id;
+  }
+  if( sym_id == MRBC_SYM(call) ) return;
+  if( sym_id == MRBC_SYM(new) ) return;
+
+  for( int i = 1; i <= narg+1; i++ ) {
+    mrbc_decref_empty( recv + i );
+  }
+  return;
+
+
+ CALL_RUBY_METHOD:;
   mrbc_callinfo *callinfo = mrbc_push_callinfo(vm, sym_id, a, narg);
   callinfo->own_class = method.cls;
 

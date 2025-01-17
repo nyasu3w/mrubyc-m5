@@ -568,7 +568,7 @@ mrbc_class * mrbc_get_class_by_name( const char *name )
     mrbc_value ret = mrbc_send( vm, v, argc, recv, "to_s", 1, &arg1 );
     SET_RETURN(ret);
   }
- */
+*/
 mrbc_value mrbc_send( struct VM *vm, mrbc_value *v, int reg_ofs,
 		     mrbc_value *recv, const char *method_name, int argc, ... )
 {
