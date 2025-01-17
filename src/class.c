@@ -649,11 +649,7 @@ int mrbc_run_mrblib(const void *bytecode)
     ret = mrbc_vm_run(vm);
   } while( ret == 0 );
   mrbc_vm_end(vm);
-
-  // instead of mrbc_vm_close()
-  mrbc_raw_free( vm->top_irep );	// free only top-level mrbc_irep.
-					// (no need to free child ireps.)
-  mrbc_raw_free( vm );
+  mrbc_vm_close(vm);
 
   return ret;
 }

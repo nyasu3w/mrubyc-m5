@@ -43,13 +43,17 @@ typedef struct IREP {
   uint8_t type[2];		//!< set "RP" for debug.
 #endif
 
-  uint16_t nlocals;		//!< num of local variables
+  uint16_t ref_count;		//!< reference counter
+//  uint16_t nlocals;		//!< num of local variables
   uint16_t nregs;		//!< num of register variables
   uint16_t rlen;		//!< num of child IREP blocks
   uint16_t clen;		//!< num of catch handlers
-  uint32_t ilen;		//!< num of bytes in OpCode
+  uint16_t ilen;		//!< num of bytes in OpCode
+#if defined(MRBC_DEBUG)
   uint16_t plen;		//!< num of pools
   uint16_t slen;		//!< num of symbols
+#endif
+  uint16_t ofs_pools;		//!< offset of data->tbl_pools.
   uint16_t ofs_ireps;		//!< offset of data->tbl_ireps. (32bit aligned)
 
   const uint8_t *inst;		//!< pointer to instruction in RITE binary
@@ -75,7 +79,7 @@ typedef struct IREP mrb_irep;
 
 //! get a pool data offset table pointer.
 #define mrbc_irep_tbl_pools(irep) \
-  ( (uint16_t *) ((irep)->data + (irep)->slen * sizeof(mrbc_sym)) )
+  ( (uint16_t *)((irep)->data + (irep)->ofs_pools) )
 
 //! get a pointer to n'th pool data.
 #define mrbc_irep_pool_ptr(irep, n) \
@@ -84,7 +88,7 @@ typedef struct IREP mrb_irep;
 
 //! get a child irep table pointer.
 #define mrbc_irep_tbl_ireps(irep) \
-  ( (mrbc_irep **) ((irep)->data + (irep)->ofs_ireps * 4) )
+  ( (mrbc_irep **)((irep)->data + (irep)->ofs_ireps) )
 
 //! get a n'th child irep
 #define mrbc_irep_child_irep(irep, n) \

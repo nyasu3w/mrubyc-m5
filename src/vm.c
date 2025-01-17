@@ -434,12 +434,14 @@ void mrbc_vm_close( struct VM *vm )
   mrbc_decref( &vm->regs[0] );
 
   // free vm id.
-  int idx = (vm->vm_id-1) >> 4;
-  int bit = 1 << ((vm->vm_id-1) & 0x0f);
-  free_vm_bitmap[idx] &= ~bit;
+  if( vm->vm_id != 0 ) {
+    int idx = (vm->vm_id-1) >> 4;
+    int bit = 1 << ((vm->vm_id-1) & 0x0f);
+    free_vm_bitmap[idx] &= ~bit;
+  }
 
   // free irep and vm
-  if( vm->top_irep ) mrbc_raw_free( vm->top_irep );
+  if( vm->top_irep ) mrbc_irep_free( vm->top_irep );
   if( vm->flag_need_memfree ) mrbc_raw_free(vm);
 }
 
@@ -2721,6 +2723,37 @@ static inline void op_exec( mrbc_vm *vm, mrbc_value *regs EXT )
 }
 
 
+//----------------------------------------------------------------
+static void sub_irep_incref( mrbc_irep *irep )
+{
+  for( int i = 0; i < irep->rlen; i++ ) {
+    sub_irep_incref( mrbc_irep_child_irep(irep, i) );
+  }
+
+  irep->ref_count++;
+}
+
+static void sub_def_alias( mrbc_class *cls, mrbc_method *method )
+{
+  method->next = cls->method_link;
+  cls->method_link = method;
+
+  if( !method->c_func ) sub_irep_incref( method->irep );
+
+  // checking same method
+  for( ;method->next != NULL; method = method->next ) {
+    if( method->next->sym_id == method->sym_id ) {
+      // Found it. Unchain it in linked list and remove.
+      mrbc_method *del_method = method->next;
+
+      method->next = del_method->next;
+      if( del_method->type == 'M' ) mrbc_raw_free( del_method );
+
+      break;
+    }
+  }
+}
+
 //================================================================
 /*! OP_DEF
 
@@ -2745,22 +2778,8 @@ static inline void op_def( mrbc_vm *vm, mrbc_value *regs EXT )
   method->c_func = 0;
   method->sym_id = sym_id;
   method->irep = proc->irep;
-  method->next = cls->method_link;
-  cls->method_link = method;
 
-  // checking same method
-  for( ;method->next != NULL; method = method->next ) {
-    if( method->next->sym_id == sym_id ) {
-      // Found it. Unchain it in linked list and remove.
-      mrbc_method *del_method = method->next;
-
-      method->next = del_method->next;
-      if( del_method->type == 'M' ) mrbc_raw_free( del_method );
-
-      break;
-    }
-  }
-
+  sub_def_alias( cls, method );
   mrbc_set_symbol(&regs[a], sym_id);
 }
 
@@ -2791,19 +2810,8 @@ static inline void op_alias( mrbc_vm *vm, mrbc_value *regs EXT )
 
   method->type = (vm->vm_id == 0) ? 'm' : 'M';
   method->sym_id = sym_id_new;
-  method->next = cls->method_link;
-  cls->method_link = method;
 
-  // checking same method
-  //  see OP_DEF function. same it.
-  for( ;method->next != NULL; method = method->next ) {
-    if( method->next->sym_id == sym_id_new ) {
-      mrbc_method *del_method = method->next;
-      method->next = del_method->next;
-      if( del_method->type == 'M' ) mrbc_raw_free( del_method );
-      break;
-    }
-  }
+  sub_def_alias( cls, method );
 }
 
 
