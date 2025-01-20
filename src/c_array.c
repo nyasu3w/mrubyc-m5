@@ -27,6 +27,7 @@
 #include "c_string.h"
 #include "c_array.h"
 #include "console.h"
+#include "vm.h"
 
 /***** Constat values *******************************************************/
 /***** Macros ***************************************************************/
@@ -69,6 +70,7 @@
     mrbc_array_dup
     mrbc_array_divide
     mrbc_array_include
+    mrbc_array_uniq_self
 */
 
 
@@ -385,14 +387,14 @@ mrbc_value mrbc_array_remove(mrbc_value *ary, int idx)
   if( idx < 0 ) idx = h->n_stored + idx;
   if( idx < 0 || idx >= h->n_stored ) return mrbc_nil_value();
 
-  mrbc_value val = h->data[idx];
+  mrbc_value ret = h->data[idx];
   h->n_stored--;
   if( idx < h->n_stored ) {
     memmove(h->data + idx, h->data + idx + 1,
 	    sizeof(mrbc_value) * (h->n_stored - idx));
   }
 
-  return val;
+  return ret;
 }
 
 
@@ -547,6 +549,52 @@ int mrbc_array_include(const mrbc_value *ary, const mrbc_value *val)
     if (mrbc_compare(&ary->array->data[i], val) == 0) break;
   }
   return (n - i);
+}
+
+
+//================================================================
+/*! removes duplicate elements and return allocated new mrbc_value
+
+  @param  ary   source
+  @return	result
+*/
+mrbc_value mrbc_array_uniq(struct VM *vm, const mrbc_value *ary)
+{
+  mrbc_value ret = mrbc_array_dup(vm, ary);
+
+  mrbc_array_uniq_self( &ret );
+  return ret;
+}
+
+
+//================================================================
+/*! removes duplicate elements
+
+  @param  ary   target
+  @return	num of deleted
+*/
+int mrbc_array_uniq_self(mrbc_value *ary)
+{
+  mrbc_array *ah = ary->array;
+  int size = ah->n_stored;
+
+  for( int i = 0; i < size-1; i++ ) {
+    for( int j = i+1; j < size; j++ ) {
+      if( mrbc_compare( &ah->data[i], &ah->data[j] ) != 0 ) continue;
+
+      mrbc_decref( &ah->data[j] );
+      int rest = --size - j;
+      if( rest == 0 ) break;
+
+      memmove( &ah->data[j], &ah->data[j+1], sizeof(mrbc_value) * rest );
+      j--;
+    }
+  }
+
+  int ret = ah->n_stored - size;
+  ah->n_stored = size;
+
+  return ret;
 }
 
 
@@ -1083,6 +1131,40 @@ static void c_array_minmax(struct VM *vm, mrbc_value v[], int argc)
 }
 
 
+//================================================================
+/*! (method) uniq
+*/
+static void c_array_uniq(struct VM *vm, mrbc_value v[], int argc)
+{
+  // subset of Array#uniq
+
+  if( mrbc_c_block_given(vm, v, argc) ) {
+    mrbc_raise(vm, MRBC_CLASS(NotImplementedError), "Block are not supported.");
+    return;
+  }
+
+  mrbc_value ret = mrbc_array_uniq( vm, &v[0] );
+  SET_RETURN( ret );
+}
+
+
+//================================================================
+/*! (method) uniq!
+*/
+static void c_array_uniq_self(struct VM *vm, mrbc_value v[], int argc)
+{
+  // subset of Array#uniq!
+
+  if( mrbc_c_block_given(vm, v, argc) ) {
+    mrbc_raise(vm, MRBC_CLASS(NotImplementedError), "Block are not supported.");
+    return;
+  }
+
+  int n = mrbc_array_uniq_self( &v[0] );
+  if( n == 0 ) SET_NIL_RETURN();
+}
+
+
 #if MRBC_USE_STRING
 //================================================================
 /*! (method) inspect, to_s
@@ -1191,6 +1273,8 @@ static void c_array_join(struct VM *vm, mrbc_value v[], int argc)
   METHOD( "min",	c_array_min )
   METHOD( "max",	c_array_max )
   METHOD( "minmax",	c_array_minmax )
+  METHOD( "uniq",	c_array_uniq )
+  METHOD( "uniq!",	c_array_uniq_self )
 #if MRBC_USE_STRING
   METHOD( "inspect",	c_array_inspect )
   METHOD( "to_s",	c_array_inspect )

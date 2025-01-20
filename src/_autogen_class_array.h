@@ -35,6 +35,8 @@ static const mrbc_sym method_symbols_Array[] = {
 #if MRBC_USE_STRING
   MRBC_SYM(to_s),
 #endif
+  MRBC_SYM(uniq),
+  MRBC_SYM(uniq_E),
   MRBC_SYM(unshift),
   MRBC_SYM(OR),
 };
@@ -72,6 +74,8 @@ static const mrbc_func_t method_functions_Array[] = {
 #if MRBC_USE_STRING
   c_array_inspect,
 #endif
+  c_array_uniq,
+  c_array_uniq_self,
   c_array_unshift,
   c_array_or,
 };
