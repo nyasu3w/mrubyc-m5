@@ -40,7 +40,7 @@ extern "C" {
 */
 typedef struct IREP {
 #if defined(MRBC_DEBUG)
-  uint8_t type[2];		//!< set "RP" for debug.
+  uint8_t obj_mark_[2];		//!< set "RP" for debug.
 #endif
 
   uint16_t ref_count;		//!< reference counter
@@ -138,7 +138,7 @@ typedef struct CALLINFO mrb_callinfo;
 */
 typedef struct VM {
 #if defined(MRBC_DEBUG)
-  char type[2];				// set "VM" for debug
+  char obj_mark_[2];			// set "VM" for debug
 #endif
   uint8_t vm_id;			//!< vm_id : 1..MAX_VM_COUNT
   volatile int8_t flag_preemption;

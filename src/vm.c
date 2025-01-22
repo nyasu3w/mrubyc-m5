@@ -311,7 +311,7 @@ mrbc_vm * mrbc_vm_new( int regs_size )
 
   memset(vm, 0, vm_total_size);	// caution: assume NULL is zero.
 #if defined(MRBC_DEBUG)
-  memcpy(vm->type, "VM", 2);
+  memcpy(vm->obj_mark_, "VM", 2);
 #endif
   vm->flag_need_memfree = 1;
   vm->regs_size = regs_size;

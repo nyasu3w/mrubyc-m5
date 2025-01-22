@@ -139,8 +139,8 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
   const uint8_t *p = bin + 4;	// 4 = skip record size.
 
 #if defined(MRBC_DEBUG)
-  irep.type[0] = 'R';	// set "RP"
-  irep.type[1] = 'P';
+  irep.obj_mark_[0] = 'R';	// set "RP"
+  irep.obj_mark_[1] = 'P';
 #endif
 
   irep.ref_count = 0;
