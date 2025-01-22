@@ -1614,7 +1614,7 @@ static inline void op_keyend( mrbc_vm *vm, mrbc_value *regs EXT )
     mrbc_value *kv = mrbc_hash_i_next(&ite);
 
     mrbc_raisef(vm, MRBC_CLASS(ArgumentError), "unknown keyword: %s",
-		mrbc_symid_to_str(kv->i));
+		mrbc_symid_to_str(kv->sym_id));
   }
 }
 
