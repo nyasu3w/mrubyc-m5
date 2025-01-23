@@ -1870,29 +1870,31 @@ static inline void op_add( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  if( regs[a].tt == MRBC_TT_INTEGER ) {
-    if( regs[a+1].tt == MRBC_TT_INTEGER ) {     // in case of Integer, Integer
-      regs[a].i += regs[a+1].i;
-      return;
-    }
+  // in case of Integer + Integer
+  if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_INTEGER ) {
+    regs[a].i += regs[a+1].i;
+    return;
+  }
+
 #if MRBC_USE_FLOAT
-    if( regs[a+1].tt == MRBC_TT_FLOAT ) {      // in case of Integer, Float
-      regs[a].tt = MRBC_TT_FLOAT;
-      regs[a].d = regs[a].i + regs[a+1].d;
-      return;
-    }
+  // in case of Integer + Float
+  if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_FLOAT ) {
+    mrbc_set_float( &regs[a], regs[a].i + regs[a+1].d );
+    return;
   }
-  if( regs[a].tt == MRBC_TT_FLOAT ) {
-    if( regs[a+1].tt == MRBC_TT_INTEGER ) {     // in case of Float, Integer
-      regs[a].d += regs[a+1].i;
-      return;
-    }
-    if( regs[a+1].tt == MRBC_TT_FLOAT ) {      // in case of Float, Float
-      regs[a].d += regs[a+1].d;
-      return;
-    }
+
+  // in case of Float + Integer
+  if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_INTEGER ) {
+    regs[a].d += regs[a+1].i;
+    return;
+  }
+
+  // in case of Float + Float
+  if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_FLOAT ) {
+    regs[a].d += regs[a+1].d;
+    return;
+  }
 #endif
-  }
 
   // other case
   send_by_name( vm, MRBC_SYM(PLUS), a, 1 );
@@ -1934,29 +1936,31 @@ static inline void op_sub( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  if( regs[a].tt == MRBC_TT_INTEGER ) {
-    if( regs[a+1].tt == MRBC_TT_INTEGER ) {     // in case of Integer, Integer
-      regs[a].i -= regs[a+1].i;
-      return;
-    }
+  // in case of Integer + Integer
+  if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_INTEGER ) {
+    regs[a].i -= regs[a+1].i;
+    return;
+  }
+
 #if MRBC_USE_FLOAT
-    if( regs[a+1].tt == MRBC_TT_FLOAT ) {      // in case of Integer, Float
-      regs[a].tt = MRBC_TT_FLOAT;
-      regs[a].d = regs[a].i - regs[a+1].d;
-      return;
-    }
+  // in case of Integer + Float
+  if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_FLOAT ) {
+    mrbc_set_float( &regs[a], regs[a].i - regs[a+1].d );
+    return;
   }
-  if( regs[a].tt == MRBC_TT_FLOAT ) {
-    if( regs[a+1].tt == MRBC_TT_INTEGER ) {     // in case of Float, Integer
-      regs[a].d -= regs[a+1].i;
-      return;
-    }
-    if( regs[a+1].tt == MRBC_TT_FLOAT ) {      // in case of Float, Float
-      regs[a].d -= regs[a+1].d;
-      return;
-    }
+
+  // in case of Float + Integer
+  if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_INTEGER ) {
+    regs[a].d -= regs[a+1].i;
+    return;
+  }
+
+  // in case of Float + Float
+  if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_FLOAT ) {
+    regs[a].d -= regs[a+1].d;
+    return;
+  }
 #endif
-  }
 
   // other case
   send_by_name( vm, MRBC_SYM(MINUS), a, 1 );
@@ -1998,29 +2002,31 @@ static inline void op_mul( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  if( regs[a].tt == MRBC_TT_INTEGER ) {
-    if( regs[a+1].tt == MRBC_TT_INTEGER ) {     // in case of Integer, Integer
-      regs[a].i *= regs[a+1].i;
-      return;
-    }
+  // in case of Integer + Integer
+  if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_INTEGER ) {
+    regs[a].i *= regs[a+1].i;
+    return;
+  }
+
 #if MRBC_USE_FLOAT
-    if( regs[a+1].tt == MRBC_TT_FLOAT ) {      // in case of Integer, Float
-      regs[a].tt = MRBC_TT_FLOAT;
-      regs[a].d = regs[a].i * regs[a+1].d;
-      return;
-    }
+  // in case of Integer + Float
+  if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_FLOAT ) {
+    mrbc_set_float( &regs[a], regs[a].i * regs[a+1].d );
+    return;
   }
-  if( regs[a].tt == MRBC_TT_FLOAT ) {
-    if( regs[a+1].tt == MRBC_TT_INTEGER ) {     // in case of Float, Integer
-      regs[a].d *= regs[a+1].i;
-      return;
-    }
-    if( regs[a+1].tt == MRBC_TT_FLOAT ) {      // in case of Float, Float
-      regs[a].d *= regs[a+1].d;
-      return;
-    }
+
+  // in case of Float + Integer
+  if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_INTEGER ) {
+    regs[a].d *= regs[a+1].i;
+    return;
+  }
+
+  // in case of Float + Float
+  if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_FLOAT ) {
+    regs[a].d *= regs[a+1].d;
+    return;
+  }
 #endif
-  }
 
   // other case
   send_by_name( vm, MRBC_SYM(MUL), a, 1 );
@@ -2036,33 +2042,42 @@ static inline void op_div( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  if( regs[a].tt == MRBC_TT_INTEGER ) {
-    if( regs[a+1].tt == MRBC_TT_INTEGER ) {     // in case of Integer, Integer
-      if( regs[a+1].i == 0 ) {
-	mrbc_raise(vm, MRBC_CLASS(ZeroDivisionError), 0 );
-      } else {
-	regs[a].i /= regs[a+1].i;
-      }
+  // in case of Integer + Integer
+  if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_INTEGER ) {
+    mrbc_int_t v0 = regs[a].i;
+    mrbc_int_t v1 = regs[a+1].i;
+
+    if( v1 == 0 ) {
+      mrbc_raise(vm, MRBC_CLASS(ZeroDivisionError), 0 );
       return;
     }
+
+    mrbc_int_t ret = v0 / v1;
+    if( ((v0 ^ v1) < 0) && (ret == 0) ) ret -= 1;
+
+    regs[a].i = ret;
+    return;
+  }
+
 #if MRBC_USE_FLOAT
-    if( regs[a+1].tt == MRBC_TT_FLOAT ) {      // in case of Integer, Float
-      regs[a].tt = MRBC_TT_FLOAT;
-      regs[a].d = regs[a].i / regs[a+1].d;
-      return;
-    }
+  // in case of Integer + Float
+  if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_FLOAT ) {
+    mrbc_set_float( &regs[a], regs[a].i / regs[a+1].d );
+    return;
   }
-  if( regs[a].tt == MRBC_TT_FLOAT ) {
-    if( regs[a+1].tt == MRBC_TT_INTEGER ) {     // in case of Float, Integer
-      regs[a].d /= regs[a+1].i;
-      return;
-    }
-    if( regs[a+1].tt == MRBC_TT_FLOAT ) {      // in case of Float, Float
-      regs[a].d /= regs[a+1].d;
-      return;
-    }
+
+  // in case of Float + Integer
+  if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_INTEGER ) {
+    regs[a].d /= regs[a+1].i;
+    return;
+  }
+
+  // in case of Float + Float
+  if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_FLOAT ) {
+    regs[a].d /= regs[a+1].d;
+    return;
+  }
 #endif
-  }
 
   // other case
   send_by_name( vm, MRBC_SYM(DIV), a, 1 );

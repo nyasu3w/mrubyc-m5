@@ -104,8 +104,23 @@ static void c_integer_power(struct VM *vm, mrbc_value v[], int argc)
  */
 static void c_integer_mod(struct VM *vm, mrbc_value v[], int argc)
 {
-  mrbc_int_t num = mrbc_integer(v[1]);
-  SET_INT_RETURN( v->i % num );
+  if( v[1].tt != MRBC_TT_INTEGER ) {
+    mrbc_raise(vm, MRBC_CLASS(TypeError), 0 );
+    return;
+  }
+
+  mrbc_int_t v0 = v[0].i;
+  mrbc_int_t v1 = v[1].i;
+
+  if( v1 == 0 ) {
+    mrbc_raise(vm, MRBC_CLASS(ZeroDivisionError), 0 );
+    return;
+  }
+
+  mrbc_int_t ret = v0 % v1;
+
+  if( (ret != 0) && ((v0 ^ v1) < 0) ) ret += v1;
+  SET_INT_RETURN( ret );
 }
 
 
