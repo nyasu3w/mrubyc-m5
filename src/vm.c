@@ -1936,26 +1936,26 @@ static inline void op_sub( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  // in case of Integer + Integer
+  // in case of Integer - Integer
   if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_INTEGER ) {
     regs[a].i -= regs[a+1].i;
     return;
   }
 
 #if MRBC_USE_FLOAT
-  // in case of Integer + Float
+  // in case of Integer - Float
   if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_FLOAT ) {
     mrbc_set_float( &regs[a], regs[a].i - regs[a+1].d );
     return;
   }
 
-  // in case of Float + Integer
+  // in case of Float - Integer
   if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_INTEGER ) {
     regs[a].d -= regs[a+1].i;
     return;
   }
 
-  // in case of Float + Float
+  // in case of Float - Float
   if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_FLOAT ) {
     regs[a].d -= regs[a+1].d;
     return;
@@ -2002,26 +2002,26 @@ static inline void op_mul( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  // in case of Integer + Integer
+  // in case of Integer * Integer
   if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_INTEGER ) {
     regs[a].i *= regs[a+1].i;
     return;
   }
 
 #if MRBC_USE_FLOAT
-  // in case of Integer + Float
+  // in case of Integer * Float
   if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_FLOAT ) {
     mrbc_set_float( &regs[a], regs[a].i * regs[a+1].d );
     return;
   }
 
-  // in case of Float + Integer
+  // in case of Float * Integer
   if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_INTEGER ) {
     regs[a].d *= regs[a+1].i;
     return;
   }
 
-  // in case of Float + Float
+  // in case of Float * Float
   if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_FLOAT ) {
     regs[a].d *= regs[a+1].d;
     return;
@@ -2042,7 +2042,7 @@ static inline void op_div( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   FETCH_B();
 
-  // in case of Integer + Integer
+  // in case of Integer / Integer
   if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_INTEGER ) {
     mrbc_int_t v0 = regs[a].i;
     mrbc_int_t v1 = regs[a+1].i;
@@ -2060,19 +2060,19 @@ static inline void op_div( mrbc_vm *vm, mrbc_value *regs EXT )
   }
 
 #if MRBC_USE_FLOAT
-  // in case of Integer + Float
+  // in case of Integer / Float
   if( regs[a].tt == MRBC_TT_INTEGER && regs[a+1].tt == MRBC_TT_FLOAT ) {
     mrbc_set_float( &regs[a], regs[a].i / regs[a+1].d );
     return;
   }
 
-  // in case of Float + Integer
+  // in case of Float / Integer
   if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_INTEGER ) {
     regs[a].d /= regs[a+1].i;
     return;
   }
 
-  // in case of Float + Float
+  // in case of Float / Float
   if( regs[a].tt == MRBC_TT_FLOAT && regs[a+1].tt == MRBC_TT_FLOAT ) {
     regs[a].d /= regs[a+1].d;
     return;
