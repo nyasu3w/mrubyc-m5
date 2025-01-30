@@ -44,7 +44,7 @@ typedef struct RClass {
   mrbc_sym sym_id;		//!< class name's symbol ID
   unsigned int flag_builtin : 1;//!< is built-in class?
   unsigned int flag_module : 1; //!< is module?
-  unsigned int flag_alias : 1;  //!< is alias class?
+  unsigned int flag_alias : 1;  //!< is module alias?
   uint8_t num_builtin_method;	//!< num of built-in method.
   struct RClass *super;		//!< pointer to super class.
   union {
@@ -92,9 +92,9 @@ struct RBuiltinClass {
 typedef struct RInstance {
   MRBC_OBJECT_HEADER;
 
-  struct RClass *cls;
-  struct RKeyValueHandle ivar;
-  uint8_t data[];
+  struct RClass *cls;		//!< pointer to class of this object.
+  struct RKeyValueHandle ivar;	//!< instance variable.
+  uint8_t data[];		//!< extended data
 
 } mrbc_instance;
 typedef struct RInstance mrb_instance;
