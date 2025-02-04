@@ -21,8 +21,11 @@ $(TARGET): $(SRC)
 $(VERSIONFILE): global.rb
 	sed -E -e '/^[A-Z]+_VERSION/!d' $? > $@
 
+.PHONY: clean distclean clean_all
 clean:
 	@rm -f *~
 
 distclean:
 	rm -f $(TARGET) $(VERSIONFILE) *~
+
+clean_all: distclean

@@ -14,23 +14,26 @@ USER_ID = $(shell id -u)
 all: mrubyc_lib mrubyc_bin
 
 mrblib:
-	cd mrblib ; $(MAKE) distclean all
+	cd mrblib   ; $(MAKE) all
 
-mrubyc_lib:
-	cd mrblib ; $(MAKE) all
-	cd src ; $(MAKE) -j4 all
+mrubyc_lib: mrblib
+	cd src      ; $(MAKE) all
 
-mrubyc_bin:
-	cd sample_c ; $(MAKE) -j4 all
+mrubyc_bin: mrubyc_lib
+	cd sample_c ; $(MAKE) all
+
 
 .PHONY: clean clean_all
 clean:
-	cd src ; $(MAKE) clean
+	cd src      ; $(MAKE) clean
 	cd sample_c ; $(MAKE) clean
 
 # clean including auto generated files.
-clean_all: clean
-	cd src ; $(MAKE) clean_all
+clean_all:
+	cd mrblib   ; $(MAKE) clean_all
+	cd src      ; $(MAKE) clean_all
+	cd sample_c ; $(MAKE) clean
+
 
 .PHONY: docker_build delete_docker docker_bash
 
