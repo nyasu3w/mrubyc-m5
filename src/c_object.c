@@ -657,7 +657,7 @@ static void c_object_sprintf(struct VM *vm, mrbc_value v[], int argc)
 
   mrbc_value *format = &v[1];
   if( mrbc_type(*format) != MRBC_TT_STRING ) {
-    mrbc_raise(vm, MRBC_CLASS(TypeError), "sprintf");
+    mrbc_raise(vm, MRBC_CLASS(TypeError), 0);
     return;
   }
 

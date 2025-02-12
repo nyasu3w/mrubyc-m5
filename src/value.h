@@ -379,7 +379,7 @@ typedef struct RObject mrbc_value;
 
 #define MRBC_KW_END() \
   (((v[argc].tt == MRBC_TT_HASH) && mrbc_hash_size(&v[argc])) ? \
-   (mrbc_raise(vm, MRBC_CLASS(ArgumentError), "unknown keyword."), 0) : 1)
+   (mrbc_raise(vm, MRBC_CLASS(ArgumentError), "unknown keyword"), 0) : 1)
 
 #define MRBC_KW_DELETE(...) \
   MRBC_each(__VA_ARGS__)( MRBC_KW_DELETE_decl, __VA_ARGS__ )

@@ -1379,11 +1379,11 @@ static inline void op_argary( mrbc_vm *vm, mrbc_value *regs EXT )
 
   if( b & 0x400 ) {	// check REST parameter.
     // TODO: want to support.
-    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "Not support rest parameter by super.");
+    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "Not support rest parameter by super");
     return;
   }
   if( b & 0x3e0 ) {	// check m2 parameter.
-    mrbc_raise( vm, MRBC_CLASS(ArgumentError), "not support m2 or keyword argument.");
+    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 or keyword argument");
     return;
   }
 
@@ -1451,13 +1451,13 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
   // Check the number of registers to use.
   int reg_use_max = regs - vm->regs + vm->cur_irep->nregs;
   if( reg_use_max >= vm->regs_size ) {
-    mrbc_raise( vm, MRBC_CLASS(Exception), "MAX_REGS_SIZE overflow.");
+    mrbc_raise( vm, MRBC_CLASS(Exception), "MAX_REGS_SIZE overflow");
     return;
   }
 
   // Check m2 parameter.
   if( a & FLAG_M2 ) {
-    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 argument.");
+    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 or keyword argument");
     return;
   }
 
@@ -1466,7 +1466,7 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
   int argc = vm->callinfo_tail->n_args;
 
   if( argc < m1 && mrbc_type(regs[0]) != MRBC_TT_PROC ) {
-    mrbc_raise( vm, MRBC_CLASS(ArgumentError), "wrong number of arguments.");
+    mrbc_raise( vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
     return;
   }
 
@@ -1565,7 +1565,7 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
       jmp_ofs = o;
 
       if( !(a & FLAG_REST) && mrbc_type(regs[0]) != MRBC_TT_PROC ) {
-	mrbc_raise( vm, MRBC_CLASS(ArgumentError), "wrong number of arguments.");
+	mrbc_raise( vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
 	return;
       }
     }
@@ -1824,7 +1824,7 @@ static inline void op_blkpush( mrbc_vm *vm, mrbc_value *regs EXT )
   int lv = (b      ) & 0x0f;
 
   if( m2 ) {
-    mrbc_raise( vm, MRBC_CLASS(ArgumentError), "not support m2 or keyword argument.");
+    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 or keyword argument");
     return;
   }
 
@@ -2383,7 +2383,7 @@ static inline void op_apost( mrbc_vm *vm, mrbc_value *regs EXT )
     regs[a].array->n_stored = ary_size;
 
   } else {
-    assert(!"Not support this case in op_apost.");
+    assert(!"Not support this case in op_apost");
     // empty
     regs[a] = mrbc_array_new(vm, 0);
   }
@@ -2466,7 +2466,7 @@ static inline void op_strcat( mrbc_vm *vm, mrbc_value *regs EXT )
   mrbc_decref_empty( &regs[a+1] );
 
 #else
-  mrbc_raise(vm, MRBC_CLASS(Exception), "Not support String.");
+  mrbc_raise(vm, MRBC_CLASS(Exception), "Not support String");
 #endif
 }
 
@@ -2643,7 +2643,7 @@ static inline void op_class( mrbc_vm *vm, mrbc_value *regs EXT )
   if( super ) {
     for( int i = 1; i < MRBC_TT_MAXVAL; i++ ) {
       if( super == mrbc_class_tbl[i] ) {
-	mrbc_raise(vm, MRBC_CLASS(NotImplementedError), "Inherit the built-in class is not supported.");
+	mrbc_raise(vm, MRBC_CLASS(NotImplementedError), "Inherit the built-in class is not supported");
 	return;
       }
     }
@@ -2887,7 +2887,7 @@ static inline void op_stop( mrbc_vm *vm, mrbc_value *regs EXT )
 static inline void op_unsupported( mrbc_vm *vm, mrbc_value *regs EXT )
 {
   mrbc_raisef( vm, MRBC_CLASS(Exception),
-	       "Unimplemented opcode (0x%02x) found.", *(vm->inst - 1));
+	       "Unimplemented opcode (0x%02x) found", *(vm->inst - 1));
 }
 #undef EXT
 

@@ -219,7 +219,7 @@ static void c_integer_abs(struct VM *vm, mrbc_value v[], int argc)
 static void c_numeric_clamp(struct VM *vm, mrbc_value v[], int argc)
 {
   if (argc != 2) {
-    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "wrong number of arguments (expected 2)");
+    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
     return;
   }
   mrbc_value min = v[1];

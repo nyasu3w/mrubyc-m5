@@ -80,13 +80,13 @@ enum irep_pool_type {
 static int load_header(struct VM *vm, const uint8_t *bin)
 {
   if( memcmp(bin, RITE, sizeof(RITE)) != 0 ) {
-    mrbc_raise( vm, MRBC_CLASS(Exception), "Illegal bytecode.");
+    mrbc_raise( vm, MRBC_CLASS(Exception), "Illegal bytecode");
     return -1;
   }
   bin += sizeof(RITE);
 
   if( memcmp(bin, RITE_VERSION, sizeof(RITE_VERSION)) != 0 ) {
-    mrbc_raise( vm, MRBC_CLASS(Exception), "Bytecode version mismatch.");
+    mrbc_raise( vm, MRBC_CLASS(Exception), "Bytecode version mismatch");
     return -1;
   }
 
@@ -165,7 +165,9 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
   // skip pool
   for( int i = 0; i < plen; i++ ) {
     int siz = 0;
-    switch( *p++ ) {
+    int tt = *p++;
+
+    switch( tt ) {
     case IREP_TT_STR:
     case IREP_TT_SSTR:	siz = bin_to_uint16(p) + 3;	break;
     case IREP_TT_INT32:	siz = 4;	break;
@@ -175,7 +177,7 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
 #endif
     case IREP_TT_FLOAT:	siz = 8;	break;
     default:
-      mrbc_raise(vm, MRBC_CLASS(Exception), "Loader unknown TT found.");
+      mrbc_raisef(vm, MRBC_CLASS(Exception), "Not support such type (IREP_TT=%d)", tt);
       return NULL;
     }
     p += siz;
@@ -232,7 +234,7 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
   for( int i = 0; i < plen; i++ ) {
     int siz = 0;
     if( (p - irep.pool) > UINT16_MAX ) {
-      mrbc_raise(vm, MRBC_CLASS(Exception), "Overflow IREP data offset table.");
+      mrbc_raise(vm, MRBC_CLASS(Exception), "Overflow IREP data offset table");
       return NULL;
     }
     *ofs_pools++ = (uint16_t)(p - irep.pool);
@@ -252,7 +254,7 @@ static mrbc_irep * load_irep_1(struct VM *vm, const uint8_t *bin, int *len)
 
 
  ERROR_TOO_LARGE:
-  mrbc_raise(vm, MRBC_CLASS(Exception), "Too large IREP size.");
+  mrbc_raise(vm, MRBC_CLASS(Exception), "Too large IREP size");
   return NULL;
 }
 

@@ -905,7 +905,7 @@ static void c_array_include(struct VM *vm, mrbc_value v[], int argc)
 static void c_array_and(struct VM *vm, mrbc_value v[], int argc)
 {
   if (v[1].tt != MRBC_TT_ARRAY) {
-    mrbc_raise( vm, MRBC_CLASS(TypeError), "no implicit conversion into Array");
+    mrbc_raisef( vm, MRBC_CLASS(TypeError), "no implicit conversion into %s", "Array");
     return;
   }
   mrbc_value result = mrbc_array_new(vm, 0);
@@ -927,7 +927,7 @@ static void c_array_and(struct VM *vm, mrbc_value v[], int argc)
 static void c_array_or(struct VM *vm, mrbc_value v[], int argc)
 {
   if (v[1].tt != MRBC_TT_ARRAY) {
-    mrbc_raise( vm, MRBC_CLASS(TypeError), "no implicit conversion into Array");
+    mrbc_raisef( vm, MRBC_CLASS(TypeError), "no implicit conversion into %s", "Array");
     return;
   }
   mrbc_value result = mrbc_array_new(vm, 0);
@@ -1139,7 +1139,7 @@ static void c_array_uniq(struct VM *vm, mrbc_value v[], int argc)
   // subset of Array#uniq
 
   if( mrbc_c_block_given(vm, v, argc) ) {
-    mrbc_raise(vm, MRBC_CLASS(NotImplementedError), "Block are not supported.");
+    mrbc_raise(vm, MRBC_CLASS(NotImplementedError), "Block are not supported");
     return;
   }
 
@@ -1156,7 +1156,7 @@ static void c_array_uniq_self(struct VM *vm, mrbc_value v[], int argc)
   // subset of Array#uniq!
 
   if( mrbc_c_block_given(vm, v, argc) ) {
-    mrbc_raise(vm, MRBC_CLASS(NotImplementedError), "Block are not supported.");
+    mrbc_raise(vm, MRBC_CLASS(NotImplementedError), "Block are not supported");
     return;
   }
 

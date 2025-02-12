@@ -414,11 +414,11 @@ int mrbc_string_downcase(mrbc_value *str)
 static void c_string_new(struct VM *vm, mrbc_value v[], int argc)
 {
   if (argc == 1 && mrbc_type(v[1]) != MRBC_TT_STRING) {
-    mrbc_raise( vm, MRBC_CLASS(TypeError), "no implicit conversion into String");
+    mrbc_raisef( vm, MRBC_CLASS(TypeError), "no implicit conversion into %s", "String");
     return;
   }
   if (argc > 1) {
-    mrbc_raise( vm, MRBC_CLASS(ArgumentError), "wrong number of arguments (expected 0..1)");
+    mrbc_raise( vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
     return;
   }
 
@@ -454,7 +454,7 @@ static void c_string_add(struct VM *vm, mrbc_value v[], int argc)
 static void c_string_mul(struct VM *vm, mrbc_value v[], int argc)
 {
   if( mrbc_type(v[1]) != MRBC_TT_INTEGER ) {
-    mrbc_raise( vm, MRBC_CLASS(TypeError), "no implicit conversion into String");
+    mrbc_raisef( vm, MRBC_CLASS(TypeError), "no implicit conversion into %s", "String");
     return;
   }
 
@@ -501,7 +501,7 @@ static void c_string_to_i(struct VM *vm, mrbc_value v[], int argc)
   if( argc ) {
     base = v[1].i;
     if( base < 2 || base > 36 ) {
-      mrbc_raise( vm, MRBC_CLASS(ArgumentError), "invalid radix");
+      mrbc_raisef(vm, MRBC_CLASS(ArgumentError), "invalid radix %d", base);
       return;
     }
   }
@@ -663,7 +663,7 @@ static void c_string_insert(struct VM *vm, mrbc_value v[], int argc)
 
   // other cases
   else {
-    mrbc_raise( vm, MRBC_CLASS(TypeError), "Not supported." );
+    mrbc_raise( vm, MRBC_CLASS(TypeError), "Not supported" );
     return;
   }
 
@@ -792,7 +792,7 @@ static void c_string_setbyte(struct VM *vm, mrbc_value v[], int argc)
     idx += len;
   }
   if( idx < 0 || idx >= len ) {
-    mrbc_raise(vm, MRBC_CLASS(IndexError), "index out of string");
+    mrbc_raisef( vm, MRBC_CLASS(IndexError), "index %d out of string", idx );
     return;
   }
 
