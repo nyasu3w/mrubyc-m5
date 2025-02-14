@@ -2731,30 +2731,33 @@ static inline void op_exec( mrbc_vm *vm, mrbc_value *regs EXT )
 
 
 //----------------------------------------------------------------
-static void sub_irep_incref( mrbc_irep *irep )
+static void sub_irep_incref( mrbc_irep *irep, int inc_dec )
 {
   for( int i = 0; i < irep->rlen; i++ ) {
-    sub_irep_incref( mrbc_irep_child_irep(irep, i) );
+    sub_irep_incref( mrbc_irep_child_irep(irep, i), inc_dec );
   }
 
-  irep->ref_count++;
+  irep->ref_count += inc_dec;
 }
 
-static void sub_def_alias( mrbc_class *cls, mrbc_method *method )
+static void sub_def_alias( mrbc_class *cls, mrbc_method *method, mrbc_sym sym_id )
 {
   method->next = cls->method_link;
   cls->method_link = method;
 
-  if( !method->c_func ) sub_irep_incref( method->irep );
+  if( !method->c_func ) sub_irep_incref( method->irep, +1 );
 
   // checking same method
   for( ;method->next != NULL; method = method->next ) {
-    if( method->next->sym_id == method->sym_id ) {
+    if( method->next->sym_id == sym_id ) {
       // Found it. Unchain it in linked list and remove.
       mrbc_method *del_method = method->next;
 
       method->next = del_method->next;
-      if( del_method->type == 'M' ) mrbc_raw_free( del_method );
+      if( del_method->type == 'M' ) {
+	if( !del_method->c_func ) sub_irep_incref( del_method->irep, -1 );
+	mrbc_raw_free( del_method );
+      }
 
       break;
     }
@@ -2786,7 +2789,7 @@ static inline void op_def( mrbc_vm *vm, mrbc_value *regs EXT )
   method->sym_id = sym_id;
   method->irep = proc->irep;
 
-  sub_def_alias( cls, method );
+  sub_def_alias( cls, method, sym_id );
   mrbc_set_symbol(&regs[a], sym_id);
 }
 
@@ -2818,7 +2821,7 @@ static inline void op_alias( mrbc_vm *vm, mrbc_value *regs EXT )
   method->type = (vm->vm_id == 0) ? 'm' : 'M';
   method->sym_id = sym_id_new;
 
-  sub_def_alias( cls, method );
+  sub_def_alias( cls, method, sym_id_new );
 }
 
 
