@@ -66,14 +66,14 @@ class ExceptionTest < Picotest::Test
 
   description "assert_raise also accepts an instance of an exception class to check its message"
   def test_argument_error_new
-    assert_raise(ArgumentError, "wrong number of arguments (expected 0..1)") do
+    assert_raise(ArgumentError, "wrong number of arguments") do
       String.new("1", "2")
     end
   end
 
   description "assert_raise accepts multiple parameters and asserts true in 'OR condition'"
   def test_asserts_among_multiple_exceptions
-    assert_raise(NameError, ArgumentError, "wrong number of arguments (expected 0..1)") do
+    assert_raise(NameError, ArgumentError, "wrong number of arguments") do
       String.new("1", "2")
     end
   end

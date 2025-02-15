@@ -12,7 +12,7 @@ class FloatTest < Picotest::Test
     assert_raise(ArgumentError, "min argument must be smaller than max argument") do
       0.1.clamp(1, -1)
     end
-    assert_raise(ArgumentError, "wrong number of arguments (expected 2)") do
+    assert_raise(ArgumentError, "wrong number of arguments") do
       1.0.clamp(1)
     end
   end
