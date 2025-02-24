@@ -157,7 +157,7 @@ struct RObject {
 #if MRBC_USE_FLOAT
     mrbc_float_t d;		// MRBC_TT_FLOAT
 #endif
-    mrbc_sym sym_id;		// SYMBOL
+    mrbc_sym sym_id;		// MRBC_TT_SYMBOL
     struct RBasic *obj;		// use inc/dec ref only.
     struct RClass *cls;		// MRBC_TT_CLASS, MRBC_TT_MODULE
     struct RInstance *instance;	// MRBC_TT_OBJECT
