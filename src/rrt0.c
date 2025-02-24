@@ -219,7 +219,7 @@ mrbc_tcb * mrbc_tcb_new( int regs_size, enum MrbcTaskState task_state, int prior
 
   memset(tcb, 0, size);
 #if defined(MRBC_DEBUG)
-  memcpy( tcb->type, "TCB", 4 );
+  memcpy( tcb->obj_mark_, "TCB", 4 );
 #endif
   tcb->priority = priority;
   tcb->state = task_state;

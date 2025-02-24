@@ -111,7 +111,7 @@ int mrbc_kv_init_handle(struct VM *vm, mrbc_kv_handle *kvh, int size)
     if( !kvh->data ) return -1;		// ENOMEM
 
 #if defined(MRBC_DEBUG)
-    memcpy( kvh->data->type, "KV", 2 );
+    memcpy( kvh->data->obj_mark_, "KV", 2 );
 #endif
   }
 
@@ -225,7 +225,7 @@ int mrbc_kv_set(mrbc_kv_handle *kvh, mrbc_sym sym_id, mrbc_value *set_val)
     kvh->data_size = MRBC_KV_SIZE_INIT;
 
 #if defined(MRBC_DEBUG)
-    memcpy( kvh->data->type, "KV", 2 );
+    memcpy( kvh->data->obj_mark_, "KV", 2 );
 #endif
 
   // need resize?
@@ -285,7 +285,7 @@ int mrbc_kv_append(mrbc_kv_handle *kvh, mrbc_sym sym_id, mrbc_value *set_val)
     kvh->data_size = MRBC_KV_SIZE_INIT;
 
 #if defined(MRBC_DEBUG)
-    memcpy( kvh->data->type, "KV", 2 );
+    memcpy( kvh->data->obj_mark_, "KV", 2 );
 #endif
 
   // need resize?

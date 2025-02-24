@@ -71,7 +71,7 @@ struct RMutex;
 */
 typedef struct RTcb {
 #if defined(MRBC_DEBUG)
-  uint8_t type[4];		//!< set "TCB\0" for debug.
+  uint8_t obj_mark_[4];		//!< set "TCB\0" for debug.
 #endif
   struct RTcb *next;		//!< daisy chain in task queue.
   uint8_t priority;		//!< task priority. initial value.
