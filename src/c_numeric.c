@@ -227,7 +227,7 @@ static void c_numeric_clamp(struct VM *vm, mrbc_value v[], int argc)
   if (
     (mrbc_type(min) != MRBC_TT_INTEGER && mrbc_type(min) != MRBC_TT_FLOAT) ||
     (mrbc_type(max) != MRBC_TT_INTEGER && mrbc_type(max) != MRBC_TT_FLOAT)
-  ){
+  ) {
     mrbc_raise(vm, MRBC_CLASS(ArgumentError), "comparison failed");
     return;
   }
