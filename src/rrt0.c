@@ -973,7 +973,7 @@ static void c_task_list(mrbc_vm *vm, mrbc_value v[], int argc)
   for( int i = 0; i < NUM_TASK_QUEUE; i++ ) {
     for( mrbc_tcb *tcb = task_queue_[i]; tcb != NULL; tcb = tcb->next ) {
       mrbc_value task = mrbc_instance_new(vm, v->cls, sizeof(mrbc_tcb *));
-      *(mrbc_tcb **)task.instance->data = VM2TCB(vm);
+      *(mrbc_tcb **)task.instance->data = tcb;
       mrbc_array_push( &ret, &task );
     }
   }
@@ -1028,6 +1028,9 @@ static void c_task_set_name(mrbc_vm *vm, mrbc_value v[], int argc)
     tcb = *(mrbc_tcb **)v[0].instance->data;
   }
   mrbc_set_task_name( tcb, mrbc_string_cstr(&v[1]) );
+
+  mrbc_incref( &v[1] );
+  SET_RETURN( v[1] );
 }
 
 
@@ -1079,6 +1082,8 @@ static void c_task_set_priority(mrbc_vm *vm, mrbc_value v[], int argc)
   }
 
   mrbc_change_priority( tcb, n );
+
+  SET_RETURN( v[1] );
 }
 
 
