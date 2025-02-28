@@ -620,7 +620,7 @@ static void c_object_constants(mrb_vm *vm, mrb_value v[], int argc)
 
   while( 1 ) {
     cls = cls->super;
-    if( cls == 0 || cls == (mrbc_class *)&mrbc_class_Object ) {
+    if( cls == 0 || cls == MRBC_CLASS(Object) ) {
       if( mod_nest_idx == 0 ) break;	// does not have super class.
 
       cls = mod_nest[--mod_nest_idx];	// rewind the module search nest.
@@ -629,7 +629,7 @@ static void c_object_constants(mrb_vm *vm, mrb_value v[], int argc)
     // is the next module alias?
     if( cls->flag_alias ) {
       // save the super class pointer to mod_nest[]
-      if( cls->super && cls->super != (mrbc_class *)&mrbc_class_Object ) {
+      if( cls->super && cls->super != MRBC_CLASS(Object) ) {
         if( mod_nest_idx >= (sizeof(mod_nest) / sizeof(mrbc_class *)) ) {
           mrbc_printf("Warning: Module nest exceeds upper limit.\n");
         } else {
