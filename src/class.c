@@ -432,18 +432,37 @@ void mrbc_proc_clear_vm_id(mrbc_value *v)
 /*! Check the class is the class of object.
 
   @param  obj	target object
-  @param  cls	class
+  @param  tcls	target class
   @return	result
 */
-int mrbc_obj_is_kind_of( const mrbc_value *obj, const mrbc_class *cls )
+int mrbc_obj_is_kind_of( const mrbc_value *obj, const mrbc_class *tcls )
 {
-  const mrbc_class *c = find_class_by_object( obj );
-  while( c != NULL ) {
-    if( c == cls ) return 1;
-    c = c->super;
+  const mrbc_class *cls = find_class_by_object( obj );
+  const mrbc_class *mod_nest[3];
+  int mod_nest_idx = 0;
+
+  while( cls != tcls ) {
+    cls = cls->super;
+    if( cls == 0 ) {
+      if( mod_nest_idx == 0 ) return 0;	// does not have super class.
+      cls = mod_nest[--mod_nest_idx];
+    }
+
+    // is the next alias?
+    if( cls->flag_alias ) {
+      // save the super for include nesting of modules.
+      if( cls->super ) {
+        if( mod_nest_idx >= (sizeof(mod_nest) / sizeof(mrbc_class *)) ) {
+          mrbc_printf("Warning: Module nest exceeds upper limit.\n");
+          return 0;
+        }
+        mod_nest[mod_nest_idx++] = cls->super;
+      }
+      cls = cls->aliased;
+    }
   }
 
-  return 0;
+  return 1;
 }
 
 

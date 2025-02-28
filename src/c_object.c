@@ -217,8 +217,8 @@ static void c_object_block_given(struct VM *vm, mrbc_value v[], int argc)
  */
 static void c_object_kind_of(struct VM *vm, mrbc_value v[], int argc)
 {
-  if( mrbc_type(v[1]) != MRBC_TT_CLASS ) {
-    mrbc_raise(vm, MRBC_CLASS(TypeError), "class required");
+  if( v[1].tt != MRBC_TT_CLASS && v[1].tt != MRBC_TT_MODULE ) {
+    mrbc_raise(vm, MRBC_CLASS(TypeError), "class or module required");
     return;
   }
 
@@ -608,14 +608,14 @@ static void c_object_constants(mrb_vm *vm, mrb_value v[], int argc)
   }
   if( argc >= 1 && v[1].tt == MRBC_TT_FALSE ) flag_inherit = 0;
 
-  mrbc_class *cls = v[0].cls;
+  const mrbc_class *cls = v[0].cls;
   mrbc_value ret = mrbc_array_new( vm, 0 );
 
   mrbc_get_all_class_const( cls, &ret );
   if( !flag_inherit ) goto RETURN;
 
   // support super class
-  mrbc_class *mod_nest[3];
+  const mrbc_class *mod_nest[3];
   int mod_nest_idx = 0;
 
   while( 1 ) {
