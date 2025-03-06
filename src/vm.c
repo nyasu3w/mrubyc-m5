@@ -2053,7 +2053,9 @@ static inline void op_div( mrbc_vm *vm, mrbc_value *regs EXT )
     }
 
     mrbc_int_t ret = v0 / v1;
-    if( ((v0 ^ v1) < 0) && (ret == 0) ) ret -= 1;
+    mrbc_int_t mod = v0 % v1;
+
+    if( (mod != 0) && ((v0 ^ v1) < 0) ) ret -= 1;
 
     regs[a].i = ret;
     return;
