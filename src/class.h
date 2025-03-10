@@ -44,7 +44,7 @@ typedef struct RClass {
   mrbc_sym sym_id;		//!< class name's symbol ID
   unsigned int flag_builtin : 1;//!< is built-in class?
   unsigned int flag_module : 1; //!< is module?
-  unsigned int flag_alias : 1;  //!< is alias class?
+  unsigned int flag_alias : 1;  //!< is module alias?
   uint8_t num_builtin_method;	//!< num of built-in method.
   struct RClass *super;		//!< pointer to super class.
   union {
@@ -92,9 +92,9 @@ struct RBuiltinClass {
 typedef struct RInstance {
   MRBC_OBJECT_HEADER;
 
-  struct RClass *cls;
-  struct RKeyValueHandle ivar;
-  uint8_t data[];
+  struct RClass *cls;		//!< pointer to class of this object.
+  struct RKeyValueHandle ivar;	//!< instance variable.
+  uint8_t data[];		//!< extended data
 
 } mrbc_instance;
 typedef struct RInstance mrb_instance;
@@ -161,7 +161,7 @@ void mrbc_instance_clear_vm_id(mrbc_value *v);
 mrbc_value mrbc_proc_new(struct VM *vm, void *irep, uint8_t b_or_m);
 void mrbc_proc_delete(mrbc_value *val);
 void mrbc_proc_clear_vm_id(mrbc_value *v);
-int mrbc_obj_is_kind_of(const mrbc_value *obj, const mrbc_class *cls);
+int mrbc_obj_is_kind_of(const mrbc_value *obj, const mrbc_class *tcls);
 mrbc_method *mrbc_find_method(mrbc_method *r_method, mrbc_class *cls, mrbc_sym sym_id);
 mrbc_class *mrbc_get_class_by_name(const char *name);
 mrbc_value mrbc_send(struct VM *vm, mrbc_value *v, int reg_ofs, mrbc_value *recv, const char *method_name, int argc, ...);

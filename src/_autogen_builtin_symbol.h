@@ -218,15 +218,17 @@ static const char *builtin_symbols[] = {
   "tr",			// MRBC_SYMID_tr = 211(0xd3)
   "tr!",		// MRBC_SYMID_tr_E = 212(0xd4)
   "try_lock",		// MRBC_SYMID_try_lock = 213(0xd5)
-  "unlock",		// MRBC_SYMID_unlock = 214(0xd6)
-  "unshift",		// MRBC_SYMID_unshift = 215(0xd7)
-  "upcase",		// MRBC_SYMID_upcase = 216(0xd8)
-  "upcase!",		// MRBC_SYMID_upcase_E = 217(0xd9)
-  "upto",		// MRBC_SYMID_upto = 218(0xda)
-  "value",		// MRBC_SYMID_value = 219(0xdb)
-  "values",		// MRBC_SYMID_values = 220(0xdc)
-  "|",			// MRBC_SYMID_OR = 221(0xdd)
-  "~",			// MRBC_SYMID_NEG = 222(0xde)
+  "uniq",		// MRBC_SYMID_uniq = 214(0xd6)
+  "uniq!",		// MRBC_SYMID_uniq_E = 215(0xd7)
+  "unlock",		// MRBC_SYMID_unlock = 216(0xd8)
+  "unshift",		// MRBC_SYMID_unshift = 217(0xd9)
+  "upcase",		// MRBC_SYMID_upcase = 218(0xda)
+  "upcase!",		// MRBC_SYMID_upcase_E = 219(0xdb)
+  "upto",		// MRBC_SYMID_upto = 220(0xdc)
+  "value",		// MRBC_SYMID_value = 221(0xdd)
+  "values",		// MRBC_SYMID_values = 222(0xde)
+  "|",			// MRBC_SYMID_OR = 223(0xdf)
+  "~",			// MRBC_SYMID_NEG = 224(0xe0)
 };
 #endif
 
@@ -444,15 +446,17 @@ enum {
   MRBC_SYMID_tr = 211,
   MRBC_SYMID_tr_E = 212,
   MRBC_SYMID_try_lock = 213,
-  MRBC_SYMID_unlock = 214,
-  MRBC_SYMID_unshift = 215,
-  MRBC_SYMID_upcase = 216,
-  MRBC_SYMID_upcase_E = 217,
-  MRBC_SYMID_upto = 218,
-  MRBC_SYMID_value = 219,
-  MRBC_SYMID_values = 220,
-  MRBC_SYMID_OR = 221,
-  MRBC_SYMID_NEG = 222,
+  MRBC_SYMID_uniq = 214,
+  MRBC_SYMID_uniq_E = 215,
+  MRBC_SYMID_unlock = 216,
+  MRBC_SYMID_unshift = 217,
+  MRBC_SYMID_upcase = 218,
+  MRBC_SYMID_upcase_E = 219,
+  MRBC_SYMID_upto = 220,
+  MRBC_SYMID_value = 221,
+  MRBC_SYMID_values = 222,
+  MRBC_SYMID_OR = 223,
+  MRBC_SYMID_NEG = 224,
 };
 
 #define MRB_SYM(sym)  MRBC_SYMID_##sym

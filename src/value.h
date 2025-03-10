@@ -153,10 +153,11 @@ struct RBasic {
 struct RObject {
   mrbc_vtype tt : 8;
   union {
-    mrbc_int_t i;		// MRBC_TT_INTEGER, SYMBOL
+    mrbc_int_t i;		// MRBC_TT_INTEGER
 #if MRBC_USE_FLOAT
     mrbc_float_t d;		// MRBC_TT_FLOAT
 #endif
+    mrbc_sym sym_id;		// MRBC_TT_SYMBOL
     struct RBasic *obj;		// use inc/dec ref only.
     struct RClass *cls;		// MRBC_TT_CLASS, MRBC_TT_MODULE
     struct RInstance *instance;	// MRBC_TT_OBJECT
@@ -194,7 +195,7 @@ typedef struct RObject mrbc_value;
 #define mrbc_type(o)		((o).tt)
 #define mrbc_integer(o)		((o).i)
 #define mrbc_float(o)		((o).d)
-#define mrbc_symbol(o)		((o).i)
+#define mrbc_symbol(o)		((o).sym_id)
 
 // setters
 #define mrbc_set_integer(p,n)	(p)->tt = MRBC_TT_INTEGER; (p)->i = (n)
@@ -203,7 +204,7 @@ typedef struct RObject mrbc_value;
 #define mrbc_set_true(p)	(p)->tt = MRBC_TT_TRUE
 #define mrbc_set_false(p)	(p)->tt = MRBC_TT_FALSE
 #define mrbc_set_bool(p,n)	(p)->tt = (n)? MRBC_TT_TRUE: MRBC_TT_FALSE
-#define mrbc_set_symbol(p,n)	(p)->tt = MRBC_TT_SYMBOL; (p)->i = (n)
+#define mrbc_set_symbol(p,n)	(p)->tt = MRBC_TT_SYMBOL; (p)->sym_id = (n)
 
 // make immediate values.
 #define mrbc_integer_value(n)	((mrbc_value){.tt = MRBC_TT_INTEGER, .i=(n)})
@@ -212,7 +213,7 @@ typedef struct RObject mrbc_value;
 #define mrbc_true_value()	((mrbc_value){.tt = MRBC_TT_TRUE})
 #define mrbc_false_value()	((mrbc_value){.tt = MRBC_TT_FALSE})
 #define mrbc_bool_value(n)	((mrbc_value){.tt = (n)?MRBC_TT_TRUE:MRBC_TT_FALSE})
-#define mrbc_symbol_value(n)	((mrbc_value){.tt = MRBC_TT_SYMBOL, .i=(n)})
+#define mrbc_symbol_value(n)	((mrbc_value){.tt = MRBC_TT_SYMBOL, .sym_id=(n)})
 
 // (for mruby compatible)
 #define mrb_type(o)		mrbc_type(o)
@@ -378,7 +379,7 @@ typedef struct RObject mrbc_value;
 
 #define MRBC_KW_END() \
   (((v[argc].tt == MRBC_TT_HASH) && mrbc_hash_size(&v[argc])) ? \
-   (mrbc_raise(vm, MRBC_CLASS(ArgumentError), "unknown keyword."), 0) : 1)
+   (mrbc_raise(vm, MRBC_CLASS(ArgumentError), "unknown keyword"), 0) : 1)
 
 #define MRBC_KW_DELETE(...) \
   MRBC_each(__VA_ARGS__)( MRBC_KW_DELETE_decl, __VA_ARGS__ )

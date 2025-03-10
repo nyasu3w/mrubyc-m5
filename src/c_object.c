@@ -217,8 +217,8 @@ static void c_object_block_given(struct VM *vm, mrbc_value v[], int argc)
  */
 static void c_object_kind_of(struct VM *vm, mrbc_value v[], int argc)
 {
-  if( mrbc_type(v[1]) != MRBC_TT_CLASS ) {
-    mrbc_raise(vm, MRBC_CLASS(TypeError), "class required");
+  if( v[1].tt != MRBC_TT_CLASS && v[1].tt != MRBC_TT_MODULE ) {
+    mrbc_raise(vm, MRBC_CLASS(TypeError), "class or module required");
     return;
   }
 
@@ -608,19 +608,19 @@ static void c_object_constants(mrb_vm *vm, mrb_value v[], int argc)
   }
   if( argc >= 1 && v[1].tt == MRBC_TT_FALSE ) flag_inherit = 0;
 
-  mrbc_class *cls = v[0].cls;
+  const mrbc_class *cls = v[0].cls;
   mrbc_value ret = mrbc_array_new( vm, 0 );
 
   mrbc_get_all_class_const( cls, &ret );
   if( !flag_inherit ) goto RETURN;
 
   // support super class
-  mrbc_class *mod_nest[3];
+  const mrbc_class *mod_nest[3];
   int mod_nest_idx = 0;
 
   while( 1 ) {
     cls = cls->super;
-    if( cls == 0 || cls == (mrbc_class *)&mrbc_class_Object ) {
+    if( cls == 0 || cls == MRBC_CLASS(Object) ) {
       if( mod_nest_idx == 0 ) break;	// does not have super class.
 
       cls = mod_nest[--mod_nest_idx];	// rewind the module search nest.
@@ -629,7 +629,7 @@ static void c_object_constants(mrb_vm *vm, mrb_value v[], int argc)
     // is the next module alias?
     if( cls->flag_alias ) {
       // save the super class pointer to mod_nest[]
-      if( cls->super && cls->super != (mrbc_class *)&mrbc_class_Object ) {
+      if( cls->super && cls->super != MRBC_CLASS(Object) ) {
         if( mod_nest_idx >= (sizeof(mod_nest) / sizeof(mrbc_class *)) ) {
           mrbc_printf("Warning: Module nest exceeds upper limit.\n");
         } else {
@@ -657,7 +657,7 @@ static void c_object_sprintf(struct VM *vm, mrbc_value v[], int argc)
 
   mrbc_value *format = &v[1];
   if( mrbc_type(*format) != MRBC_TT_STRING ) {
-    mrbc_raise(vm, MRBC_CLASS(TypeError), "sprintf");
+    mrbc_raise(vm, MRBC_CLASS(TypeError), 0);
     return;
   }
 

@@ -432,18 +432,37 @@ void mrbc_proc_clear_vm_id(mrbc_value *v)
 /*! Check the class is the class of object.
 
   @param  obj	target object
-  @param  cls	class
+  @param  tcls	target class
   @return	result
 */
-int mrbc_obj_is_kind_of( const mrbc_value *obj, const mrbc_class *cls )
+int mrbc_obj_is_kind_of( const mrbc_value *obj, const mrbc_class *tcls )
 {
-  const mrbc_class *c = find_class_by_object( obj );
-  while( c != NULL ) {
-    if( c == cls ) return 1;
-    c = c->super;
+  const mrbc_class *cls = find_class_by_object( obj );
+  const mrbc_class *mod_nest[3];
+  int mod_nest_idx = 0;
+
+  while( cls != tcls ) {
+    cls = cls->super;
+    if( cls == 0 ) {
+      if( mod_nest_idx == 0 ) return 0;	// does not have super class.
+      cls = mod_nest[--mod_nest_idx];
+    }
+
+    // is the next alias?
+    if( cls->flag_alias ) {
+      // save the super for include nesting of modules.
+      if( cls->super ) {
+        if( mod_nest_idx >= (sizeof(mod_nest) / sizeof(mrbc_class *)) ) {
+          mrbc_printf("Warning: Module nest exceeds upper limit.\n");
+          return 0;
+        }
+        mod_nest[mod_nest_idx++] = cls->super;
+      }
+      cls = cls->aliased;
+    }
   }
 
-  return 0;
+  return 1;
 }
 
 
@@ -486,12 +505,11 @@ mrbc_method * mrbc_find_method( mrbc_method *r_method, mrbc_class *cls, mrbc_sym
     }
 
     if( c->method_symbols[right] == sym_id ) {
-      *r_method = (mrbc_method){
-	.type = 'm',
-	.c_func = 2,
-	.sym_id = sym_id,
-	.func = c->method_functions[right],
-	.cls = cls };
+      r_method->type = 'm';
+      r_method->c_func = 2;
+      r_method->sym_id = sym_id;
+      r_method->func = c->method_functions[right];
+      r_method->cls = cls;
       return r_method;
     }
 
@@ -568,7 +586,7 @@ mrbc_class * mrbc_get_class_by_name( const char *name )
     mrbc_value ret = mrbc_send( vm, v, argc, recv, "to_s", 1, &arg1 );
     SET_RETURN(ret);
   }
- */
+*/
 mrbc_value mrbc_send( struct VM *vm, mrbc_value *v, int reg_ofs,
 		     mrbc_value *recv, const char *method_name, int argc, ... )
 {
@@ -649,11 +667,7 @@ int mrbc_run_mrblib(const void *bytecode)
     ret = mrbc_vm_run(vm);
   } while( ret == 0 );
   mrbc_vm_end(vm);
-
-  // instead of mrbc_vm_close()
-  mrbc_raw_free( vm->top_irep );	// free only top-level mrbc_irep.
-					// (no need to free child ireps.)
-  mrbc_raw_free( vm );
+  mrbc_vm_close(vm);
 
   return ret;
 }

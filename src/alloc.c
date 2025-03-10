@@ -446,10 +446,14 @@ void mrbc_init_alloc(void *ptr, unsigned int size)
   */
 
   assert( (sizeof(MEMORY_POOL) & 0x03) == 0 );
+#if defined(UINTPTR_MAX)
+  assert( ((uintptr_t)ptr & 0x03) == 0 );
+#else
+  assert( ((uint32_t)ptr & 0x03) == 0 );
+#endif
   assert( size != 0 );
   assert( size <= (MRBC_ALLOC_MEMSIZE_T)(~0) );
 
-  if( memory_pool != NULL ) return;
   size &= ~(unsigned int)0x03;	// align 4 byte.
   memory_pool = ptr;
   memset( memory_pool, 0, sizeof(MEMORY_POOL) );

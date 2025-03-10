@@ -37,7 +37,7 @@ extern "C" {
 */
 typedef struct RKeyValue {
 #if defined(MRBC_DEBUG)
-  char type[2];
+  char obj_mark_[2];
 #endif
   mrbc_sym sym_id;	//!< symbol ID as key.
   mrbc_value value;	//!< stored value.

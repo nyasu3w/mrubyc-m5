@@ -40,16 +40,22 @@ extern "C" {
 */
 typedef struct IREP {
 #if defined(MRBC_DEBUG)
-  uint8_t type[2];		//!< set "RP" for debug.
+  uint8_t obj_mark_[2];		//!< set "RP" for debug.
 #endif
 
+  uint16_t ref_count;		//!< reference counter
+#if defined(MRBC_DEBUG)
   uint16_t nlocals;		//!< num of local variables
+#endif
   uint16_t nregs;		//!< num of register variables
   uint16_t rlen;		//!< num of child IREP blocks
   uint16_t clen;		//!< num of catch handlers
-  uint32_t ilen;		//!< num of bytes in OpCode
+  uint16_t ilen;		//!< num of bytes in OpCode
+#if defined(MRBC_DEBUG)
   uint16_t plen;		//!< num of pools
   uint16_t slen;		//!< num of symbols
+#endif
+  uint16_t ofs_pools;		//!< offset of data->tbl_pools.
   uint16_t ofs_ireps;		//!< offset of data->tbl_ireps. (32bit aligned)
 
   const uint8_t *inst;		//!< pointer to instruction in RITE binary
@@ -75,7 +81,7 @@ typedef struct IREP mrb_irep;
 
 //! get a pool data offset table pointer.
 #define mrbc_irep_tbl_pools(irep) \
-  ( (uint16_t *) ((irep)->data + (irep)->slen * sizeof(mrbc_sym)) )
+  ( (uint16_t *)((irep)->data + (irep)->ofs_pools) )
 
 //! get a pointer to n'th pool data.
 #define mrbc_irep_pool_ptr(irep, n) \
@@ -84,7 +90,7 @@ typedef struct IREP mrb_irep;
 
 //! get a child irep table pointer.
 #define mrbc_irep_tbl_ireps(irep) \
-  ( (mrbc_irep **) ((irep)->data + (irep)->ofs_ireps * 4) )
+  ( (mrbc_irep **)((irep)->data + (irep)->ofs_ireps) )
 
 //! get a n'th child irep
 #define mrbc_irep_child_irep(irep, n) \
@@ -132,7 +138,7 @@ typedef struct CALLINFO mrb_callinfo;
 */
 typedef struct VM {
 #if defined(MRBC_DEBUG)
-  char type[2];				// set "VM" for debug
+  uint8_t obj_mark_[2];			// set "VM" for debug
 #endif
   uint8_t vm_id;			//!< vm_id : 1..MAX_VM_COUNT
   volatile int8_t flag_preemption;
@@ -406,12 +412,26 @@ static inline void uint16_to_bin( uint16_t v, void *d )
 
   @param  vm	A pointer to VM.
   @param  regs	registor
+  @return	pointer to self object
 */
 static inline mrbc_value * mrbc_get_self( struct VM *vm, mrbc_value *regs )
 {
   return regs[0].tt == MRBC_TT_PROC ? &(regs[0].proc->self) : &regs[0];
 }
 
+
+//================================================================
+/*! (BETA) check if a block is passed to a method.
+
+  @param  vm	A pointer to VM.
+  @param  v	register top.
+  @param  argc	n of arguments.
+  @return	0 or 1
+*/
+static inline int mrbc_c_block_given( struct VM *vm, mrbc_value v[], int argc )
+{
+  return v[argc+1].tt == MRBC_TT_PROC;
+}
 
 #ifdef __cplusplus
 }
