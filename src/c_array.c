@@ -555,6 +555,7 @@ int mrbc_array_include(const mrbc_value *ary, const mrbc_value *val)
 //================================================================
 /*! removes duplicate elements and return allocated new mrbc_value
 
+  @param  vm	pointer to VM.
   @param  ary   source
   @return	result
 */

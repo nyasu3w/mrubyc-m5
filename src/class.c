@@ -582,7 +582,8 @@ mrbc_class * mrbc_get_class_by_name( const char *name )
   @param  method_name	method name.
   @param  argc		num of params.
 
-  @example
+<b>Examples</b>
+@code
   // (Integer).to_s(16)
   static void c_integer_to_s(struct VM *vm, mrbc_value v[], int argc)
   {
@@ -591,6 +592,7 @@ mrbc_class * mrbc_get_class_by_name( const char *name )
     mrbc_value ret = mrbc_send( vm, v, argc, recv, "to_s", 1, &arg1 );
     SET_RETURN(ret);
   }
+@endcode
 */
 mrbc_value mrbc_send( struct VM *vm, mrbc_value *v, int reg_ofs,
 		     mrbc_value *recv, const char *method_name, int argc, ... )
