@@ -41,19 +41,21 @@ extern "C" {
   Class object.
 */
 typedef struct RClass {
-  mrbc_sym sym_id;		//!< class name's symbol ID
-  unsigned int flag_builtin : 1;//!< is built-in class?
-  unsigned int flag_module : 1; //!< is module?
-  unsigned int flag_alias : 1;  //!< is module alias?
-  uint8_t num_builtin_method;	//!< num of built-in method.
-  struct RClass *super;		//!< pointer to super class.
+  mrbc_sym sym_id;		 //!< class name's symbol ID
+  unsigned int flag_builtin : 1; //!< is built-in class? (= 0)
+  unsigned int flag_module : 1;  //!< is module?
+  unsigned int flag_alias : 1;   //!< is module alias?
+  uint8_t num_builtin_method;	 //!< num of built-in method.
+  struct RClass *super;		 //!< pointer to super class.
   union {
-    struct RMethod *method_link;//!< pointer to method link.
-    struct RClass *aliased;     //!< aliased class or module.
+    struct RMethod *method_link; //!< pointer to method link.
+    struct RClass *aliased;      //!< aliased class or module.
   };
 #if defined(MRBC_DEBUG)
   const char *name;
 #endif
+
+  void (*destructor)( mrbc_value * );	//!< specify a destructor if need.
 } mrbc_class;
 typedef struct RClass mrb_class;
 
@@ -64,15 +66,15 @@ typedef struct RClass mrb_class;
   @extends RClass
 */
 struct RBuiltinClass {
-  mrbc_sym sym_id;		//!< class name's symbol ID
-  unsigned int flag_builtin : 1;//!< is built-in class?
-  unsigned int flag_module : 1; //!< is module?
-  unsigned int flag_alias : 1;  //!< is alias class?
-  uint8_t num_builtin_method;	//!< num of built-in method.
-  struct RClass *super;		//!< pointer to super class.
+  mrbc_sym sym_id;		 //!< class name's symbol ID
+  unsigned int flag_builtin : 1; //!< is built-in class? (= 1)
+  unsigned int flag_module : 1;  //!< is module?
+  unsigned int flag_alias : 1;   //!< is alias class?
+  uint8_t num_builtin_method;	 //!< num of built-in method.
+  struct RClass *super;		 //!< pointer to super class.
   union {
-    struct RMethod *method_link;//!< pointer to method link.
-    struct RClass *aliased;     //!< aliased class or module.
+    struct RMethod *method_link; //!< pointer to method link.
+    struct RClass *aliased;      //!< aliased class or module.
   };
 #if defined(MRBC_DEBUG)
   const char *name;
@@ -196,6 +198,24 @@ static inline mrbc_class *find_class_by_object(const mrbc_value *obj)
   }
 
   return cls;
+}
+
+
+//================================================================
+/*! Define the destructor
+
+  @param  cls		class.
+  @param  destructor	destructor.
+  @details
+  Define the destructor.
+  This function can only be defined for destruction of mrbc_instance.
+*/
+static inline void mrbc_define_destructor( mrbc_class *cls, void (*destructor)(mrbc_value *) )
+{
+  assert( cls->flag_builtin == 0 );
+  assert( cls->flag_module == 0 );
+
+  cls->destructor = destructor;
 }
 
 
