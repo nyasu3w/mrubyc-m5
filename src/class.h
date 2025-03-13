@@ -32,7 +32,44 @@ extern "C" {
 #endif
 /***** Constant values ******************************************************/
 /***** Macros ***************************************************************/
+/*!
+  Get a built-in class (pointer)
+
+  @param  cls	Class name. (e.g. Array)
+  @return	Pointer to the class.
+
+  @details
+  Example
+  @code
+    mrbc_class *cls = MRBC_CLASS(Array);	// get a Array class
+    mrbc_class *cls = MRBC_CLASS(String);	// get a String class
+  @endcode
+*/
 #define MRBC_CLASS(cls)	((mrbc_class *)(&mrbc_class_##cls))
+
+/*!
+  Get a pointer to mrbc_instance->data converted to specified type.
+
+  @param  v	Pointer to mrbc_instance.
+  @param  t	Type of return pointer.
+
+  @details
+  Example
+  @code
+    // store a int value.
+    *MRBC_INSTANCE_DATA_PTR(v, int) = n;
+
+    // get
+    int n = *MRBC_INSTANCE_DATA_PTR(v, int);
+
+    // store a pointer to statically allocated memory.
+    *MRBC_INSTANCE_DATA_PTR(v, struct STATIC_STRUCT *) = STATIC_STRUCT;
+
+    // get
+    struct STATIC_STRUCT *p = *MRBC_INSTANCE_DATA_PTR(v, struct STATIC_STRUCT *);
+  @endcode
+*/
+#define MRBC_INSTANCE_DATA_PTR(v, t) ((t *)((v)->instance->data))
 
 
 /***** Typedefs *************************************************************/
