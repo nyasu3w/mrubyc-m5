@@ -1591,7 +1591,7 @@ void pq(const mrbc_tcb *p_tcb)
     if( t->reason & TASKREASON_SLEEP ) {
       mrbc_printf("w:%-6d", t->wakeup_tick );
     } else {
-      mrbc_printf("w:--    ", t->wakeup_tick );
+      mrbc_printf("w:--    ");
     }
   }
   mrbc_printf("\n");
