@@ -345,7 +345,7 @@ void mrbc_instance_setiv(mrbc_value *obj, mrbc_sym sym_id, mrbc_value *v)
 //================================================================
 /*! instance variable getter
 
-  @param  obj		pointer to target.
+  @param  obj		target object.
   @param  sym_id	key symbol ID.
   @return		value.
 */

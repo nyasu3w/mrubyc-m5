@@ -256,6 +256,19 @@ static inline void mrbc_define_destructor( mrbc_class *cls, void (*destructor)(m
 }
 
 
+//================================================================
+/*! instance variable getter
+
+  @param  obj		target object.
+  @param  sym_id	key symbol ID.
+  @return		pointer to value or NULL.
+*/
+static inline mrbc_value * mrbc_instance_getiv_p(mrbc_value *obj, mrbc_sym sym_id)
+{
+  return mrbc_kv_get( &obj->instance->ivar, sym_id );
+}
+
+
 #ifdef __cplusplus
 }
 #endif
