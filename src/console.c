@@ -166,9 +166,8 @@ void mrbc_nprint(const char *str, int size)
   static const char CRLF[2] = "\r\n";
   const char *p1 = str;
   const char *p2 = str;
-  int i;
 
-  for( i = 0; i < size; i++ ) {
+  for( int i = 0; i < size; i++ ) {
     if( *p1++ == '\n' ) {
       hal_write(1, p2, p1 - p2 - 1);
       hal_write(1, CRLF, 2);
@@ -411,8 +410,8 @@ int mrbc_p_sub(const mrbc_value *v)
 int mrbc_puts_sub(const mrbc_value *v)
 {
   if( mrbc_type(*v) == MRBC_TT_ARRAY ) {
-    int i;
-    for( i = 0; i < mrbc_array_size(v); i++ ) {
+
+    for( int i = 0; i < mrbc_array_size(v); i++ ) {
       if( i != 0 ) mrbc_putchar('\n');
       mrbc_value v1 = mrbc_array_get(v, i);
       mrbc_puts_sub(&v1);
@@ -470,8 +469,7 @@ int mrbc_print_sub(const mrbc_value *v)
 
   case MRBC_TT_ARRAY:{
     mrbc_putchar('[');
-    int i;
-    for( i = 0; i < mrbc_array_size(v); i++ ) {
+    for( int i = 0; i < mrbc_array_size(v); i++ ) {
       if( i != 0 ) mrbc_print(", ");
       mrbc_value v1 = mrbc_array_get(v, i);
       mrbc_p_sub(&v1);

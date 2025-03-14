@@ -52,8 +52,7 @@ static int is_space( int ch )
 {
   static const char ws[] = " \t\r\n\f\v";	// '\0' on tail
 
-  int i;
-  for( i = 0; i < sizeof(ws); i++ ) {
+  for( int i = 0; i < sizeof(ws); i++ ) {
     if( ch == ws[i] ) return 1;
   }
   return 0;
@@ -468,8 +467,7 @@ static void c_string_mul(struct VM *vm, mrbc_value v[], int argc)
   if( value.string == NULL ) return;		// ENOMEM
 
   uint8_t *p = value.string->data;
-  int i;
-  for( i = 0; i < v[1].i; i++ ) {
+  for( int i = 0; i < v[1].i; i++ ) {
     memcpy( p, mrbc_string_cstr(&v[0]), mrbc_string_size(&v[0]) );
     p += mrbc_string_size(&v[0]);
   }
@@ -842,8 +840,8 @@ static void c_string_inspect(struct VM *vm, mrbc_value v[], int argc)
   char buf[10] = "\\x";
   mrbc_value ret = mrbc_string_new_cstr(vm, "\"");
   const unsigned char *s = (const unsigned char *)mrbc_string_cstr(v);
-  int i;
-  for( i = 0; i < mrbc_string_size(v); i++ ) {
+
+  for( int i = 0; i < mrbc_string_size(v); i++ ) {
     if( s[i] < ' ' || 0x7f <= s[i] ) {	// tiny isprint()
       buf[2] = "0123456789ABCDEF"[s[i] >> 4];
       buf[3] = "0123456789ABCDEF"[s[i] & 0x0f];
@@ -1216,8 +1214,7 @@ static int tr_find_character( const struct tr_pattern *pat, int ch )
 
   while( pat != NULL ) {
     if( pat->type == 1 ) {	// in-order
-      int i;
-      for( i = 0; i < pat->n; i++ ) {
+      for( int i = 0; i < pat->n; i++ ) {
 	if( pat->ch[i] == ch ) ret = n_sum + i;
       }
     } else {	// pat->type == 2  range
@@ -1267,8 +1264,8 @@ static int tr_main( struct VM *vm, mrbc_value v[], int argc )
   int flag_changed = 0;
   char *s = mrbc_string_cstr( &v[0] );
   int len = mrbc_string_size( &v[0] );
-  int i;
-  for( i = 0; i < len; i++ ) {
+
+  for( int i = 0; i < len; i++ ) {
     int n = tr_find_character( pat, s[i] );
     if( n < 0 ) continue;
 
@@ -1383,8 +1380,8 @@ static void c_string_bytes(struct VM *vm, mrbc_value v[], int argc)
    */
   int len = mrbc_string_size(&v[0]);
   mrbc_value ret = mrbc_array_new(vm, len);
-  int i;
-  for (i = 0; i < len; i++) {
+
+  for( int i = 0; i < len; i++ ) {
     mrbc_array_set(&ret, i, &mrbc_integer_value(v[0].string->data[i]));
   }
   SET_RETURN(ret);

@@ -82,10 +82,9 @@ static void c_integer_power(struct VM *vm, mrbc_value v[], int argc)
 {
   if( mrbc_type(v[1]) == MRBC_TT_INTEGER ) {
     mrbc_int_t x = 1;
-    int i;
 
     if( mrbc_integer(v[1]) < 0 ) x = 0;
-    for( i = 0; i < mrbc_integer(v[1]); i++ ) {
+    for( int i = 0; i < mrbc_integer(v[1]); i++ ) {
       x *= mrbc_integer(v[0]);
     }
     SET_INT_RETURN( x );

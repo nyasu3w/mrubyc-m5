@@ -241,8 +241,7 @@ static void c_object_nil(struct VM *vm, mrbc_value v[], int argc)
 #if !defined(MRBC_NO_STDIO)
 static void c_object_p(struct VM *vm, mrbc_value v[], int argc)
 {
-  int i;
-  for( i = 1; i <= argc; i++ ) {
+  for( int i = 1; i <= argc; i++ ) {
     mrbc_p( &v[i] );
   }
 
@@ -256,7 +255,7 @@ static void c_object_p(struct VM *vm, mrbc_value v[], int argc)
     if( value.array == NULL ) {
       SET_NIL_RETURN();  // ENOMEM
     } else {
-      for ( i = 1; i <= argc; i++ ) {
+      for ( int i = 1; i <= argc; i++ ) {
         mrbc_incref( &v[i] );
         value.array->data[i-1] = v[i];
       }
@@ -274,8 +273,7 @@ static void c_object_p(struct VM *vm, mrbc_value v[], int argc)
 #if !defined(MRBC_NO_STDIO)
 static void c_object_print(struct VM *vm, mrbc_value v[], int argc)
 {
-  int i;
-  for( i = 1; i <= argc; i++ ) {
+  for( int i = 1; i <= argc; i++ ) {
     mrbc_print_sub( &v[i] );
   }
   SET_NIL_RETURN();
@@ -289,9 +287,8 @@ static void c_object_print(struct VM *vm, mrbc_value v[], int argc)
 #if !defined(MRBC_NO_STDIO)
 static void c_object_puts(struct VM *vm, mrbc_value v[], int argc)
 {
-  int i;
-  if( argc ){
-    for( i = 1; i <= argc; i++ ) {
+  if( argc ) {
+    for( int i = 1; i <= argc; i++ ) {
       if( mrbc_puts_sub( &v[i] ) == 0 ) mrbc_putchar('\n');
     }
   } else {
@@ -509,8 +506,7 @@ static void c_object_setiv(struct VM *vm, mrbc_value v[], int argc)
  */
 static void c_object_attr_reader(struct VM *vm, mrbc_value v[], int argc)
 {
-  int i;
-  for( i = 1; i <= argc; i++ ) {
+  for( int i = 1; i <= argc; i++ ) {
     if( mrbc_type(v[i]) != MRBC_TT_SYMBOL ) {
       // Not support "String" only :symbol
       mrbc_raise(vm, MRBC_CLASS(TypeError), "not a symbol");
@@ -529,8 +525,7 @@ static void c_object_attr_reader(struct VM *vm, mrbc_value v[], int argc)
  */
 static void c_object_attr_accessor(struct VM *vm, mrbc_value v[], int argc)
 {
-  int i;
-  for( i = 1; i <= argc; i++ ) {
+  for( int i = 1; i <= argc; i++ ) {
     if( mrbc_type(v[i]) != MRBC_TT_SYMBOL ) {
       // Not support "String" only :symbol
       mrbc_raise(vm, MRBC_CLASS(TypeError), "not a symbol");

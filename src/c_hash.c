@@ -287,8 +287,7 @@ int mrbc_hash_compare(const mrbc_value *v1, const mrbc_value *v2)
   if( v1->hash->n_stored != v2->hash->n_stored ) return 1;
 
   mrbc_value *d1 = v1->hash->data;
-  int i;
-  for( i = 0; i < mrbc_hash_size(v1); i++, d1++ ) {
+  for( int i = 0; i < mrbc_hash_size(v1); i++, d1++ ) {
     mrbc_value *d2 = mrbc_hash_search(v2, d1);	// check key
     if( d2 == NULL ) return 1;
     if( mrbc_compare( ++d1, ++d2 ) ) return 1;	// check data
