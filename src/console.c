@@ -365,8 +365,8 @@ int mrbc_p_sub(const mrbc_value *v)
   case MRBC_TT_STRING:{
     mrbc_putchar('"');
     const unsigned char *s = (const unsigned char *)mrbc_string_cstr(v);
-    int i;
-    for( i = 0; i < mrbc_string_size(v); i++ ) {
+
+    for( int i = 0; i < mrbc_string_size(v); i++ ) {
       if( s[i] < ' ' || 0x7f <= s[i] ) {	// tiny isprint()
 	mrbc_printf("\\x%02X", s[i]);
       } else {
@@ -451,7 +451,7 @@ int mrbc_print_sub(const mrbc_value *v)
   case MRBC_TT_OBJECT:{
     mrbc_printf("#<");
     mrbc_print_symbol( find_class_by_object(v)->sym_id );
-    mrbc_printf(":%08x", v->instance );
+    mrbc_printf(":%08x", MRBC_PTR_TO_UINT32(v->instance) );
 
     mrbc_kv_iterator ite = mrbc_kv_iterator_new( &(v->instance->ivar) );
     while( mrbc_kv_i_has_next( &ite ) ) {
@@ -464,8 +464,8 @@ int mrbc_print_sub(const mrbc_value *v)
   } break;
 
   case MRBC_TT_PROC:
-    mrbc_printf("#<Proc:%08x>", v->proc );
-    //mrbc_printf("#<Proc:%08x, callinfo=%p>", v->proc, v->proc->callinfo );
+    mrbc_printf("#<Proc:%08x>", MRBC_PTR_TO_UINT32(v->proc) );
+    //mrbc_printf("#<Proc:%08x, callinfo=%p>", MRBC_PTR_TO_UINT32(v->proc), MRBC_PTR_TO_UINT32(v->proc->callinfo) );
     break;
 
   case MRBC_TT_ARRAY:{
@@ -509,7 +509,7 @@ int mrbc_print_sub(const mrbc_value *v)
   } break;
 
   case MRBC_TT_HANDLE:
-    mrbc_printf("#<Handle:%08x>", v->handle );
+    mrbc_printf("#<Handle:%08x>", MRBC_PTR_TO_UINT32(v->handle) );
     break;
 
   case MRBC_TT_EXCEPTION:
@@ -881,11 +881,7 @@ int mrbc_printf_float( mrbc_printf_t *pf, double value )
 */
 int mrbc_printf_pointer( mrbc_printf_t *pf, void *ptr )
 {
-#if defined(UINTPTR_MAX)
-  uintptr_t v = (uintptr_t)ptr;
-#else
-  int v = (int)ptr; // regal (void* to int), but implementation defined.
-#endif
+  uint32_t v = MRBC_PTR_TO_UINT32(ptr);
   int n = sizeof(ptr) * 2;
   if( n > 8 ) n = 8;
 

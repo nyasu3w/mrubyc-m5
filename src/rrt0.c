@@ -1541,12 +1541,7 @@ void pq(const mrbc_tcb *p_tcb)
 
   // vm_id, TCB, name
   for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
-    mrbc_printf("%d:%08x %-8.8s ", t->vm.vm_id,
-#if defined(UINTPTR_MAX)
-                (uint32_t)(uintptr_t)t,
-#else
-                (uint32_t)t,
-#endif
+    mrbc_printf("%d:%08x %-8.8s ", t->vm.vm_id, MRBC_PTR_TO_UINT32(t),
                 t->name[0] ? t->name : "(noname)" );
   }
   mrbc_printf("\n");
@@ -1554,11 +1549,7 @@ void pq(const mrbc_tcb *p_tcb)
 #if 0
   // next ptr
   for( const mrbc_tcb *t = p_tcb; t; t = t->next ) {
-#if defined(UINTPTR_MAX)
-    mrbc_printf(" next:%04x          ", (uint16_t)(uintptr_t)t->next);
-#else
-    mrbc_printf(" next:%04x          ", (uint16_t)t->next);
-#endif
+    mrbc_printf(" next:%04x          ", (uint16_t)MRBC_PTR_TO_UINT32(t->next));
   }
   mrbc_printf("\n");
 #endif

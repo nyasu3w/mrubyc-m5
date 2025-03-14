@@ -809,11 +809,7 @@ static void c_object_to_s(struct VM *vm, mrbc_value v[], int argc)
   int n = set_sym_name_by_id( s, bufsiz, sym_id );
 
   if (!class_or_module) {
-    mrbc_snprintf(s+n, bufsiz-n, ":%08x>", (uint32_t)
-#if defined(UINTPTR_MAX)
-	(uintptr_t)
-#endif
-	v->instance );
+    mrbc_snprintf(s+n, bufsiz-n, ":%08x>", MRBC_PTR_TO_UINT32(v->instance));
   }
 
   SET_RETURN( mrbc_string_new_cstr( vm, buf ));
