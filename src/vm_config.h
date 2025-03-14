@@ -67,6 +67,29 @@
 
 /* Endian
    Define either MRBC_BIG_ENDIAN or MRBC_LITTLE_ENDIAN.
+
+  (note)
+  Conversion functions from binary (byte array) to each data type.
+
+  Use the MRBC_BIG_ENDIAN, MRBC_LITTLE_ENDIAN and MRBC_REQUIRE_32BIT_ALIGNMENT
+  macros.
+
+  (each cases)
+  Little endian, no alignment.
+   MRBC_LITTLE_ENDIAN && !MRBC_REQUIRE_32BIT_ALIGNMENT
+   (e.g.) ARM Cortex-M4, Intel x86
+
+  Big endian, no alignment.
+   MRBC_BIG_ENDIAN && !MRBC_REQUIRE_32BIT_ALIGNMENT
+   (e.g.) IBM PPC405
+
+  Little endian, 32bit alignment required.
+   MRBC_LITTLE_ENDIAN && MRBC_REQUIRE_32BIT_ALIGNMENT
+   (e.g.) ARM Cortex-M0
+
+  Big endian, 32bit alignment required.
+   MRBC_BIG_ENDIAN) && MRBC_REQUIRE_32BIT_ALIGNMENT
+   (e.g.) OpenRISC
 */
 #if !defined(MRBC_BIG_ENDIAN) && !defined(MRBC_LITTLE_ENDIAN)
 # define MRBC_LITTLE_ENDIAN
