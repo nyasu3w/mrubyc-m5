@@ -448,11 +448,20 @@ int mrbc_print_sub(const mrbc_value *v)
   case MRBC_TT_CLASS:   // fall through.
   case MRBC_TT_MODULE:	mrbc_print_symbol(v->cls->sym_id); break;
 
-  case MRBC_TT_OBJECT:
+  case MRBC_TT_OBJECT:{
     mrbc_printf("#<");
     mrbc_print_symbol( find_class_by_object(v)->sym_id );
-    mrbc_printf(":%08x>", v->instance );
-    break;
+    mrbc_printf(":%08x", v->instance );
+
+    mrbc_kv_iterator ite = mrbc_kv_iterator_new( &(v->instance->ivar) );
+    while( mrbc_kv_i_has_next( &ite ) ) {
+      mrbc_printf( mrbc_kv_i_is_first(&ite) ? " " : ", " );
+      const mrbc_kv *kv = mrbc_kv_i_next( &ite );
+      mrbc_printf("@%s=", mrbc_symid_to_str(kv->sym_id));
+      mrbc_p_sub(&kv->value);
+    }
+    mrbc_printf(">");
+  } break;
 
   case MRBC_TT_PROC:
     mrbc_printf("#<Proc:%08x>", v->proc );
