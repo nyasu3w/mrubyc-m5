@@ -318,6 +318,11 @@ mrbc_value mrbc_instance_new(struct VM *vm, mrbc_class *cls, int size)
 */
 void mrbc_instance_delete(mrbc_value *v)
 {
+  assert( v->tt == MRBC_TT_OBJECT );
+  mrbc_class *cls = v->instance->cls;
+
+  if( !cls->flag_builtin && cls->destructor ) cls->destructor( v );
+
   mrbc_kv_delete_data( &v->instance->ivar );
   mrbc_raw_free( v->instance );
 }
@@ -340,7 +345,7 @@ void mrbc_instance_setiv(mrbc_value *obj, mrbc_sym sym_id, mrbc_value *v)
 //================================================================
 /*! instance variable getter
 
-  @param  obj		pointer to target.
+  @param  obj		target object.
   @param  sym_id	key symbol ID.
   @return		value.
 */
@@ -577,7 +582,8 @@ mrbc_class * mrbc_get_class_by_name( const char *name )
   @param  method_name	method name.
   @param  argc		num of params.
 
-  @example
+<b>Examples</b>
+@code
   // (Integer).to_s(16)
   static void c_integer_to_s(struct VM *vm, mrbc_value v[], int argc)
   {
@@ -586,6 +592,7 @@ mrbc_class * mrbc_get_class_by_name( const char *name )
     mrbc_value ret = mrbc_send( vm, v, argc, recv, "to_s", 1, &arg1 );
     SET_RETURN(ret);
   }
+@endcode
 */
 mrbc_value mrbc_send( struct VM *vm, mrbc_value *v, int reg_ofs,
 		     mrbc_value *recv, const char *method_name, int argc, ... )

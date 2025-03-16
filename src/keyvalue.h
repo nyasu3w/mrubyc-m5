@@ -99,7 +99,7 @@ static inline int mrbc_kv_size(const mrbc_kv_handle *kvh)
 }
 
 //================================================================
-/*! iterator constructor
+/*! iterator: constructor
 
 <b>Code example</b>
 @code
@@ -121,7 +121,15 @@ static inline mrbc_kv_iterator mrbc_kv_iterator_new( const mrbc_kv_handle *h )
 }
 
 //================================================================
-/*! iterator has_next?
+/*! iterator: is_first?
+*/
+static inline int mrbc_kv_i_is_first( const mrbc_kv_iterator *ite )
+{
+  return ite->i == 0;
+}
+
+//================================================================
+/*! iterator: has_next?
 */
 static inline int mrbc_kv_i_has_next( const mrbc_kv_iterator *ite )
 {
@@ -129,13 +137,20 @@ static inline int mrbc_kv_i_has_next( const mrbc_kv_iterator *ite )
 }
 
 //================================================================
-/*! iterator getter
+/*! iterator: getter
+*/
+static inline mrbc_kv *mrbc_kv_i_get( mrbc_kv_iterator *ite )
+{
+  return &ite->target->data[ ite->i ];
+}
+
+//================================================================
+/*! iterator: get and next
 */
 static inline mrbc_kv *mrbc_kv_i_next( mrbc_kv_iterator *ite )
 {
   return &ite->target->data[ ite->i++ ];
 }
-
 
 
 #ifdef __cplusplus

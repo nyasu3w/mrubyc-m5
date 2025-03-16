@@ -395,6 +395,7 @@ typedef struct RObject mrbc_value;
   MRBC_each15,MRBC_each14,MRBC_each13,MRBC_each12,MRBC_each11, \
   MRBC_each10,MRBC_each9, MRBC_each8, MRBC_each7, MRBC_each6,  \
   MRBC_each5, MRBC_each4, MRBC_each3, MRBC_each2, MRBC_each1)
+//@cond
 #define MRBC_each_sel(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30, a31, ...) a31
 #define MRBC_each1(func,arg) func(arg)
 #define MRBC_each2(func,arg, ...) func(arg) MRBC_each1(func,__VA_ARGS__)
@@ -426,6 +427,18 @@ typedef struct RObject mrbc_value;
 #define MRBC_each28(func,arg, ...) func(arg) MRBC_each27(func,__VA_ARGS__)
 #define MRBC_each29(func,arg, ...) func(arg) MRBC_each28(func,__VA_ARGS__)
 #define MRBC_each30(func,arg, ...) func(arg) MRBC_each29(func,__VA_ARGS__)
+//@endcond
+
+
+/**
+  @def MRBC_PTR_TO_UINT32(p)
+  convert pointer to uint32_t
+*/
+#if defined(UINTPTR_MAX)
+#define MRBC_PTR_TO_UINT32(p) ((uint32_t)(uintptr_t)(p))
+#else
+#define MRBC_PTR_TO_UINT32(p) ((uint32_t)(p))
+#endif
 
 
 /***** Global variables *****************************************************/

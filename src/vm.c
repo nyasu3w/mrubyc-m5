@@ -61,7 +61,6 @@ static uint16_t free_vm_bitmap[MAX_VM_COUNT / 16 + 1];
   @param  sym_id	method name symbol id
   @param  a		operand a
   @param  c		bit: 0-3=narg, 4-7=karg, 8=have block param flag.
-  @retval 0  No error.
 */
 static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
 {

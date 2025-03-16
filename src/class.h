@@ -32,7 +32,44 @@ extern "C" {
 #endif
 /***** Constant values ******************************************************/
 /***** Macros ***************************************************************/
+/*!
+  Get a built-in class (pointer)
+
+  @param  cls	Class name. (e.g. Array)
+  @return	Pointer to the class.
+
+  @details
+  Example
+  @code
+    mrbc_class *cls = MRBC_CLASS(Array);	// get a Array class
+    mrbc_class *cls = MRBC_CLASS(String);	// get a String class
+  @endcode
+*/
 #define MRBC_CLASS(cls)	((mrbc_class *)(&mrbc_class_##cls))
+
+/*!
+  Get a pointer to mrbc_instance->data converted to specified type.
+
+  @param  v	Pointer to mrbc_instance.
+  @param  t	Type of return pointer.
+
+  @details
+  Example
+  @code
+    // store a int value.
+    *MRBC_INSTANCE_DATA_PTR(v, int) = n;
+
+    // get
+    int n = *MRBC_INSTANCE_DATA_PTR(v, int);
+
+    // store a pointer to statically allocated memory.
+    *MRBC_INSTANCE_DATA_PTR(v, struct STATIC_STRUCT *) = STATIC_STRUCT;
+
+    // get
+    struct STATIC_STRUCT *p = *MRBC_INSTANCE_DATA_PTR(v, struct STATIC_STRUCT *);
+  @endcode
+*/
+#define MRBC_INSTANCE_DATA_PTR(v, t) ((t *)((v)->instance->data))
 
 
 /***** Typedefs *************************************************************/
@@ -41,19 +78,21 @@ extern "C" {
   Class object.
 */
 typedef struct RClass {
-  mrbc_sym sym_id;		//!< class name's symbol ID
-  unsigned int flag_builtin : 1;//!< is built-in class?
-  unsigned int flag_module : 1; //!< is module?
-  unsigned int flag_alias : 1;  //!< is module alias?
-  uint8_t num_builtin_method;	//!< num of built-in method.
-  struct RClass *super;		//!< pointer to super class.
+  mrbc_sym sym_id;		 //!< class name's symbol ID
+  unsigned int flag_builtin : 1; //!< is built-in class? (= 0)
+  unsigned int flag_module : 1;  //!< is module?
+  unsigned int flag_alias : 1;   //!< is module alias?
+  uint8_t num_builtin_method;	 //!< num of built-in method.
+  struct RClass *super;		 //!< pointer to super class.
   union {
-    struct RMethod *method_link;//!< pointer to method link.
-    struct RClass *aliased;     //!< aliased class or module.
+    struct RMethod *method_link; //!< pointer to method link.
+    struct RClass *aliased;      //!< aliased class or module.
   };
 #if defined(MRBC_DEBUG)
   const char *name;
 #endif
+
+  void (*destructor)( mrbc_value * );	//!< specify a destructor if need.
 } mrbc_class;
 typedef struct RClass mrb_class;
 
@@ -64,15 +103,15 @@ typedef struct RClass mrb_class;
   @extends RClass
 */
 struct RBuiltinClass {
-  mrbc_sym sym_id;		//!< class name's symbol ID
-  unsigned int flag_builtin : 1;//!< is built-in class?
-  unsigned int flag_module : 1; //!< is module?
-  unsigned int flag_alias : 1;  //!< is alias class?
-  uint8_t num_builtin_method;	//!< num of built-in method.
-  struct RClass *super;		//!< pointer to super class.
+  mrbc_sym sym_id;		 //!< class name's symbol ID
+  unsigned int flag_builtin : 1; //!< is built-in class? (= 1)
+  unsigned int flag_module : 1;  //!< is module?
+  unsigned int flag_alias : 1;   //!< is alias class?
+  uint8_t num_builtin_method;	 //!< num of built-in method.
+  struct RClass *super;		 //!< pointer to super class.
   union {
-    struct RMethod *method_link;//!< pointer to method link.
-    struct RClass *aliased;     //!< aliased class or module.
+    struct RMethod *method_link; //!< pointer to method link.
+    struct RClass *aliased;      //!< aliased class or module.
   };
 #if defined(MRBC_DEBUG)
   const char *name;
@@ -196,6 +235,37 @@ static inline mrbc_class *find_class_by_object(const mrbc_value *obj)
   }
 
   return cls;
+}
+
+
+//================================================================
+/*! Define the destructor
+
+  @param  cls		class.
+  @param  destructor	destructor.
+  @details
+  Define the destructor.
+  This function can only be defined for destruction of mrbc_instance.
+*/
+static inline void mrbc_define_destructor( mrbc_class *cls, void (*destructor)(mrbc_value *) )
+{
+  assert( cls->flag_builtin == 0 );
+  assert( cls->flag_module == 0 );
+
+  cls->destructor = destructor;
+}
+
+
+//================================================================
+/*! instance variable getter
+
+  @param  obj		target object.
+  @param  sym_id	key symbol ID.
+  @return		pointer to value or NULL.
+*/
+static inline mrbc_value * mrbc_instance_getiv_p(mrbc_value *obj, mrbc_sym sym_id)
+{
+  return mrbc_kv_get( &obj->instance->ivar, sym_id );
 }
 
 

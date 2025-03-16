@@ -179,28 +179,6 @@ int mrbc_vm_run(struct VM *vm);
 
 /***** Inline functions *****************************************************/
 /*
-  (note)
-  Conversion functions from binary (byte array) to each data type.
-
-  Use the MRBC_BIG_ENDIAN, MRBC_LITTLE_ENDIAN and MRBC_REQUIRE_32BIT_ALIGNMENT
-  macros.
-
-  (each cases)
-  Little endian, no alignment.
-   MRBC_LITTLE_ENDIAN && !MRBC_REQUIRE_32BIT_ALIGNMENT
-   (e.g.) ARM Cortex-M4, Intel x86
-
-  Big endian, no alignment.
-   MRBC_BIG_ENDIAN && !MRBC_REQUIRE_32BIT_ALIGNMENT
-   (e.g.) IBM PPC405
-
-  Little endian, 32bit alignment required.
-   MRBC_LITTLE_ENDIAN && MRBC_REQUIRE_32BIT_ALIGNMENT
-   (e.g.) ARM Cortex-M0
-
-  Big endian, 32bit alignment required.
-   MRBC_BIG_ENDIAN) && MRBC_REQUIRE_32BIT_ALIGNMENT
-   (e.g.) OpenRISC
 */
 #if defined(MRBC_REQUIRE_32BIT_ALIGNMENT) && !defined(MRBC_REQUIRE_64BIT_ALIGNMENT)
 #define MRBC_REQUIRE_64BIT_ALIGNMENT

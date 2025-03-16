@@ -196,8 +196,7 @@ int mrbc_array_set(mrbc_value *ary, int idx, mrbc_value *set_val)
     mrbc_decref( &h->data[idx] );
   } else {
     // clear empty cells.
-    int i;
-    for( i = h->n_stored; i < idx; i++ ) {
+    for( int i = h->n_stored; i < idx; i++ ) {
       h->data[i] = mrbc_nil_value();
     }
     h->n_stored = idx + 1;
@@ -362,8 +361,7 @@ int mrbc_array_insert(mrbc_value *ary, int idx, mrbc_value *set_val)
 
   // clear empty cells if need.
   if( idx >= h->n_stored ) {
-    int i;
-    for( i = h->n_stored-1; i < idx; i++ ) {
+    for( int i = h->n_stored-1; i < idx; i++ ) {
       h->data[i] = mrbc_nil_value();
     }
     h->n_stored = idx + 1;
@@ -428,8 +426,7 @@ void mrbc_array_clear(mrbc_value *ary)
 */
 int mrbc_array_compare(const mrbc_value *v1, const mrbc_value *v2)
 {
-  int i;
-  for( i = 0; ; i++ ) {
+  for( int i = 0; ; i++ ) {
     if( i >= mrbc_array_size(v1) || i >= mrbc_array_size(v2) ) {
       return mrbc_array_size(v1) - mrbc_array_size(v2);
     }
@@ -460,8 +457,7 @@ void mrbc_array_minmax(mrbc_value *ary, mrbc_value **pp_min_value, mrbc_value **
   mrbc_value *p_min_value = h->data;
   mrbc_value *p_max_value = h->data;
 
-  int i;
-  for( i = 1; i < h->n_stored; i++ ) {
+  for( int i = 1; i < h->n_stored; i++ ) {
     if( mrbc_compare( &h->data[i], p_min_value ) < 0 ) {
       p_min_value = &h->data[i];
     }
@@ -545,8 +541,8 @@ int mrbc_array_include(const mrbc_value *ary, const mrbc_value *val)
 {
   int n = ary->array->n_stored;
   int i;
-  for (i = 0; i < n; i++) {
-    if (mrbc_compare(&ary->array->data[i], val) == 0) break;
+  for( i = 0; i < n; i++ ) {
+    if( mrbc_compare(&ary->array->data[i], val) == 0) break;
   }
   return (n - i);
 }
@@ -555,6 +551,7 @@ int mrbc_array_include(const mrbc_value *ary, const mrbc_value *val)
 //================================================================
 /*! removes duplicate elements and return allocated new mrbc_value
 
+  @param  vm	pointer to VM.
   @param  ary   source
   @return	result
 */
@@ -637,8 +634,7 @@ static void c_array_new(struct VM *vm, mrbc_value v[], int argc)
     mrbc_value ret = mrbc_array_new(vm, num);
     if( ret.array == NULL ) return;		// ENOMEM
 
-    int i;
-    for( i = 0; i < num; i++ ) {
+    for( int i = 0; i < num; i++ ) {
       mrbc_incref(&v[2]);
       mrbc_array_set(&ret, i, &v[2]);
     }
@@ -699,8 +695,7 @@ static void c_array_get(struct VM *vm, mrbc_value v[], int argc)
     if( ret.array == NULL ) return;	// ENOMEM
 
     memcpy( ret.array->data, &v[1], sizeof(mrbc_value) * argc );
-    int i;
-    for( i = 1; i <= argc; i++ ) {
+    for( int i = 1; i <= argc; i++ ) {
       mrbc_type(v[i]) = MRBC_TT_EMPTY;
     }
     ret.array->n_stored = argc;
@@ -735,8 +730,7 @@ static void c_array_get(struct VM *vm, mrbc_value v[], int argc)
     mrbc_value ret = mrbc_array_new(vm, size);
     if( ret.array == NULL ) return;		// ENOMEM
 
-    int i;
-    for( i = 0; i < size; i++ ) {
+    for( int i = 0; i < size; i++ ) {
       mrbc_value val = mrbc_array_get(v, mrbc_integer(v[1]) + i);
       mrbc_incref(&val);
       mrbc_array_push(&ret, &val);
@@ -909,8 +903,7 @@ static void c_array_and(struct VM *vm, mrbc_value v[], int argc)
     return;
   }
   mrbc_value result = mrbc_array_new(vm, 0);
-  int i;
-  for (i = 0; i < v[0].array->n_stored; i++) {
+  for( int i = 0; i < v[0].array->n_stored; i++) {
     mrbc_value *data = &v[0].array->data[i];
     if (0 < mrbc_array_include(&v[1], data) && 0 == mrbc_array_include(&result, data))
     {
@@ -931,15 +924,15 @@ static void c_array_or(struct VM *vm, mrbc_value v[], int argc)
     return;
   }
   mrbc_value result = mrbc_array_new(vm, 0);
-  int i;
-  for (i = 0; i < v[0].array->n_stored; i++) {
+  for( int i = 0; i < v[0].array->n_stored; i++) {
     mrbc_value *data = &v[0].array->data[i];
     if (0 == mrbc_array_include(&result, data))
     {
       mrbc_array_push(&result, data);
     }
   }
-  for (i = 0; i < v[1].array->n_stored; i++) {
+
+  for( int i = 0; i < v[1].array->n_stored; i++) {
     mrbc_value *data = &v[1].array->data[i];
     if (0 == mrbc_array_include(&result, data))
     {
@@ -1179,8 +1172,7 @@ static void c_array_inspect(struct VM *vm, mrbc_value v[], int argc)
   mrbc_value ret = mrbc_string_new_cstr(vm, "[");
   if( !ret.string ) goto RETURN_NIL;		// ENOMEM
 
-  int i;
-  for( i = 0; i < mrbc_array_size(v); i++ ) {
+  for( int i = 0; i < mrbc_array_size(v); i++ ) {
     if( i != 0 ) mrbc_string_append_cstr( &ret, ", " );
 
     mrbc_value v1 = mrbc_array_get(v, i);
