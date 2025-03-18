@@ -63,16 +63,11 @@
 #endif
 
 
-/* Hardware dependent flags */
+/* Hardware dependent flags
 
-/* Endian
-   Define either MRBC_BIG_ENDIAN or MRBC_LITTLE_ENDIAN.
-
-  (note)
-  Conversion functions from binary (byte array) to each data type.
-
-  Use the MRBC_BIG_ENDIAN, MRBC_LITTLE_ENDIAN and MRBC_REQUIRE_32BIT_ALIGNMENT
+  Use the MRBC_BIG_ENDIAN, MRBC_LITTLE_ENDIAN and MRBC_REQUIRE_*BIT_ALIGNMENT
   macros.
+  for conversion functions from binary (byte array) to each data type.
 
   (each cases)
   Little endian, no alignment.
@@ -90,6 +85,10 @@
   Big endian, 32bit alignment required.
    MRBC_BIG_ENDIAN) && MRBC_REQUIRE_32BIT_ALIGNMENT
    (e.g.) OpenRISC
+*/
+
+/* Endian
+   Define either MRBC_BIG_ENDIAN or MRBC_LITTLE_ENDIAN.
 */
 #if !defined(MRBC_BIG_ENDIAN) && !defined(MRBC_LITTLE_ENDIAN)
 # define MRBC_LITTLE_ENDIAN
@@ -130,10 +129,5 @@
 // Examples of override actions when some fatal errors.
 // #define MRBC_OUT_OF_MEMORY() mrbc_alloc_print_memory_pool(); hal_abort(0)
 // #define MRBC_ABORT_BY_EXCEPTION(vm) mrbc_p( &vm->exception ); hal_abort(0)
-
-#if defined(MRBC_SYMBOL_SEARCH_LINER)
-#warning "MRBC_SYMBOL_SEARCH_LINER will be removed in the future release (3.3 or 4.0). Use MRBC_SYMBOL_SEARCH_LINEAR instead."
-#define MRBC_SYMBOL_SEARCH_LINEAR
-#endif
 
 #endif // MRBC_SRC_VM_CONFIG_H_

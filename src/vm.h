@@ -178,13 +178,6 @@ int mrbc_vm_run(struct VM *vm);
 
 
 /***** Inline functions *****************************************************/
-/*
-*/
-#if defined(MRBC_REQUIRE_32BIT_ALIGNMENT) && !defined(MRBC_REQUIRE_64BIT_ALIGNMENT)
-#define MRBC_REQUIRE_64BIT_ALIGNMENT
-#endif
-
-
 //================================================================
 /*! Get 16bit int value from memory.
 
