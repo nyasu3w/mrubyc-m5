@@ -8,6 +8,44 @@
 
   This file is distributed under BSD 3-Clause License.
 
+ Function summary
+ (constructor)
+    mrbc_array_new
+
+ (destructor)
+    mrbc_array_delete
+
+ (setter)
+  --[name]-------------[arg]---[ret]-------------------------------------------
+    mrbc_array_set	*V	int
+    mrbc_array_push	*V	int
+    mrbc_array_push_m	*V	int
+    mrbc_array_unshift	*V	int
+    mrbc_array_insert	*V	int
+
+ (getter)
+  --[name]-------------[arg]---[ret]---[note]----------------------------------
+    mrbc_array_get		 V	Data remains in the container
+    mrbc_array_get_p		*V	Data remains in the container
+    mrbc_array_pop		 V	Data does not remain in the container
+    mrbc_array_shift		 V	Data does not remain in the container
+    mrbc_array_remove		 V	Data does not remain in the container
+
+ (finder)
+    mrbc_array_index
+    mrbc_array_include
+
+ (others)
+    mrbc_array_size
+    mrbc_array_resize
+    mrbc_array_clear
+    mrbc_array_compare
+    mrbc_array_minmax
+    mrbc_array_dup
+    mrbc_array_divide
+    mrbc_array_uniq
+    mrbc_array_uniq_self
+
   </pre>
 */
 
@@ -38,41 +76,6 @@
 /***** Signal catching functions ********************************************/
 /***** Local functions ******************************************************/
 /***** Global functions *****************************************************/
-/*
-  function summary
-
- (constructor)
-    mrbc_array_new
-
- (destructor)
-    mrbc_array_delete
-
- (setter)
-  --[name]-------------[arg]---[ret]-------------------------------------------
-    mrbc_array_set	*T	int
-    mrbc_array_push	*T	int
-    mrbc_array_push_m	*T	int
-    mrbc_array_unshift	*T	int
-    mrbc_array_insert	*T	int
-
- (getter)
-  --[name]-------------[arg]---[ret]---[note]----------------------------------
-    mrbc_array_get		T	Data remains in the container
-    mrbc_array_pop		T	Data does not remain in the container
-    mrbc_array_shift		T	Data does not remain in the container
-    mrbc_array_remove		T	Data does not remain in the container
-
- (others)
-    mrbc_array_resize
-    mrbc_array_clear
-    mrbc_array_compare
-    mrbc_array_minmax
-    mrbc_array_dup
-    mrbc_array_divide
-    mrbc_array_include
-    mrbc_array_uniq_self
-*/
-
 
 //================================================================
 /*! constructor
@@ -223,6 +226,24 @@ mrbc_value mrbc_array_get(const mrbc_value *ary, int idx)
   if( idx < 0 || idx >= h->n_stored ) return mrbc_nil_value();
 
   return h->data[idx];
+}
+
+
+//================================================================
+/*! getter
+
+  @param  ary		pointer to target value
+  @param  idx		index
+  @return		pointer to mrbc_value or NULL.
+*/
+mrbc_value * mrbc_array_get_p(const mrbc_value *ary, int idx)
+{
+  mrbc_array *h = ary->array;
+
+  if( idx < 0 ) idx = h->n_stored + idx;
+  if( idx < 0 || idx >= h->n_stored ) return NULL;
+
+  return &h->data[idx];
 }
 
 
@@ -531,20 +552,19 @@ mrbc_value mrbc_array_divide(struct VM *vm, mrbc_value *src, int pos)
 }
 
 //================================================================
-/*! check inclusion
+/*! index
 
-  @param  ary     source
-  @param  val     object if it is included
-  @return         0 if not included. 1 or greater if included
+  @param  ary	target array.
+  @param  val	search object.
+  @return	index value or -1 if not found.
 */
-int mrbc_array_include(const mrbc_value *ary, const mrbc_value *val)
+int mrbc_array_index(const mrbc_value *ary, const mrbc_value *val)
 {
   int n = ary->array->n_stored;
-  int i;
-  for( i = 0; i < n; i++ ) {
-    if( mrbc_compare(&ary->array->data[i], val) == 0) break;
+  for( int i = 0; i < n; i++ ) {
+    if( mrbc_compare(&ary->array->data[i], val) == 0 ) return i;
   }
-  return (n - i);
+  return -1;
 }
 
 
