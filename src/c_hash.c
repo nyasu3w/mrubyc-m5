@@ -8,6 +8,41 @@
 
   This file is distributed under BSD 3-Clause License.
 
+
+ Function summary
+
+ (constructor)
+    mrbc_hash_new
+
+ (destructor)
+    mrbc_hash_delete
+
+ (setter)
+  --[name]-----------------[arg]--[ret]-[note]------------------------
+    mrbc_hash_set	   *K,*V   int
+
+ (getter)
+  --[name]-----------------[arg]--[ret]-[note]------------------------
+    mrbc_hash_get	    *K      V	Data remains in the container
+    mrbc_hash_get_p	    *K     *V	Data remains in the container
+    mrbc_hash_search	    *K     *K	Data remains in the container
+    mrbc_hash_search_by_id  SymID  *K	Data remains in the container
+    mrbc_hash_remove	    *K      V	Data does not remain in the container
+    mrbc_hash_remove_by_id  SymID   V	Data does not remain in the container
+
+ (iterator)
+  --[name]-----------------[arg]--[ret]-[note]------------------------
+    mrbc_hash_iterator_new  *V      I
+    mrbc_hash_i_has_next    *I     bool
+    mrbc_hash_i_next	    *I     *V	Getter. Data remains in the container
+
+ (others)
+    mrbc_hash_size
+    mrbc_hash_resize
+    mrbc_hash_clear
+    mrbc_hash_compare
+    mrbc_hash_dup
+
   </pre>
 */
 
@@ -38,41 +73,6 @@
 /***** Signal catching functions ********************************************/
 /***** Local functions ******************************************************/
 /***** Global functions *****************************************************/
-/*
-  function summary
-
- (constructor)
-    mrbc_hash_new
-
- (destructor)
-    mrbc_hash_delete
-
- (setter)
-  --[name]-----------------[arg]--[ret]-[note]------------------------
-    mrbc_hash_set	   *K,*V   int
-
- (getter)
-  --[name]-----------------[arg]--[ret]-[note]------------------------
-    mrbc_hash_get	    *K      V	Data remains in the container
-    mrbc_hash_search	    *K     *K	Data remains in the container
-    mrbc_hash_search_by_id  SymID  *K	Data remains in the container
-    mrbc_hash_remove	    *K      V	Data does not remain in the container
-    mrbc_hash_remove_by_id  SymID   V	Data does not remain in the container
-
- (iterator)
-  --[name]-----------------[arg]--[ret]-[note]------------------------
-    mrbc_hash_iterator_new  *V      I
-    mrbc_hash_i_has_next    *I     bool
-    mrbc_hash_i_next	    *I     *V	Getter. Data remains in the container
-
- (others)
-    mrbc_hash_size
-    mrbc_hash_resize
-    mrbc_hash_clear
-    mrbc_hash_compare
-    mrbc_hash_dup
-*/
-
 
 //================================================================
 /*! constructor
@@ -205,6 +205,20 @@ mrbc_value mrbc_hash_get(const mrbc_value *hash, const mrbc_value *key)
 {
   mrbc_value *v = mrbc_hash_search(hash, key);
   return v ? *++v : mrbc_nil_value();
+}
+
+
+//================================================================
+/*! getter
+
+  @param  hash	pointer to target hash
+  @param  key	pointer to key value
+  @return	pointer to mrbc_value or NULL
+*/
+mrbc_value * mrbc_hash_get_p(const mrbc_value *hash, const mrbc_value *key)
+{
+  mrbc_value *v = mrbc_hash_search(hash, key);
+  return v ? ++v : v;
 }
 
 
