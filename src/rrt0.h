@@ -106,6 +106,7 @@ typedef struct RMutex {
 
 /***** Global variables *****************************************************/
 /***** Function prototypes **************************************************/
+//@cond
 void mrbc_tick(void);
 mrbc_tcb *mrbc_tcb_new(int regs_size, enum MrbcTaskState task_state, int priority);
 mrbc_tcb *mrbc_create_task(const void *byte_code, mrbc_tcb *tcb);
@@ -129,6 +130,7 @@ void mrbc_cleanup(void);
 void mrbc_init(void *heap_ptr, unsigned int size);
 void pq(const mrbc_tcb *p_tcb);
 void pqall(void);
+//@endcond
 
 
 /***** Inline functions *****************************************************/

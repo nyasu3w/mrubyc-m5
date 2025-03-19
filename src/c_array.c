@@ -8,45 +8,47 @@
 
   This file is distributed under BSD 3-Clause License.
 
+
  Function summary
+
  (constructor)
-    mrbc_array_new
+    mrbc_array_new()
 
  (destructor)
-    mrbc_array_delete
+    mrbc_array_delete()
 
  (setter)
   --[name]-------------[arg]---[ret]-------------------------------------------
-    mrbc_array_set	*V	int
-    mrbc_array_push	*V	int
-    mrbc_array_push_m	*V	int
-    mrbc_array_unshift	*V	int
-    mrbc_array_insert	*V	int
+    mrbc_array_set()	 *V	int
+    mrbc_array_push()	 *V	int
+    mrbc_array_push_m()	 *V	int
+    mrbc_array_unshift() *V	int
+    mrbc_array_insert()	 *V	int
 
  (getter)
   --[name]-------------[arg]---[ret]---[note]----------------------------------
-    mrbc_array_get		 V	Data remains in the container
-    mrbc_array_get_p		*V	Data remains in the container
-    mrbc_array_pop		 V	Data does not remain in the container
-    mrbc_array_shift		 V	Data does not remain in the container
-    mrbc_array_remove		 V	Data does not remain in the container
+    mrbc_array_get()	idx	 V	Data remains in the container
+    mrbc_array_get_p()	idx	*V	Data remains in the container
+    mrbc_array_pop()		 V	Data does not remain in the container
+    mrbc_array_shift()		 V	Data does not remain in the container
+    mrbc_array_remove()	idx	 V	Data does not remain in the container
 
  (finder)
-    mrbc_array_index
-    mrbc_array_include
+    mrbc_array_index()
+    mrbc_array_include()
 
  (others)
-    mrbc_array_size
-    mrbc_array_resize
-    mrbc_array_clear
-    mrbc_array_compare
-    mrbc_array_minmax
-    mrbc_array_dup
-    mrbc_array_divide
-    mrbc_array_uniq
-    mrbc_array_uniq_self
+    mrbc_array_size()
+    mrbc_array_resize()
+    mrbc_array_clear()
+    mrbc_array_compare()
+    mrbc_array_minmax()
+    mrbc_array_dup()
+    mrbc_array_divide()
+    mrbc_array_uniq()
+    mrbc_array_uniq_self()
 
-  </pre>
+</pre>
 */
 
 /***** Feature test switches ************************************************/

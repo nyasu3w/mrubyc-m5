@@ -12,36 +12,36 @@
  Function summary
 
  (constructor)
-    mrbc_hash_new
+    mrbc_hash_new()
 
  (destructor)
-    mrbc_hash_delete
+    mrbc_hash_delete()
 
  (setter)
-  --[name]-----------------[arg]--[ret]-[note]------------------------
-    mrbc_hash_set	   *K,*V   int
+  --[name]------------------[arg]--[ret]-[note]------------------------
+    mrbc_hash_set()	    *K,*V   int
 
  (getter)
-  --[name]-----------------[arg]--[ret]-[note]------------------------
-    mrbc_hash_get	    *K      V	Data remains in the container
-    mrbc_hash_get_p	    *K     *V	Data remains in the container
-    mrbc_hash_search	    *K     *K	Data remains in the container
-    mrbc_hash_search_by_id  SymID  *K	Data remains in the container
-    mrbc_hash_remove	    *K      V	Data does not remain in the container
-    mrbc_hash_remove_by_id  SymID   V	Data does not remain in the container
+  --[name]------------------[arg]--[ret]-[note]------------------------
+    mrbc_hash_get()	     *K      V	Data remains in the container
+    mrbc_hash_get_p()	     *K     *V	Data remains in the container
+    mrbc_hash_search()	     *K     *K	Data remains in the container
+    mrbc_hash_search_by_id() SymID  *K	Data remains in the container
+    mrbc_hash_remove()	     *K      V	Data does not remain in the container
+    mrbc_hash_remove_by_id() SymID   V	Data does not remain in the container
 
  (iterator)
-  --[name]-----------------[arg]--[ret]-[note]------------------------
-    mrbc_hash_iterator_new  *V      I
-    mrbc_hash_i_has_next    *I     bool
-    mrbc_hash_i_next	    *I     *V	Getter. Data remains in the container
+  --[name]------------------[arg]--[ret]-[note]------------------------
+    mrbc_hash_iterator_new() *V     I
+    mrbc_hash_i_has_next()   *I     bool
+    mrbc_hash_i_next()	     *I     *V	Getter. Data remains in the container
 
  (others)
-    mrbc_hash_size
-    mrbc_hash_resize
-    mrbc_hash_clear
-    mrbc_hash_compare
-    mrbc_hash_dup
+    mrbc_hash_size()
+    mrbc_hash_resize()
+    mrbc_hash_clear()
+    mrbc_hash_compare()
+    mrbc_hash_dup()
 
   </pre>
 */

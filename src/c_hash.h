@@ -64,6 +64,7 @@ typedef struct RHashIterator {
 
 /***** Global variables *****************************************************/
 /***** Function prototypes **************************************************/
+//@cond
 mrbc_value mrbc_hash_new(struct VM *vm, int size);
 void mrbc_hash_delete(mrbc_value *hash);
 mrbc_value *mrbc_hash_search(const mrbc_value *hash, const mrbc_value *key);
@@ -76,7 +77,7 @@ mrbc_value mrbc_hash_remove_by_id(mrbc_value *hash, mrbc_sym sym_id);
 void mrbc_hash_clear(mrbc_value *hash);
 int mrbc_hash_compare(const mrbc_value *v1, const mrbc_value *v2);
 mrbc_value mrbc_hash_dup(struct VM *vm, mrbc_value *src);
-
+//@endcond
 
 /***** Inline functions *****************************************************/
 //================================================================

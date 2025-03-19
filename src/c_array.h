@@ -49,6 +49,7 @@ typedef struct RArray {
 
 /***** Global variables *****************************************************/
 /***** Function prototypes **************************************************/
+//@cond
 mrbc_value mrbc_array_new(struct VM *vm, int size);
 void mrbc_array_delete(mrbc_value *ary);
 void mrbc_array_clear_vm_id(mrbc_value *ary);
@@ -71,7 +72,7 @@ mrbc_value mrbc_array_divide(struct VM *vm, mrbc_value *src, int pos);
 int mrbc_array_index(const mrbc_value *ary, const mrbc_value *val);
 mrbc_value mrbc_array_uniq(struct VM *vm, const mrbc_value *ary);
 int mrbc_array_uniq_self(mrbc_value *ary);
-
+//@endcond
 
 /***** Inline functions *****************************************************/
 //================================================================

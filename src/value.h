@@ -446,10 +446,12 @@ extern void (* const mrbc_delfunc[])(mrbc_value *);
 
 
 /***** Function prototypes **************************************************/
+//@cond
 int mrbc_compare(const mrbc_value *v1, const mrbc_value *v2);
 void mrbc_clear_vm_id(mrbc_value *v);
 mrbc_int_t mrbc_atoi(const char *s, int base);
 int mrbc_strcpy(char *dest, int destsize, const char *src);
+//@endcond
 
 
 /***** Inline functions *****************************************************/

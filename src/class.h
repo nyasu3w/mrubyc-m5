@@ -187,6 +187,7 @@ extern struct RClass * const mrbc_class_tbl[];
 
 
 /***** Function prototypes **************************************************/
+//@cond
 mrbc_class *mrbc_define_class(struct VM *vm, const char *name, mrbc_class *super);
 mrbc_class *mrbc_define_class_under(struct VM *vm, const mrbc_class *outer, const char *name, mrbc_class *super);
 mrbc_class *mrbc_define_module(struct VM *vm, const char *name);
@@ -207,6 +208,7 @@ mrbc_value mrbc_send(struct VM *vm, mrbc_value *v, int reg_ofs, mrbc_value *recv
 void c_ineffect(struct VM *vm, mrbc_value v[], int argc);
 int mrbc_run_mrblib(const void *bytecode);
 void mrbc_init_class(void);
+//@endcond
 
 
 /***** Inline functions *****************************************************/
