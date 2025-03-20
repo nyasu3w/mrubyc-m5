@@ -203,6 +203,8 @@ static void draw_draw_pic_stream(LovyanGFX *dst, draw_pic_type t, Stream* instre
     }
 }
 
+
+
 #ifdef USE_FILE_FUNCTION
 
 static void draw_draw_pic_file(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_value *v, int argc)
@@ -245,20 +247,19 @@ void draw_draw_png(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 
 #endif // USE_FILE_FUNCTION
 
-#include <Stream.h>
-// ByteStream is a class that inherits from Stream 
-class ByteStream : public Stream {  // implemented almost by copilot
-private:
-    const uint8_t *str;
-public:
-    uint16_t pos,length;
-
-    ByteStream(const uint8_t* s, uint16_t len) : str(s), pos(0), length(len) {}
-    int available() { return length - pos; }
-    int read() { return ((pos < length)? str[pos++] : -1); }
-    int peek() { return ((pos < length)? str[pos] : -1); }
-    size_t write(uint8_t c) { return 0;}  // do nothing
-};
+static void draw_draw_pic_mem(LovyanGFX *dst, draw_pic_type t, const uint8_t * mem, size_t memsize, int x, int y){
+    switch(t){
+        case bmp:
+            dst->drawBmp(mem,memsize,x,y);
+            break;
+        case jpg:
+            dst->drawJpg(mem,memsize,x,y);;
+            break;
+        case png:
+            dst->drawPng(mem,memsize,x,y);;
+            break;
+    }
+}
 
 void draw_draw_pic_str(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_value *v, int argc)
 {
@@ -271,12 +272,13 @@ void draw_draw_pic_str(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_value *v
         SET_FALSE_RETURN();
         return;
     }
+    const uint8_t *mem = GET_ARG(1).string->data;
+    size_t memsize = GET_ARG(1).string->size;
 
-    ByteStream bs(GET_ARG(1).string->data, GET_ARG(1).string->size);
     int x = val_to_i(vm, v, GET_ARG(2),argc);
     int y = val_to_i(vm, v, GET_ARG(3),argc);
 
-    draw_draw_pic_stream(dst,t,&bs,x,y);
+    draw_draw_pic_mem(dst,t, mem, memsize,x,y);
     
     SET_TRUE_RETURN();
 }
