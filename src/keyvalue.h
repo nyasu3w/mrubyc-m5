@@ -74,6 +74,7 @@ typedef struct RKeyValueIterator {
 /***** Macros ***************************************************************/
 /***** Global variables *****************************************************/
 /***** Function prototypes **************************************************/
+//@cond
 mrbc_kv_handle *mrbc_kv_new(struct VM *vm, int size);
 int mrbc_kv_init_handle(struct VM *vm, mrbc_kv_handle *kvh, int size);
 void mrbc_kv_delete(mrbc_kv_handle *kvh);
@@ -87,6 +88,7 @@ int mrbc_kv_reorder(mrbc_kv_handle *kvh);
 int mrbc_kv_remove(mrbc_kv_handle *kvh, mrbc_sym sym_id);
 void mrbc_kv_clear(mrbc_kv_handle *kvh);
 void mrbc_kv_dup(const mrbc_kv_handle *src, mrbc_kv_handle *dst);
+//@endcond
 
 
 /***** Inline functions *****************************************************/

@@ -55,6 +55,7 @@ typedef struct RString {
 
 /***** Global variables *****************************************************/
 /***** Function prototypes **************************************************/
+//@cond
 mrbc_value mrbc_string_new(struct VM *vm, const void *src, int len);
 mrbc_value mrbc_string_new_alloc(struct VM *vm, void *buf, int len);
 void mrbc_string_delete(mrbc_value *str);
@@ -69,6 +70,7 @@ int mrbc_string_strip(mrbc_value *src, int mode);
 int mrbc_string_chomp(mrbc_value *src);
 int mrbc_string_upcase(mrbc_value *str);
 int mrbc_string_downcase(mrbc_value *str);
+//@endcond
 
 
 /***** Inline functions *****************************************************/

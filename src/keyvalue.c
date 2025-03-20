@@ -8,6 +8,40 @@
 
   This file is distributed under BSD 3-Clause License.
 
+
+ Function summary
+
+ (constructor)
+    mrbc_kv_new()
+
+ (destructor)
+    mrbc_kv_delete()
+    mrbc_kv_delete_data()
+
+ (initializer)
+    mrbc_kv_init_handle()
+
+ (setter)
+  --[name]-------------[arg]---[ret]---[note]----------------------------------
+    mrbc_kv_set()	*V	int
+
+ (getter)
+  --[name]-------------[arg]---[ret]---[note]----------------------------------
+    mrbc_kv_get()	SymID	*V
+
+ (others)
+    mrbc_kv_resize()
+    mrbc_kv_remove()
+    mrbc_kv_clear()
+    mrbc_kv_dup()
+    mrbc_kv_size()
+
+  (iterator)
+    mrbc_kv_iterator_new()
+    mrbc_kv_i_is_first()
+    mrbc_kv_i_has_next()
+    mrbc_kv_i_get()
+    mrbc_kv_i_next()
   </pre>
 */
 

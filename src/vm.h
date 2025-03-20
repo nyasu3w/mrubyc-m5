@@ -164,6 +164,7 @@ typedef struct VM mrb_vm;
 
 /***** Global variables *****************************************************/
 /***** Function prototypes **************************************************/
+//@cond
 void mrbc_cleanup_vm(void);
 mrbc_sym mrbc_get_callee_symid(struct VM *vm);
 const char *mrbc_get_callee_name(struct VM *vm);
@@ -175,16 +176,10 @@ void mrbc_vm_close(struct VM *vm);
 void mrbc_vm_begin(struct VM *vm);
 void mrbc_vm_end(struct VM *vm);
 int mrbc_vm_run(struct VM *vm);
+//@endcond
 
 
 /***** Inline functions *****************************************************/
-/*
-*/
-#if defined(MRBC_REQUIRE_32BIT_ALIGNMENT) && !defined(MRBC_REQUIRE_64BIT_ALIGNMENT)
-#define MRBC_REQUIRE_64BIT_ALIGNMENT
-#endif
-
-
 //================================================================
 /*! Get 16bit int value from memory.
 

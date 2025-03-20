@@ -57,6 +57,7 @@ struct VM;
 
 /***** Global variables *****************************************************/
 /***** Function prototypes and inline functions *****************************/
+//@cond
 #if !defined(MRBC_ALLOC_LIBC)
 /*
   Normally enabled
@@ -149,6 +150,7 @@ static inline int mrbc_get_vm_id(void *ptr) {
   return 0;
 }
 #endif	// MRBC_ALLOC_LIBC
+//@endcond
 
 
 #ifdef __cplusplus

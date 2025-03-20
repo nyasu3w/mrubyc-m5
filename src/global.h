@@ -27,6 +27,7 @@ extern "C" {
 /***** Typedefs *************************************************************/
 /***** Global variables *****************************************************/
 /***** Function prototypes **************************************************/
+//@cond
 void mrbc_init_global(void);
 int mrbc_set_const(mrbc_sym sym_id, mrbc_value *v);
 int mrbc_set_class_const(const struct RClass *cls, mrbc_sym sym_id, mrbc_value *v);
@@ -38,6 +39,7 @@ mrbc_value *mrbc_get_global(mrbc_sym sym_id);
 void mrbc_global_clear_vm_id(void);
 void mrbc_debug_dump_const(void);
 void mrbc_debug_dump_global(void);
+//@endcond
 
 
 /***** Inline functions *****************************************************/
