@@ -601,11 +601,15 @@ mrbc_value mrbc_send( struct VM *vm, mrbc_value *v, int reg_ofs,
 
   if( mrbc_find_method( &method, find_class_by_object(recv),
 			mrbc_str_to_symid(method_name) ) == 0 ) {
-    mrbc_printf("No method. vtype=%d method='%s'\n", mrbc_type(*recv), method_name );
+    mrbc_raisef(vm, MRBC_CLASS(NoMethodError),
+		"undefined method '%s' for %s", method_name,
+		mrbc_symid_to_str(find_class_by_object(recv)->sym_id) );
     goto ERROR;
   }
   if( !method.c_func ) {
-    mrbc_printf("Method %s needs to be C function.\n", method_name );
+    mrbc_raisef(vm, MRBC_CLASS(NotImplementedError),
+		"Method needs to be C function. '%s' for %s", method_name,
+		mrbc_symid_to_str(find_class_by_object(recv)->sym_id) );
     goto ERROR;
   }
 
@@ -638,6 +642,111 @@ mrbc_value mrbc_send( struct VM *vm, mrbc_value *v, int reg_ofs,
 
  ERROR:
   return mrbc_nil_value();
+}
+
+
+//================================================================
+/*! Get a argument as a C integer.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+
+  @remarks
+  There is a useful macro MRBC_ARG_I().
+*/
+mrbc_int_t mrbc_arg_i(struct VM *vm, mrbc_value v[], int argc, int n)
+{
+  if( argc < n ) {
+    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
+    return 0;
+  }
+
+  switch(v[n].tt) {
+  case MRBC_TT_INTEGER:
+    return v[n].i;
+
+  case MRBC_TT_FLOAT:
+    return v[n].d;
+
+  default:
+    ;
+  }
+
+  mrbc_value ret = mrbc_send( vm, v, argc, &v[n], "to_i", 0 );
+  if( mrbc_israised(vm) ) return 0;
+
+  return ret.i;
+}
+
+
+//================================================================
+/*! Get a argument as a C float (double).
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+
+  @remarks
+  There is a useful macro MRBC_ARG_F().
+*/
+mrbc_float_t mrbc_arg_f(struct VM *vm, mrbc_value v[], int argc, int n)
+{
+  if( argc < n ) {
+    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
+    return 0;
+  }
+
+  switch(v[n].tt) {
+  case MRBC_TT_INTEGER:
+    return v[n].i;
+
+  case MRBC_TT_FLOAT:
+    return v[n].d;
+
+  default:
+    ;
+  }
+
+  mrbc_value ret = mrbc_send( vm, v, argc, &v[n], "to_f", 0 );
+  if( mrbc_israised(vm) ) return 0;
+
+  return ret.d;
+}
+
+
+//================================================================
+/*! Get a argument as a C string.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+
+  @remarks
+  There is a useful macro MRBC_ARG_S().\n
+  This function changes the n'th argument type to string.
+*/
+char * mrbc_arg_s(struct VM *vm, mrbc_value v[], int argc, int n)
+{
+  if( argc < n ) {
+    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
+    return 0;
+  }
+
+  if( v[n].tt == MRBC_TT_STRING ) {
+    return mrbc_string_cstr( &v[n] );
+  }
+
+  mrbc_value ret = mrbc_send( vm, v, argc, &v[n], "to_s", 0 );
+  if( mrbc_israised(vm) ) return 0;
+
+  mrbc_decref( &v[n] );
+  v[n] = ret;
+
+  return mrbc_string_cstr( &v[n] );
 }
 
 

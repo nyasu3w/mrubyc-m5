@@ -72,6 +72,21 @@ extern "C" {
 #define MRBC_INSTANCE_DATA_PTR(v, t) ((t *)((v)->instance->data))
 
 
+/**
+  @def MRBC_ARG_I(n)
+  Get a argument as a C integer.
+
+  @def MRBC_ARG_F(n)
+  Get a argument as a C float (double).
+
+  @def MRBC_ARG_S(n)
+  Get a argument as a C string.
+*/
+#define MRBC_ARG_I(n) mrbc_arg_i(vm, v, argc, (n))
+#define MRBC_ARG_F(n) mrbc_arg_f(vm, v, argc, (n))
+#define MRBC_ARG_S(n) mrbc_arg_s(vm, v, argc, (n))
+
+
 /***** Typedefs *************************************************************/
 //================================================================
 /*!@brief
@@ -205,6 +220,9 @@ int mrbc_obj_is_kind_of(const mrbc_value *obj, const mrbc_class *tcls);
 mrbc_method *mrbc_find_method(mrbc_method *r_method, mrbc_class *cls, mrbc_sym sym_id);
 mrbc_class *mrbc_get_class_by_name(const char *name);
 mrbc_value mrbc_send(struct VM *vm, mrbc_value *v, int reg_ofs, mrbc_value *recv, const char *method_name, int argc, ...);
+mrbc_int_t mrbc_arg_i(struct VM *vm, mrbc_value v[], int argc, int n);
+mrbc_float_t mrbc_arg_f(struct VM *vm, mrbc_value v[], int argc, int n);
+char *mrbc_arg_s(struct VM *vm, mrbc_value v[], int argc, int n);
 void c_ineffect(struct VM *vm, mrbc_value v[], int argc);
 int mrbc_run_mrblib(const void *bytecode);
 void mrbc_init_class(void);
