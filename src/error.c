@@ -208,6 +208,19 @@ void mrbc_raisef( struct VM *vm, struct RClass *exc_cls, const char *fstr, ... )
 
 
 //================================================================
+/*! clear raised exception
+
+  @param  vm		pointer to VM.
+*/
+void mrbc_clear_exception( struct VM *vm )
+{
+  mrbc_decref(&vm->exception);
+  mrbc_set_nil(&vm->exception);
+  vm->flag_preemption = 0;
+}
+
+
+//================================================================
 /*! display exception
 
   @param  v	pointer to Exception object.
