@@ -8,7 +8,6 @@
 
   This file is distributed under BSD 3-Clause License.
 
-
   </pre>
 */
 
@@ -28,13 +27,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /***** Constant values ******************************************************/
 /***** Typedefs *************************************************************/
 // pre define of some struct
 struct VM;
-struct RClass;
 struct RObject;
-struct IREP;
 
 // mrbc types
 #if defined(MRBC_INT16)

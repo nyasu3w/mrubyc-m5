@@ -22,14 +22,7 @@
 //@endcond
 
 /***** Local headers ********************************************************/
-#include "vm.h"
-#include "alloc.h"
-#include "value.h"
-#include "symbol.h"
-#include "error.h"
-#include "c_string.h"
-#include "load.h"
-
+#include "mrubyc.h"
 
 /***** Constat values *******************************************************/
 // for mrb file structure.

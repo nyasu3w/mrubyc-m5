@@ -54,9 +54,7 @@
 //@endcond
 
 /***** Local headers ********************************************************/
-#include "value.h"
-#include "alloc.h"
-#include "keyvalue.h"
+#include "mrubyc.h"
 
 /***** Constat values *******************************************************/
 #if !defined(MRBC_KV_SIZE_INIT)

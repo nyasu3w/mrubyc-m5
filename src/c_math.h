@@ -19,7 +19,9 @@
 extern "C" {
 #endif
 
+//@cond
 void mrbc_init_module_math(void);
+//@endcond
 
 
 #ifdef __cplusplus

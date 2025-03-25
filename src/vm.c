@@ -23,21 +23,8 @@
 //@endcond
 
 /***** Local headers ********************************************************/
-#include "alloc.h"
-#include "value.h"
-#include "symbol.h"
-#include "class.h"
-#include "error.h"
-#include "c_string.h"
-#include "c_range.h"
-#include "c_array.h"
-#include "c_hash.h"
-#include "global.h"
-#include "load.h"
-#include "console.h"
 #include "opcode.h"
-#include "vm.h"
-
+#include "mrubyc.h"
 
 /***** Constat values *******************************************************/
 #define CALL_MAXARGS 15		// 15 is CALL_MAXARGS in mruby

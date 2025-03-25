@@ -8,7 +8,6 @@
 
   This file is distributed under BSD 3-Clause License.
 
-
   </pre>
 */
 
@@ -21,15 +20,7 @@
 //@endcond
 
 /***** Local headers ********************************************************/
-#include "value.h"
-#include "symbol.h"
-#include "class.h"
-#include "error.h"
-#include "c_string.h"
-#include "c_range.h"
-#include "c_array.h"
-#include "c_hash.h"
-
+#include "mrubyc.h"
 
 /***** Constant values ******************************************************/
 /***** Macros ***************************************************************/

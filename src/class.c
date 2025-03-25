@@ -21,21 +21,7 @@
 //@endcond
 
 /***** Local headers ********************************************************/
-#include "alloc.h"
-#include "value.h"
-#include "symbol.h"
-#include "error.h"
-#include "keyvalue.h"
-#include "class.h"
-#include "c_string.h"
-#include "c_array.h"
-#include "c_hash.h"
-#include "c_math.h"
-#include "global.h"
-#include "vm.h"
-#include "load.h"
-#include "console.h"
-
+#include "mrubyc.h"
 
 /***** Constant values ******************************************************/
 /***** Macros ***************************************************************/

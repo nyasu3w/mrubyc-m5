@@ -17,19 +17,21 @@
 /***** Feature test switches ************************************************/
 /***** System headers *******************************************************/
 /***** Local headers ********************************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /***** Constant values ******************************************************/
 /***** Macros ***************************************************************/
 /***** Typedefs *************************************************************/
 /***** Global variables *****************************************************/
 /***** Function prototypes **************************************************/
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+//@cond
 struct VM;
 struct RObject;
 
 void mrbc_instance_call_initialize(struct VM *vm, struct RObject v[], int argc);
+//@endcond
 
 
 /***** Inline functions *****************************************************/
