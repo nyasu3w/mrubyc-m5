@@ -11,9 +11,9 @@ include hal_selector.mk
 
 TARGET = $(BUILD_DIR)/libmrubyc.a
 CFLAGS += -Wall -g   #-std=c99 -pedantic -pedantic-errors
-SRCS = alloc.c c_array.c c_hash.c c_math.c c_numeric.c \
-	c_object.c c_range.c c_string.c class.c console.c error.c global.c \
-	keyvalue.c load.c mrblib.c rrt0.c symbol.c value.c vm.c hal.c
+SRCS = alloc.c c_array.c c_hash.c c_math.c c_numeric.c c_object.c c_proc.c \
+       c_range.c c_string.c class.c console.c error.c global.c keyvalue.c \
+       load.c mrblib.c rrt0.c symbol.c value.c vm.c hal.c
 OBJS = $(addprefix $(BUILD_DIR)/, $(SRCS:.c=.o))
 BUILD_DIR = ../build
 
@@ -55,19 +55,20 @@ AUTOGEN_SYMBOL_TABLE = _autogen_builtin_symbol.h
 AUTOGEN_CLASS_TABLE = _autogen_builtin_class.h
 AUTOGEN_METHOD_TABLE = _autogen_class_array.h _autogen_class_exception.h \
 	_autogen_class_float.h _autogen_class_hash.h _autogen_class_integer.h \
-	_autogen_module_math.h _autogen_class_object.h _autogen_class_range.h \
-	_autogen_class_string.h _autogen_class_symbol.h _autogen_class_rrt0.h
+	_autogen_module_math.h _autogen_class_object.h _autogen_class_proc.h \
+	_autogen_class_range.h _autogen_class_string.h _autogen_class_symbol.h \
+	_autogen_class_rrt0.h
 
 #
 # un-comment below, if you need add and/or delete method in builtin class.
 #
-#AUTOGEN_METHOD_SRCS = c_object.c symbol.c c_numeric.c c_string.c c_range.c c_array.c c_hash.c error.c c_math.c rrt0.c
+AUTOGEN_METHOD_SRCS = c_object.c symbol.c c_numeric.c c_string.c c_proc.c c_range.c c_array.c c_hash.c error.c c_math.c rrt0.c
 
 $(AUTOGEN_SYMBOL_TABLE): $(AUTOGEN_CLASS_TABLE)
 	$(MAKE_SYMBOL_TABLE) --path-c . --path-rb ../mrblib -o $(AUTOGEN_SYMBOL_TABLE)
 
 $(AUTOGEN_CLASS_TABLE): $(AUTOGEN_METHOD_TABLE)
-	$(MAKE_CLASS_TABLE) -o $(AUTOGEN_CLASS_TABLE) c_object.c symbol.c c_numeric.c c_string.c c_range.c c_array.c c_hash.c error.c c_math.c
+	$(MAKE_CLASS_TABLE) -o $(AUTOGEN_CLASS_TABLE) c_object.c symbol.c c_numeric.c c_string.c c_proc.c c_range.c c_array.c c_hash.c error.c c_math.c
 
 _autogen_class_array.h:		$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_array.c
@@ -81,6 +82,8 @@ _autogen_module_math.h:		$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_math.c
 _autogen_class_object.h:	$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_object.c
+_autogen_class_proc.h:		$(AUTOGEN_METHOD_SRCS)
+	$(MAKE_METHOD_TABLE) c_proc.c
 _autogen_class_range.h:		$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_range.c
 _autogen_class_string.h:	$(AUTOGEN_METHOD_SRCS)
@@ -99,9 +102,9 @@ $(BUILD_DIR)/hal.o: $(HAL_DIR)/hal.c $(HAL_DIR)/hal.h
 # File dependencies.
 MRUBYC_H = vm_config.h \
   _autogen_builtin_class.h _autogen_builtin_symbol.h alloc.h \
-  c_array.h c_hash.h c_math.h c_numeric.h c_object.h c_range.h \
-  c_string.h class.h console.h error.h global.h keyvalue.h load.h \
-  symbol.h value.h vm.h
+  c_array.h c_hash.h c_math.h c_numeric.h c_object.h c_proc.h c_range.h \
+  c_string.h class.h console.h error.h global.h keyvalue.h load.h symbol.h \
+  value.h vm.h
 
 $(BUILD_DIR)/alloc.o: alloc.c vm_config.h alloc.h $(HAL_DIR)/hal.h console.h value.h
 $(BUILD_DIR)/c_array.o: c_array.c $(MRUBYC_H) _autogen_class_array.h
@@ -109,6 +112,7 @@ $(BUILD_DIR)/c_hash.o: c_hash.c $(MRUBYC_H) _autogen_class_hash.h
 $(BUILD_DIR)/c_math.o: c_math.c $(MRUBYC_H)
 $(BUILD_DIR)/c_numeric.o: c_numeric.c $(MRUBYC_H) _autogen_class_integer.h _autogen_class_float.h
 $(BUILD_DIR)/c_object.o: c_object.c $(MRUBYC_H) _autogen_class_object.h
+$(BUILD_DIR)/c_proc.o: c_proc.c $(MRUBYC_H) _autogen_class_proc.h
 $(BUILD_DIR)/c_range.o: c_range.c $(MRUBYC_H) _autogen_class_range.h
 $(BUILD_DIR)/c_string.o: c_string.c $(MRUBYC_H) _autogen_class_string.h
 $(BUILD_DIR)/class.o: class.c $(MRUBYC_H)

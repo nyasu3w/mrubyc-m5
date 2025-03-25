@@ -27,6 +27,7 @@
 /***** Local headers ********************************************************/
 #include "value.h"
 #include "class.h"
+#include "c_proc.h"
 
 #ifdef __cplusplus
 extern "C" {

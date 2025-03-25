@@ -26,10 +26,10 @@
 #include "keyvalue.h"
 #include "error.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /***** Constant values ******************************************************/
 /***** Macros ***************************************************************/
 /*!
@@ -141,26 +141,6 @@ typedef struct RInstance mrb_instance;
 
 //================================================================
 /*!@brief
-  Proc object.
-
-  @extends RBasic
-*/
-typedef struct RProc {
-  MRBC_OBJECT_HEADER;
-
-  uint8_t block_or_method;
-  struct CALLINFO *callinfo;
-  struct CALLINFO *callinfo_self;
-  struct IREP *irep;
-  mrbc_value self;
-  mrbc_value ret_val;
-
-} mrbc_proc;
-typedef struct RProc mrb_proc;
-
-
-//================================================================
-/*!@brief
   Method management structure.
 */
 typedef struct RMethod {
@@ -198,9 +178,6 @@ void mrbc_instance_delete(mrbc_value *v);
 void mrbc_instance_setiv(mrbc_value *obj, mrbc_sym sym_id, mrbc_value *v);
 mrbc_value mrbc_instance_getiv(mrbc_value *obj, mrbc_sym sym_id);
 void mrbc_instance_clear_vm_id(mrbc_value *v);
-mrbc_value mrbc_proc_new(struct VM *vm, void *irep, uint8_t b_or_m);
-void mrbc_proc_delete(mrbc_value *val);
-void mrbc_proc_clear_vm_id(mrbc_value *v);
 int mrbc_obj_is_kind_of(const mrbc_value *obj, const mrbc_class *tcls);
 mrbc_method *mrbc_find_method(mrbc_method *r_method, mrbc_class *cls, mrbc_sym sym_id);
 mrbc_class *mrbc_get_class_by_name(const char *name);
