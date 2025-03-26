@@ -121,6 +121,27 @@ struct RBuiltinClass {
   const mrbc_func_t *method_functions;	//!< built-in method function table.
 };
 
+//================================================================
+/*!@brief
+  Built-in No method class object.
+
+  @extends RBuiltinClass
+*/
+struct RBuiltinNoMethodClass {
+  mrbc_sym sym_id;		 //!< class name's symbol ID
+  unsigned int flag_builtin : 1; //!< is built-in class? (= 1)
+  unsigned int flag_module : 1;  //!< is module?
+  unsigned int flag_alias : 1;   //!< is alias class?
+  uint8_t num_builtin_method;	 //!< num of built-in method.
+  struct RClass *super;		 //!< pointer to super class.
+  union {
+    struct RMethod *method_link; //!< pointer to method link.
+    struct RClass *aliased;      //!< aliased class or module.
+  };
+#if defined(MRBC_DEBUG)
+  const char *name;
+#endif
+};
 
 //================================================================
 /*!@brief
