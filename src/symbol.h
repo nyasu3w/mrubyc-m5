@@ -25,6 +25,12 @@ extern "C" {
 #endif
 /***** Constant values ******************************************************/
 /***** Macros ***************************************************************/
+/*! Macros to specify built-in symbol IDs.
+ */
+#define MRBC_SYM(sym) MRBC_SYMID_##sym
+#define MRB_SYM(sym)  MRBC_SYMID_##sym
+
+
 /***** Typedefs *************************************************************/
 /***** Global variables *****************************************************/
 /***** Function prototypes **************************************************/
