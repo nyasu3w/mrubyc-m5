@@ -135,7 +135,7 @@ static void c_proc_call(struct VM *vm, mrbc_value v[], int argc)
 /* MRBC_AUTOGEN_METHOD_TABLE
 
   CLASS("Proc")
-  APPEND("_autogen_class_proc.h")
+  FILE("_autogen_class_proc.h")
 
   METHOD( "new",	c_proc_new )
   METHOD( "call",	c_proc_call )
