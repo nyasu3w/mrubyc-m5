@@ -62,7 +62,7 @@ AUTOGEN_METHOD_TABLE = _autogen_class_array.h _autogen_class_exception.h \
 #
 # un-comment below, if you need add and/or delete method in builtin class.
 #
-AUTOGEN_METHOD_SRCS = c_object.c symbol.c c_numeric.c c_string.c c_proc.c c_range.c c_array.c c_hash.c error.c c_math.c rrt0.c
+#AUTOGEN_METHOD_SRCS = c_object.c symbol.c c_numeric.c c_string.c c_proc.c c_range.c c_array.c c_hash.c error.c c_math.c rrt0.c
 
 $(AUTOGEN_SYMBOL_TABLE): $(AUTOGEN_CLASS_TABLE)
 	$(MAKE_SYMBOL_TABLE) --path-c . --path-rb ../mrblib -o $(AUTOGEN_SYMBOL_TABLE)
