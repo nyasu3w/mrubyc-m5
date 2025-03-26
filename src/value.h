@@ -500,6 +500,17 @@ static inline void mrbc_decref_empty(mrbc_value *v)
 
 
 //================================================================
+/*! delete value but same as mrbc_decref() function.
+
+  @param   v     Pointer to target mrbc_value
+*/
+static inline void mrbc_delete(mrbc_value *v)
+{
+  mrbc_decref_empty(v);
+}
+
+
+//================================================================
 /*! Get 16bit int value from memory.
 
   @param  s	Pointer to memory.
