@@ -17,7 +17,7 @@ static void c_func1(struct VM *vm, mrbc_value v[], int argc)
   mrbc_p(&k2);
 
  RETURN:
-  MRBC_KW_PURGE(k1, k2);
+  MRBC_KW_DELETE(k1, k2);
 }
 ```
 
@@ -41,7 +41,7 @@ static void c_func2(struct VM *vm, mrbc_value v[], int argc)
   mrbc_p(&k2);
 
  RETURN:
-  MRBC_KW_PURGE(k1, k2);
+  MRBC_KW_DELETE(k1, k2);
 }
 ```
 
@@ -65,7 +65,7 @@ static void c_func3(struct VM *vm, mrbc_value v[], int argc)
   mrbc_p(&k2);
 
  RETURN:
-  MRBC_KW_PURGE(k1, k2);
+  MRBC_KW_DELETE(k1, k2);
 }
 ```
 
@@ -87,7 +87,7 @@ static void c_func4(struct VM *vm, mrbc_value v[], int argc)
   mrbc_p(&dict);
 
  RETURN:
-  MRBC_KW_PURGE(k1, k2, dict);
+  MRBC_KW_DELETE(k1, k2, dict);
 }
 ```
 
@@ -111,7 +111,7 @@ mrbc_p(&k1);
   mrbc_p(&dict);
 
  RETURN:
-  MRBC_KW_PURGE(k1, k2, dict);
+  MRBC_KW_DELETE(k1, k2, dict);
 }
 ```
 
@@ -129,7 +129,7 @@ static void c_func6(struct VM *vm, mrbc_value v[], int argc)
   mrbc_p(&dict);
 
  RETURN:
-  MRBC_KW_PURGE(dict);
+  MRBC_KW_DELETE(dict);
 }
 ```
 

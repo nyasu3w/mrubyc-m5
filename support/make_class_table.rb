@@ -61,7 +61,7 @@ def fetch_builtin_classes( filename )
       param[:classes].each {|cls|
         ret << {
           :class => [ cls[:class], cls[:module] ].compact[0],
-          :struct_name => cls[:methods] ? "RBuiltinClass" : "RClass",
+          :struct_name => cls[:methods] ? "RBuiltinClass" : "RBuiltinNoMethodClass",
           :super => cls[:super],
         }
       }

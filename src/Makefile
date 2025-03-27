@@ -11,9 +11,9 @@ include hal_selector.mk
 
 TARGET = $(BUILD_DIR)/libmrubyc.a
 CFLAGS += -Wall -g   #-std=c99 -pedantic -pedantic-errors
-SRCS = alloc.c c_array.c c_hash.c c_math.c c_numeric.c \
-	c_object.c c_range.c c_string.c class.c console.c error.c global.c \
-	keyvalue.c load.c mrblib.c rrt0.c symbol.c value.c vm.c hal.c
+SRCS = alloc.c c_array.c c_hash.c c_math.c c_numeric.c c_object.c c_proc.c \
+       c_range.c c_string.c class.c console.c error.c global.c keyvalue.c \
+       load.c mrblib.c rrt0.c symbol.c value.c vm.c hal.c
 OBJS = $(addprefix $(BUILD_DIR)/, $(SRCS:.c=.o))
 BUILD_DIR = ../build
 
@@ -55,19 +55,20 @@ AUTOGEN_SYMBOL_TABLE = _autogen_builtin_symbol.h
 AUTOGEN_CLASS_TABLE = _autogen_builtin_class.h
 AUTOGEN_METHOD_TABLE = _autogen_class_array.h _autogen_class_exception.h \
 	_autogen_class_float.h _autogen_class_hash.h _autogen_class_integer.h \
-	_autogen_module_math.h _autogen_class_object.h _autogen_class_range.h \
-	_autogen_class_string.h _autogen_class_symbol.h _autogen_class_rrt0.h
+	_autogen_module_math.h _autogen_class_object.h _autogen_class_proc.h \
+	_autogen_class_range.h _autogen_class_string.h _autogen_class_symbol.h \
+	_autogen_class_rrt0.h
 
 #
 # un-comment below, if you need add and/or delete method in builtin class.
 #
-#AUTOGEN_METHOD_SRCS = c_object.c symbol.c c_numeric.c c_string.c c_range.c c_array.c c_hash.c error.c c_math.c rrt0.c
+#AUTOGEN_METHOD_SRCS = c_object.c symbol.c c_numeric.c c_string.c c_proc.c c_range.c c_array.c c_hash.c error.c c_math.c rrt0.c
 
 $(AUTOGEN_SYMBOL_TABLE): $(AUTOGEN_CLASS_TABLE)
 	$(MAKE_SYMBOL_TABLE) --path-c . --path-rb ../mrblib -o $(AUTOGEN_SYMBOL_TABLE)
 
 $(AUTOGEN_CLASS_TABLE): $(AUTOGEN_METHOD_TABLE)
-	$(MAKE_CLASS_TABLE) -o $(AUTOGEN_CLASS_TABLE) c_object.c symbol.c c_numeric.c c_string.c c_range.c c_array.c c_hash.c error.c c_math.c
+	$(MAKE_CLASS_TABLE) -o $(AUTOGEN_CLASS_TABLE) c_object.c symbol.c c_numeric.c c_string.c c_proc.c c_range.c c_array.c c_hash.c error.c c_math.c
 
 _autogen_class_array.h:		$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_array.c
@@ -81,6 +82,8 @@ _autogen_module_math.h:		$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_math.c
 _autogen_class_object.h:	$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_object.c
+_autogen_class_proc.h:		$(AUTOGEN_METHOD_SRCS)
+	$(MAKE_METHOD_TABLE) c_proc.c
 _autogen_class_range.h:		$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) c_range.c
 _autogen_class_string.h:	$(AUTOGEN_METHOD_SRCS)
@@ -92,59 +95,34 @@ _autogen_class_exception.h:	$(AUTOGEN_METHOD_SRCS)
 _autogen_class_rrt0.h:		$(AUTOGEN_METHOD_SRCS)
 	$(MAKE_METHOD_TABLE) rrt0.c
 
-
-# File dependencies.
-
+# HAL
 $(BUILD_DIR)/hal.o: $(HAL_DIR)/hal.c $(HAL_DIR)/hal.h
 	$(CC) -c $(CFLAGS) -o $(BUILD_DIR)/hal.o $<
 
+# File dependencies.
+MRUBYC_H = vm_config.h \
+  _autogen_builtin_class.h _autogen_builtin_symbol.h alloc.h \
+  c_array.h c_hash.h c_math.h c_numeric.h c_object.h c_proc.h c_range.h \
+  c_string.h class.h console.h error.h global.h keyvalue.h load.h symbol.h \
+  value.h vm.h
+
 $(BUILD_DIR)/alloc.o: alloc.c vm_config.h alloc.h $(HAL_DIR)/hal.h console.h value.h
-$(BUILD_DIR)/c_array.o: c_array.c vm_config.h alloc.h value.h symbol.h \
-  _autogen_builtin_symbol.h class.h keyvalue.h error.h c_string.h \
-  c_array.h console.h _autogen_class_array.h
-$(BUILD_DIR)/c_hash.o: c_hash.c vm_config.h alloc.h value.h symbol.h \
-  _autogen_builtin_symbol.h class.h keyvalue.h error.h c_string.h \
-  c_array.h c_hash.h _autogen_class_hash.h
-$(BUILD_DIR)/c_math.o: c_math.c vm_config.h value.h symbol.h _autogen_builtin_symbol.h \
-  error.h class.h keyvalue.h global.h
-$(BUILD_DIR)/c_numeric.o: c_numeric.c vm_config.h value.h symbol.h \
-  _autogen_builtin_symbol.h error.h class.h keyvalue.h c_string.h \
-  console.h _autogen_class_integer.h _autogen_class_float.h
-$(BUILD_DIR)/c_object.o: c_object.c vm_config.h alloc.h value.h symbol.h \
-  _autogen_builtin_symbol.h error.h class.h keyvalue.h c_object.h \
-  c_string.h c_array.h c_hash.h global.h vm.h console.h \
-  _autogen_class_object.h
-$(BUILD_DIR)/c_range.o: c_range.c vm_config.h alloc.h value.h symbol.h \
-  _autogen_builtin_symbol.h class.h keyvalue.h error.h c_string.h \
-  c_range.h console.h _autogen_class_range.h
-$(BUILD_DIR)/c_string.o: c_string.c vm_config.h alloc.h value.h symbol.h \
-  _autogen_builtin_symbol.h class.h keyvalue.h error.h c_string.h \
-  c_array.h c_range.h vm.h console.h _autogen_class_string.h
-$(BUILD_DIR)/class.o: class.c vm_config.h alloc.h value.h symbol.h \
-  _autogen_builtin_symbol.h error.h keyvalue.h class.h c_string.h \
-  c_array.h c_hash.h c_math.h global.h vm.h load.h console.h \
-  _autogen_builtin_class.h
-$(BUILD_DIR)/console.o: console.c vm_config.h $(HAL_DIR)/hal.h alloc.h value.h \
-  symbol.h _autogen_builtin_symbol.h class.h keyvalue.h error.h \
-  console.h c_string.h c_array.h c_hash.h c_range.h global.h
-$(BUILD_DIR)/error.o: error.c vm_config.h alloc.h value.h symbol.h \
-  _autogen_builtin_symbol.h error.h class.h keyvalue.h c_string.h vm.h \
-  console.h _autogen_class_exception.h
-$(BUILD_DIR)/global.o: global.c vm_config.h value.h symbol.h _autogen_builtin_symbol.h \
-  global.h keyvalue.h class.h error.h console.h c_array.h alloc.h
-$(BUILD_DIR)/keyvalue.o: keyvalue.c vm_config.h value.h alloc.h keyvalue.h
-$(BUILD_DIR)/load.o: load.c vm_config.h vm.h value.h class.h keyvalue.h error.h \
-  alloc.h symbol.h _autogen_builtin_symbol.h c_string.h load.h
+$(BUILD_DIR)/c_array.o: c_array.c $(MRUBYC_H) _autogen_class_array.h
+$(BUILD_DIR)/c_hash.o: c_hash.c $(MRUBYC_H) _autogen_class_hash.h
+$(BUILD_DIR)/c_math.o: c_math.c $(MRUBYC_H)
+$(BUILD_DIR)/c_numeric.o: c_numeric.c $(MRUBYC_H) _autogen_class_integer.h _autogen_class_float.h
+$(BUILD_DIR)/c_object.o: c_object.c $(MRUBYC_H) _autogen_class_object.h
+$(BUILD_DIR)/c_proc.o: c_proc.c $(MRUBYC_H) _autogen_class_proc.h
+$(BUILD_DIR)/c_range.o: c_range.c $(MRUBYC_H) _autogen_class_range.h
+$(BUILD_DIR)/c_string.o: c_string.c $(MRUBYC_H) _autogen_class_string.h
+$(BUILD_DIR)/class.o: class.c $(MRUBYC_H)
+$(BUILD_DIR)/console.o: console.c $(MRUBYC_H) $(HAL_DIR)/hal.h
+$(BUILD_DIR)/error.o: error.c $(MRUBYC_H) _autogen_class_exception.h
+$(BUILD_DIR)/global.o: global.c $(MRUBYC_H)
+$(BUILD_DIR)/keyvalue.o: keyvalue.c $(MRUBYC_H)
+$(BUILD_DIR)/load.o: load.c $(MRUBYC_H)
 $(BUILD_DIR)/mrblib.o: mrblib.c
-$(BUILD_DIR)/rrt0.o: rrt0.c vm_config.h alloc.h load.h value.h class.h keyvalue.h \
-  error.h global.h symbol.h _autogen_builtin_symbol.h vm.h console.h \
-  c_string.h c_array.h rrt0.h $(HAL_DIR)/hal.h _autogen_class_rrt0.h
-$(BUILD_DIR)/symbol.o: symbol.c vm_config.h _autogen_builtin_symbol.h alloc.h value.h \
-  symbol.h class.h keyvalue.h error.h c_string.h c_array.h console.h \
-  _autogen_class_symbol.h
-$(BUILD_DIR)/value.o: value.c vm_config.h value.h symbol.h _autogen_builtin_symbol.h \
-  class.h keyvalue.h error.h c_string.h c_range.h c_array.h alloc.h \
-  c_hash.h
-$(BUILD_DIR)/vm.o: vm.c vm_config.h alloc.h value.h symbol.h _autogen_builtin_symbol.h \
-  class.h keyvalue.h error.h c_string.h c_range.h c_array.h c_hash.h \
-  global.h load.h console.h opcode.h vm.h
+$(BUILD_DIR)/rrt0.o: rrt0.c $(MRUBYC_H) rrt0.h _autogen_class_rrt0.h $(HAL_DIR)/hal.h
+$(BUILD_DIR)/symbol.o: symbol.c $(MRUBYC_H) _autogen_class_symbol.h
+$(BUILD_DIR)/value.o: value.c $(MRUBYC_H)
+$(BUILD_DIR)/vm.o: vm.c $(MRUBYC_H) opcode.h

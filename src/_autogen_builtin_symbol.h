@@ -459,6 +459,4 @@ enum {
   MRBC_SYMID_NEG = 224,
 };
 
-#define MRB_SYM(sym)  MRBC_SYMID_##sym
-#define MRBC_SYM(sym) MRBC_SYMID_##sym
 #endif

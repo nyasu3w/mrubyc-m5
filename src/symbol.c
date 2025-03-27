@@ -25,13 +25,7 @@
 #define MRBC_DEFINE_SYMBOL_TABLE
 #include "_autogen_builtin_symbol.h"
 #undef MRBC_DEFINE_SYMBOL_TABLE
-#include "alloc.h"
-#include "value.h"
-#include "symbol.h"
-#include "class.h"
-#include "c_string.h"
-#include "c_array.h"
-#include "console.h"
+#include "mrubyc.h"
 
 /***** Constant values ******************************************************/
 #if !defined(MRBC_SYMBOL_SEARCH_LINEAR) && !defined(MRBC_SYMBOL_SEARCH_BTREE)

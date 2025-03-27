@@ -19,17 +19,8 @@
 #include <stdarg.h>
 //@endcond
 
-
 /***** Local headers ********************************************************/
-#include "alloc.h"
-#include "value.h"
-#include "symbol.h"
-#include "error.h"
-#include "class.h"
-#include "c_string.h"
-#include "vm.h"
-#include "console.h"
-
+#include "mrubyc.h"
 
 /***** Constat values *******************************************************/
 /***** Macros ***************************************************************/
