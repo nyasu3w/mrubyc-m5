@@ -177,7 +177,7 @@ typedef struct RObject mrbc_value;
 /***** Macros ***************************************************************/
 
 // getters
-/**
+/*!
   @def mrbc_type(o)
   get the type (#mrbc_vtype) from mrbc_value.
 
@@ -309,7 +309,7 @@ typedef struct RObject mrbc_value;
 
 
 // for Numeric values.
-/**
+/*!
   @def MRBC_ISNUMERIC(val)
   Check the val is numeric.
 
@@ -330,7 +330,7 @@ typedef struct RObject mrbc_value;
 
 
 // for method argument
-/**
+/*!
   @def MRBC_ARG_I(n)
   Get a argument as a C integer.
 
@@ -344,9 +344,23 @@ typedef struct RObject mrbc_value;
 #define MRBC_ARG_F(n) mrbc_arg_f(vm, v, argc, (n))
 #define MRBC_ARG_S(n) mrbc_arg_s(vm, v, argc, (n))
 
+/*!
+  @def MRBC_TO_I(mrbc_value *val)
+  Convert mrbc_value to Integer.
+
+  @def MRBC_TO_F(mrbc_value *val)
+  Convert mrbc_value to Float.
+
+  @def MRBC_TO_S(mrbc_value *val)
+  Convert mrbc_value to String.
+*/
+#define MRBC_TO_I(val) mrbc_to_i(vm, v, argc, &val)
+#define MRBC_TO_F(val) mrbc_to_f(vm, v, argc, &val)
+#define MRBC_TO_S(val) mrbc_to_s(vm, v, argc, &val)
+
 
 // for keyword arguments
-/**
+/*!
   @def MRBC_KW_ARG(keyword1,...)
   Get keyword arguments and define mrbc_value with same name.
   Up to 30 arguments can be specified.
@@ -444,7 +458,7 @@ typedef struct RObject mrbc_value;
 //@endcond
 
 
-/**
+/*!
   @def MRBC_PTR_TO_UINT32(p)
   convert pointer to uint32_t
 */
@@ -468,6 +482,9 @@ int mrbc_strcpy(char *dest, int destsize, const char *src);
 mrbc_int_t mrbc_arg_i(struct VM *vm, mrbc_value v[], int argc, int n);
 mrbc_float_t mrbc_arg_f(struct VM *vm, mrbc_value v[], int argc, int n);
 char *mrbc_arg_s(struct VM *vm, mrbc_value v[], int argc, int n);
+mrbc_int_t mrbc_to_i(struct VM *vm, mrbc_value v[], int argc, mrbc_value *v1);
+mrbc_float_t mrbc_to_f(struct VM *vm, mrbc_value v[], int argc, mrbc_value *v1);
+char *mrbc_to_s(struct VM *vm, mrbc_value v[], int argc, mrbc_value *v1);
 //@endcond
 
 
