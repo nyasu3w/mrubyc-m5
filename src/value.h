@@ -329,6 +329,22 @@ typedef struct RObject mrbc_value;
   (val).tt == MRBC_TT_INTEGER ? (mrbc_float_t)(val).i : 0.0
 
 
+// for method argument
+/**
+  @def MRBC_ARG_I(n)
+  Get a argument as a C integer.
+
+  @def MRBC_ARG_F(n)
+  Get a argument as a C float (double).
+
+  @def MRBC_ARG_S(n)
+  Get a argument as a C string.
+*/
+#define MRBC_ARG_I(n) mrbc_arg_i(vm, v, argc, (n))
+#define MRBC_ARG_F(n) mrbc_arg_f(vm, v, argc, (n))
+#define MRBC_ARG_S(n) mrbc_arg_s(vm, v, argc, (n))
+
+
 // for keyword arguments
 /**
   @def MRBC_KW_ARG(keyword1,...)
@@ -449,6 +465,9 @@ int mrbc_compare(const mrbc_value *v1, const mrbc_value *v2);
 void mrbc_clear_vm_id(mrbc_value *v);
 mrbc_int_t mrbc_atoi(const char *s, int base);
 int mrbc_strcpy(char *dest, int destsize, const char *src);
+mrbc_int_t mrbc_arg_i(struct VM *vm, mrbc_value v[], int argc, int n);
+mrbc_float_t mrbc_arg_f(struct VM *vm, mrbc_value v[], int argc, int n);
+char *mrbc_arg_s(struct VM *vm, mrbc_value v[], int argc, int n);
 //@endcond
 
 
