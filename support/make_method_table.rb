@@ -76,7 +76,7 @@ def write_file( param )
     end
 
     # write class struct.
-    struct_name = cls[:methods] ? "RBuiltinClass" : "RClass"
+    struct_name = cls[:methods] ? "RBuiltinClass" : "RBuiltinNoMethodClass"
     file.puts "struct #{struct_name} mrbc_class_#{cls_name} = {"
     file.puts "  .sym_id = MRBC_SYM(#{cls_name}),"
     file.puts "  .flag_builtin = 1,"

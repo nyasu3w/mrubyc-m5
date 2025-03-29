@@ -26,10 +26,10 @@
 #include "keyvalue.h"
 #include "error.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /***** Constant values ******************************************************/
 /***** Macros ***************************************************************/
 /*!
@@ -121,6 +121,27 @@ struct RBuiltinClass {
   const mrbc_func_t *method_functions;	//!< built-in method function table.
 };
 
+//================================================================
+/*!@brief
+  Built-in No method class object.
+
+  @extends RBuiltinClass
+*/
+struct RBuiltinNoMethodClass {
+  mrbc_sym sym_id;		 //!< class name's symbol ID
+  unsigned int flag_builtin : 1; //!< is built-in class? (= 1)
+  unsigned int flag_module : 1;  //!< is module?
+  unsigned int flag_alias : 1;   //!< is alias class?
+  uint8_t num_builtin_method;	 //!< num of built-in method.
+  struct RClass *super;		 //!< pointer to super class.
+  union {
+    struct RMethod *method_link; //!< pointer to method link.
+    struct RClass *aliased;      //!< aliased class or module.
+  };
+#if defined(MRBC_DEBUG)
+  const char *name;
+#endif
+};
 
 //================================================================
 /*!@brief
@@ -137,26 +158,6 @@ typedef struct RInstance {
 
 } mrbc_instance;
 typedef struct RInstance mrb_instance;
-
-
-//================================================================
-/*!@brief
-  Proc object.
-
-  @extends RBasic
-*/
-typedef struct RProc {
-  MRBC_OBJECT_HEADER;
-
-  uint8_t block_or_method;
-  struct CALLINFO *callinfo;
-  struct CALLINFO *callinfo_self;
-  struct IREP *irep;
-  mrbc_value self;
-  mrbc_value ret_val;
-
-} mrbc_proc;
-typedef struct RProc mrb_proc;
 
 
 //================================================================
@@ -198,9 +199,6 @@ void mrbc_instance_delete(mrbc_value *v);
 void mrbc_instance_setiv(mrbc_value *obj, mrbc_sym sym_id, mrbc_value *v);
 mrbc_value mrbc_instance_getiv(mrbc_value *obj, mrbc_sym sym_id);
 void mrbc_instance_clear_vm_id(mrbc_value *v);
-mrbc_value mrbc_proc_new(struct VM *vm, void *irep, uint8_t b_or_m);
-void mrbc_proc_delete(mrbc_value *val);
-void mrbc_proc_clear_vm_id(mrbc_value *v);
 int mrbc_obj_is_kind_of(const mrbc_value *obj, const mrbc_class *tcls);
 mrbc_method *mrbc_find_method(mrbc_method *r_method, mrbc_class *cls, mrbc_sym sym_id);
 mrbc_class *mrbc_get_class_by_name(const char *name);

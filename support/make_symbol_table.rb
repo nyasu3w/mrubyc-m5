@@ -211,8 +211,6 @@ def write_file( all_symbols )
   file.puts "};"
 
   file.puts
-  file.puts "#define MRB_SYM(sym)  MRBC_SYMID_##sym"
-  file.puts "#define MRBC_SYM(sym) MRBC_SYMID_##sym"
   file.puts "#endif"
 
   file.close  if $opts[:out_file]

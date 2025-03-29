@@ -20,20 +20,8 @@
 #include <assert.h>
 //@endcond
 
-
 /***** Local headers ********************************************************/
-#include "alloc.h"
-#include "load.h"
-#include "class.h"
-#include "global.h"
-#include "symbol.h"
-#include "vm.h"
-#include "console.h"
-#include "c_string.h"
-#include "c_array.h"
-#include "rrt0.h"
-#include "hal.h"
-
+#include "mrubyc.h"
 
 /***** Macros ***************************************************************/
 #ifndef MRBC_SCHEDULER_EXIT

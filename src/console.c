@@ -25,19 +25,7 @@
 //@endcond
 
 /***** Local headers ********************************************************/
-#include "hal.h"
-#include "alloc.h"
-#include "value.h"
-#include "symbol.h"
-#include "class.h"
-#include "console.h"
-#include "error.h"
-#include "c_string.h"
-#include "c_array.h"
-#include "c_hash.h"
-#include "c_range.h"
-#include "global.h"
-
+#include "mrubyc.h"
 
 /***** Constant values ******************************************************/
 #define MRBC_PRINTF_MAX_WIDTH 82

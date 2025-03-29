@@ -1,6 +1,6 @@
 /*! @file
   @brief
-  Object, Proc, Nil, True and False class.
+  Object, Nil, True and False class.
 
   <pre>
   Copyright (C) 2015- Kyushu Institute of Technology.
@@ -23,19 +23,7 @@
 //@endcond
 
 /***** Local headers ********************************************************/
-#include "alloc.h"
-#include "value.h"
-#include "symbol.h"
-#include "error.h"
-#include "class.h"
-#include "c_object.h"
-#include "c_string.h"
-#include "c_array.h"
-#include "c_hash.h"
-#include "global.h"
-#include "vm.h"
-#include "console.h"
-
+#include "mrubyc.h"
 
 /***** Local functions ******************************************************/
 //================================================================
@@ -859,58 +847,6 @@ static void c_object_to_s(struct VM *vm, mrbc_value v[], int argc)
   METHOD( "memory_statistics",	c_object_memory_statistics )
 #endif
 #endif
-*/
-
-
-
-/***** Proc class ***********************************************************/
-//================================================================
-/*! (method) new
-*/
-static void c_proc_new(struct VM *vm, mrbc_value v[], int argc)
-{
-  if( mrbc_type(v[1]) != MRBC_TT_PROC ) {
-    mrbc_raise(vm, MRBC_CLASS(ArgumentError),
-	       "tried to create Proc object without a block");
-    return;
-  }
-
-  v[0] = v[1];
-  v[1].tt = MRBC_TT_EMPTY;
-}
-
-
-//================================================================
-/*! (method) call
-*/
-static void c_proc_call(struct VM *vm, mrbc_value v[], int argc)
-{
-  assert( mrbc_type(v[0]) == MRBC_TT_PROC );
-
-  mrbc_callinfo *callinfo_self = v[0].proc->callinfo_self;
-  mrbc_callinfo *callinfo = mrbc_push_callinfo(vm,
-				(callinfo_self ? callinfo_self->method_id : 0),
-				v - vm->cur_regs, argc);
-  if( !callinfo ) return;
-
-  if( callinfo_self ) {
-    callinfo->own_class = callinfo_self->own_class;
-  }
-
-  // target irep
-  vm->cur_irep = v[0].proc->irep;
-  vm->inst = vm->cur_irep->inst;
-  vm->cur_regs = v;
-}
-
-
-/* MRBC_AUTOGEN_METHOD_TABLE
-
-  CLASS("Proc")
-  APPEND("_autogen_class_object.h")
-
-  METHOD( "new",	c_proc_new )
-  METHOD( "call",	c_proc_call )
 */
 
 
