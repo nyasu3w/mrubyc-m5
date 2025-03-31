@@ -321,4 +321,35 @@ void draw_scroll(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
     }
 }
 
+void draw_set_scroll_rect(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
+{
+    int x=0, y=0;
+    int w=dst->width();
+    int h=dst->height();
+
+    if(argc>0){
+        x = val_to_i(vm, v, GET_ARG(1), argc);
+    } 
+    if(argc>1){
+        y = val_to_i(vm, v, GET_ARG(2), argc);
+    } 
+    if(argc>2){
+        w = val_to_i(vm, v, GET_ARG(3), argc);
+    } 
+    if(argc>3){
+        h = val_to_i(vm, v, GET_ARG(4), argc);
+    } 
+
+    dst->setScrollRect(x,y,w,h);
+}
+
+void draw_set_text_scroll(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
+{
+
+    int f = true;
+    if(argc>0) f = val_to_i(vm, v, GET_ARG(1), argc);
+    dst->setTextScroll(f!=0);
+}
+
+
 #endif // USE_DISPLAY_GRAPHICS

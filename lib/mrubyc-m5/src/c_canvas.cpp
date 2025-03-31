@@ -82,6 +82,18 @@ static void c_canvas_scroll(mrb_vm *vm, mrb_value *v, int argc) {
     draw_scroll(canvas, vm, v, argc);
 }
 
+static void c_canvas_set_scroll_rect(mrb_vm *vm, mrb_value *v, int argc)
+{
+    M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);;
+    draw_set_scroll_rect(canvas,vm,v,argc);
+}
+
+static void c_canvas_set_text_scroll(mrb_vm *vm, mrb_value *v, int argc)
+{
+    M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);;
+    draw_set_text_scroll(canvas,vm,v,argc);
+}
+
 static void c_canvas_get_dimension(mrb_vm *vm, mrb_value *v, int argc) {
     M5Canvas *canvas =get_checked_data(M5Canvas,vm, v);
     draw_get_dimension(canvas, vm, v, argc);
@@ -212,6 +224,8 @@ void class_canvas_init() {
     mrbc_define_method(0, canvas_class, "new", c_canvas_new);
     mrbc_define_method(0, canvas_class, "initialize", c_canvas_initialize);
     mrbc_define_method(0, canvas_class, "scroll", c_canvas_scroll);
+    mrbc_define_method(0, canvas_class, "set_scroll_rect",c_canvas_set_scroll_rect);
+    mrbc_define_method(0, canvas_class, "set_text_scroll", c_canvas_set_text_scroll);
     mrbc_define_method(0, canvas_class, "push_sprite", c_canvas_push_sprite);
     mrbc_define_method(0, canvas_class, "delete_sprite", c_canvas_delete_sprite);
     mrbc_define_method(0, canvas_class, "create_sprite", c_canvas_create_sprite);

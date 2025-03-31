@@ -144,6 +144,18 @@ class_display_scroll(mrb_vm *vm, mrb_value *v, int argc)
 }
 
 static void
+class_display_set_scroll_rect(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_set_scroll_rect(&M5.Display,vm,v,argc);
+}
+
+static void
+class_display_set_text_scroll(mrb_vm *vm, mrb_value *v, int argc)
+{
+    draw_set_text_scroll(&M5.Display,vm,v,argc);
+}
+
+static void
 class_display_wait_display(mrb_vm *vm, mrb_value *v, int argc)
 {
         M5.Display.waitDisplay();
@@ -241,6 +253,8 @@ void class_display_button_init()
     mrbc_define_method(0, class_display, "draw_jpgstr", class_display_draw_jpgstr);
     mrbc_define_method(0, class_display, "draw_pngstr", class_display_draw_pngstr);
     mrbc_define_method(0, class_display, "scroll", class_display_scroll);
+    mrbc_define_method(0, class_display, "set_scroll_rect",class_display_set_scroll_rect);
+    mrbc_define_method(0, class_display, "set_text_scroll",class_display_set_text_scroll);
     mrbc_define_method(0, class_display, "set_rotation", class_display_set_rotation);
 #endif // USE_DISPLAY_GRAPHICS
 
