@@ -265,7 +265,8 @@ int mrbc_strcpy( char *dest, int destsize, const char *src )
 mrbc_int_t mrbc_arg_i(struct VM *vm, mrbc_value v[], int argc, int n)
 {
   if( argc < n ) {
-    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError),
+	"wrong number of arguments (given %d, expected %d)", argc, n);
     return 0;
   }
 
@@ -288,6 +289,27 @@ mrbc_int_t mrbc_arg_i(struct VM *vm, mrbc_value v[], int argc, int n)
 
 
 //================================================================
+/*! Get a argument as a C integer with default value.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @param  default_value default value.
+  @return	integer value.
+
+  @remarks
+  There is a useful macro MRBC_ARG_I().
+*/
+mrbc_int_t mrbc_arg_i2(struct VM *vm, mrbc_value v[], int argc, int n, mrbc_int_t default_value)
+{
+  if( argc < n ) return default_value;
+
+  return mrbc_arg_i( vm, v, argc, n );
+}
+
+
+//================================================================
 /*! Get a argument as a C float (double).
 
   @param  vm	pointer to vm.
@@ -302,7 +324,8 @@ mrbc_int_t mrbc_arg_i(struct VM *vm, mrbc_value v[], int argc, int n)
 mrbc_float_t mrbc_arg_f(struct VM *vm, mrbc_value v[], int argc, int n)
 {
   if( argc < n ) {
-    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError),
+	"wrong number of arguments (given %d, expected %d)", argc, n);
     return 0;
   }
 
@@ -325,6 +348,27 @@ mrbc_float_t mrbc_arg_f(struct VM *vm, mrbc_value v[], int argc, int n)
 
 
 //================================================================
+/*! Get a argument as a C float (double) with default value.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @param  default_value default value.
+  @return	float value.
+
+  @remarks
+  There is a useful macro MRBC_ARG_F().
+*/
+mrbc_float_t mrbc_arg_f2(struct VM *vm, mrbc_value v[], int argc, int n, mrbc_float_t default_value)
+{
+  if( argc < n ) return default_value;
+
+  return mrbc_arg_f( vm, v, argc, n );
+}
+
+
+//================================================================
 /*! Get a argument as a C string.
 
   @param  vm	pointer to vm.
@@ -337,10 +381,11 @@ mrbc_float_t mrbc_arg_f(struct VM *vm, mrbc_value v[], int argc, int n)
   There is a useful macro MRBC_ARG_S().\n
   This function changes the n'th argument type to String.
 */
-char * mrbc_arg_s(struct VM *vm, mrbc_value v[], int argc, int n)
+const char * mrbc_arg_s(struct VM *vm, mrbc_value v[], int argc, int n)
 {
   if( argc < n ) {
-    mrbc_raise(vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError),
+	"wrong number of arguments (given %d, expected %d)", argc, n);
     return 0;
   }
 
@@ -354,6 +399,52 @@ char * mrbc_arg_s(struct VM *vm, mrbc_value v[], int argc, int n)
 
  RETURN:
   return mrbc_string_cstr( &v[n] );
+}
+
+
+//================================================================
+/*! Get a argument as a C string.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @param  default_value default value.
+  @return	pointer to C string.
+
+  @remarks
+  There is a useful macro MRBC_ARG_S().\n
+  This function changes the n'th argument type to String.
+*/
+const char * mrbc_arg_s2(struct VM *vm, mrbc_value v[], int argc, int n, const char *default_value)
+{
+  if( argc < n ) return default_value;
+
+  return mrbc_arg_s( vm, v, argc, n );
+}
+
+
+//================================================================
+/*! Get a N'th argument pointer.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @return	pointer to mrbc_value.
+
+  @remarks
+  There is a useful macro MRBC_ARG().\n
+*/
+mrbc_value * mrbc_arg(struct VM *vm, mrbc_value v[], int argc, int n)
+{
+  if( argc < n ) {
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError),
+	"wrong number of arguments (given %d, expected %d)", argc, n);
+    return 0;
+  }
+
+  return &v[n];
 }
 
 
