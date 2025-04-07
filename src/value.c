@@ -462,6 +462,8 @@ mrbc_value * mrbc_arg(struct VM *vm, mrbc_value v[], int argc, int n)
 */
 mrbc_int_t mrbc_to_i(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val)
 {
+  if( val == NULL ) return 0;
+
   switch(val->tt) {
   case MRBC_TT_INTEGER:
     break;
@@ -497,6 +499,8 @@ mrbc_int_t mrbc_to_i(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val)
 */
 mrbc_float_t mrbc_to_f(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val)
 {
+  if( val == NULL ) return 0;
+
   switch(val->tt) {
   case MRBC_TT_INTEGER:
     mrbc_set_float(val, val->i);
@@ -532,6 +536,7 @@ mrbc_float_t mrbc_to_f(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val)
 */
 char * mrbc_to_s(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val)
 {
+  if( val == NULL ) return 0;
   if( val->tt == MRBC_TT_STRING ) goto RETURN;
 
   mrbc_value ret = mrbc_send( vm, v, argc, val, "to_s", 0 );
