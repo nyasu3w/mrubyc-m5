@@ -251,6 +251,30 @@ int mrbc_strcpy( char *dest, int destsize, const char *src )
 
 
 //================================================================
+/*! Get a N'th argument pointer.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @return	pointer to mrbc_value.
+
+  @remarks
+  There is a useful macro MRBC_ARG().\n
+*/
+mrbc_value * mrbc_arg(struct VM *vm, mrbc_value v[], int argc, int n)
+{
+  if( argc < n ) {
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError),
+	"wrong number of arguments (given %d, expected %d)", argc, n);
+    return 0;
+  }
+
+  return &v[n];
+}
+
+
+//================================================================
 /*! Get a argument as a C integer.
 
   @param  vm	pointer to vm.
@@ -403,7 +427,7 @@ const char * mrbc_arg_s(struct VM *vm, mrbc_value v[], int argc, int n)
 
 
 //================================================================
-/*! Get a argument as a C string.
+/*! Get a argument as a C string with default value.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -425,18 +449,18 @@ const char * mrbc_arg_s2(struct VM *vm, mrbc_value v[], int argc, int n, const c
 
 
 //================================================================
-/*! Get a N'th argument pointer.
+/*! Get a True/False argument as a C integer.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
   @param  argc	num of argument.
   @param  n	target argument number.
-  @return	pointer to mrbc_value.
+  @return	bool (0/1) value.
 
   @remarks
-  There is a useful macro MRBC_ARG().\n
+  There is a useful macro MRBC_ARG_B().
 */
-mrbc_value * mrbc_arg(struct VM *vm, mrbc_value v[], int argc, int n)
+int mrbc_arg_b(struct VM *vm, mrbc_value v[], int argc, int n)
 {
   if( argc < n ) {
     mrbc_raisef(vm, MRBC_CLASS(ArgumentError),
@@ -444,7 +468,40 @@ mrbc_value * mrbc_arg(struct VM *vm, mrbc_value v[], int argc, int n)
     return 0;
   }
 
-  return &v[n];
+  switch(v[n].tt) {
+  case MRBC_TT_FALSE:
+    return 0;
+
+  case MRBC_TT_TRUE:
+    return 1;
+
+  default:
+    ;
+  }
+
+  mrbc_raise(vm, MRBC_CLASS(TypeError), "Argument type mismatch (true or false).");
+  return 0;
+}
+
+
+//================================================================
+/*! Get a argument as a C integer with default value.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @param  default_value default value.
+  @return	bool (0/1) value.
+
+  @remarks
+  There is a useful macro MRBC_ARG_B().
+*/
+int mrbc_arg_b2(struct VM *vm, mrbc_value v[], int argc, int n, int default_value)
+{
+  if( argc < n ) return default_value;
+
+  return mrbc_arg_b( vm, v, argc, n );
 }
 
 

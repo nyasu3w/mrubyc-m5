@@ -329,8 +329,17 @@ typedef struct RObject mrbc_value;
   (val).tt == MRBC_TT_INTEGER ? (mrbc_float_t)(val).i : 0.0
 
 
-// Method argument getters. (r3.4 style)
+// Method argument getters.
 /*!
+  @def MRBC_ARG
+  Get a N'th argument pointer.
+
+  <b>Examples:</b>
+  @code
+  mrbc_value *arg1 = MRBC_ARG(1);	// Gets a 1st argument pointer.
+  @endcode
+
+
   @def MRBC_ARG_I
   Get a N'th argument as a C integer.
 
@@ -340,14 +349,16 @@ typedef struct RObject mrbc_value;
   int arg1 = MRBC_ARG_I(1,111);	// with default value 111.
   @endcode
 
+
   @def MRBC_ARG_F
   Get a N'th argument as a C float (double).
 
   <b>Examples:</b>
   @code
   double arg1 = MRBC_ARG_F(1);	    // Get a 1st argument as an double.
-  double arg1 = MRBC_ARG_F(1,2.7);  // with default value 2.7.
+  double arg1 = MRBC_ARG_F(1, 2.7); // with default value 2.7.
   @endcode
+
 
   @def MRBC_ARG_S
   Get a N'th argument as a C string.
@@ -358,23 +369,27 @@ typedef struct RObject mrbc_value;
   const char *arg1 = MRBC_ARG_S(1,"DEFAULT");	// with default value "DEFAULT".
   @endcode
 
-  @def MRBC_ARG
-  Get a N'th argument pointer.
+
+  @def MRBC_ARG_B
+  Get a N'th True/False argument as a C integer.
 
   <b>Examples:</b>
   @code
-  mrbc_value *arg1 = MRBC_ARG(1);	// Gets a 1st argument pointer.
+  int arg1 = MRBC_ARG_B(1);	// Get a 1st True/False argument as an integer.
+  int arg1 = MRBC_ARG_B(1, 0);	// with default value False.
   @endcode
 */
+#define MRBC_ARG(n) mrbc_arg(vm, v, argc, (n))
 #define MRBC_ARG_I(...) MRBC_arg_choice(__VA_ARGS__, mrbc_arg_i2, mrbc_arg_i) (vm,v,argc,__VA_ARGS__)
 #define MRBC_ARG_F(...) MRBC_arg_choice(__VA_ARGS__, mrbc_arg_f2, mrbc_arg_f) (vm,v,argc,__VA_ARGS__)
 #define MRBC_ARG_S(...) MRBC_arg_choice(__VA_ARGS__, mrbc_arg_s2, mrbc_arg_s) (vm,v,argc,__VA_ARGS__)
+#define MRBC_ARG_B(...) MRBC_arg_choice(__VA_ARGS__, mrbc_arg_b2, mrbc_arg_b) (vm,v,argc,__VA_ARGS__)
 //@cond
 #define MRBC_arg_choice(a1,a2,a3,...) a3
 //@endcond
-#define MRBC_ARG(n) mrbc_arg(vm, v, argc, (n))
 
 
+// mrbc_value converters.
 /*!
   @def MRBC_TO_I(mrbc_value *val)
   Convert mrbc_value to Integer.
@@ -510,13 +525,15 @@ int mrbc_compare(const mrbc_value *v1, const mrbc_value *v2);
 void mrbc_clear_vm_id(mrbc_value *v);
 mrbc_int_t mrbc_atoi(const char *s, int base);
 int mrbc_strcpy(char *dest, int destsize, const char *src);
+mrbc_value *mrbc_arg(struct VM *vm, mrbc_value v[], int argc, int n);
 mrbc_int_t mrbc_arg_i(struct VM *vm, mrbc_value v[], int argc, int n);
 mrbc_int_t mrbc_arg_i2(struct VM *vm, mrbc_value v[], int argc, int n, mrbc_int_t default_value);
 mrbc_float_t mrbc_arg_f(struct VM *vm, mrbc_value v[], int argc, int n);
 mrbc_float_t mrbc_arg_f2(struct VM *vm, mrbc_value v[], int argc, int n, mrbc_float_t default_value);
 const char *mrbc_arg_s(struct VM *vm, mrbc_value v[], int argc, int n);
 const char *mrbc_arg_s2(struct VM *vm, mrbc_value v[], int argc, int n, const char *default_value);
-mrbc_value *mrbc_arg(struct VM *vm, mrbc_value v[], int argc, int n);
+int mrbc_arg_b(struct VM *vm, mrbc_value v[], int argc, int n);
+int mrbc_arg_b2(struct VM *vm, mrbc_value v[], int argc, int n, int default_value);
 mrbc_int_t mrbc_to_i(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val);
 mrbc_float_t mrbc_to_f(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val);
 char *mrbc_to_s(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val);
