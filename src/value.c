@@ -120,6 +120,7 @@ int mrbc_compare(const mrbc_value *v1, const mrbc_value *v2)
 #endif
 
   case MRBC_TT_CLASS:
+  case MRBC_TT_MODULE:
   case MRBC_TT_OBJECT:
   case MRBC_TT_PROC:
     return (v1->cls > v2->cls) * 2 - (v1->cls != v2->cls);

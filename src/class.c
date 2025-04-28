@@ -492,9 +492,11 @@ mrbc_class * mrbc_get_class_by_name( const char *name )
 
   mrbc_value *obj = mrbc_get_const(sym_id);
   if( obj == NULL ) return NULL;
-  if( mrbc_type(*obj) != MRBC_TT_CLASS ) return NULL;
 
-  return obj->cls;
+  if( obj->tt == MRBC_TT_CLASS ||
+      obj->tt == MRBC_TT_MODULE ) return obj->cls;
+
+  return NULL;
 }
 
 
