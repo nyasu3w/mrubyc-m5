@@ -332,7 +332,7 @@ typedef struct RObject mrbc_value;
 // Method argument getters.
 /*!
   @def MRBC_ARG
-  Get a N'th argument pointer.
+  (beta) Get a N'th argument pointer.
 
   <b>Examples:</b>
   @code
@@ -341,7 +341,7 @@ typedef struct RObject mrbc_value;
 
 
   @def MRBC_ARG_I
-  Get a N'th argument as a C integer.
+  (beta) Get a N'th argument as a C integer.
 
   <b>Examples:</b>
   @code
@@ -351,7 +351,7 @@ typedef struct RObject mrbc_value;
 
 
   @def MRBC_ARG_F
-  Get a N'th argument as a C float (double).
+  (beta) Get a N'th argument as a C float (double).
 
   <b>Examples:</b>
   @code
@@ -361,7 +361,7 @@ typedef struct RObject mrbc_value;
 
 
   @def MRBC_ARG_S
-  Get a N'th argument as a C string.
+  (beta) Get a N'th argument as a C string.
 
   <b>Examples:</b>
   @code
@@ -371,7 +371,7 @@ typedef struct RObject mrbc_value;
 
 
   @def MRBC_ARG_B
-  Get a N'th True/False argument as a C integer.
+  (beta) Get a N'th True/False argument as a C integer.
 
   <b>Examples:</b>
   @code
@@ -392,13 +392,13 @@ typedef struct RObject mrbc_value;
 // mrbc_value converters.
 /*!
   @def MRBC_TO_I(mrbc_value *val)
-  Convert mrbc_value to Integer.
+  (beta) Convert mrbc_value to Integer.
 
   @def MRBC_TO_F(mrbc_value *val)
-  Convert mrbc_value to Float.
+  (beta) Convert mrbc_value to Float.
 
   @def MRBC_TO_S(mrbc_value *val)
-  Convert mrbc_value to String.
+  (beta) Convert mrbc_value to String.
 */
 #define MRBC_TO_I(val) mrbc_to_i(vm, v, argc, val)
 #define MRBC_TO_F(val) mrbc_to_f(vm, v, argc, val)

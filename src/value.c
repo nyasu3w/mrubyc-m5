@@ -251,7 +251,7 @@ int mrbc_strcpy( char *dest, int destsize, const char *src )
 
 
 //================================================================
-/*! Get a N'th argument pointer.
+/*! (beta) Get a N'th argument pointer.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -275,7 +275,7 @@ mrbc_value * mrbc_arg(struct VM *vm, mrbc_value v[], int argc, int n)
 
 
 //================================================================
-/*! Get a argument as a C integer.
+/*! (beta) Get a argument as a C integer.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -313,7 +313,7 @@ mrbc_int_t mrbc_arg_i(struct VM *vm, mrbc_value v[], int argc, int n)
 
 
 //================================================================
-/*! Get a argument as a C integer with default value.
+/*! (beta) Get a argument as a C integer with default value.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -334,7 +334,7 @@ mrbc_int_t mrbc_arg_i2(struct VM *vm, mrbc_value v[], int argc, int n, mrbc_int_
 
 
 //================================================================
-/*! Get a argument as a C float (double).
+/*! (beta) Get a argument as a C float (double).
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -372,7 +372,7 @@ mrbc_float_t mrbc_arg_f(struct VM *vm, mrbc_value v[], int argc, int n)
 
 
 //================================================================
-/*! Get a argument as a C float (double) with default value.
+/*! (beta) Get a argument as a C float (double) with default value.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -393,7 +393,7 @@ mrbc_float_t mrbc_arg_f2(struct VM *vm, mrbc_value v[], int argc, int n, mrbc_fl
 
 
 //================================================================
-/*! Get a argument as a C string.
+/*! (beta) Get a argument as a C string.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -427,7 +427,7 @@ const char * mrbc_arg_s(struct VM *vm, mrbc_value v[], int argc, int n)
 
 
 //================================================================
-/*! Get a argument as a C string with default value.
+/*! (beta) Get a argument as a C string with default value.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -449,7 +449,7 @@ const char * mrbc_arg_s2(struct VM *vm, mrbc_value v[], int argc, int n, const c
 
 
 //================================================================
-/*! Get a True/False argument as a C integer.
+/*! (beta) Get a True/False argument as a C integer.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -485,7 +485,7 @@ int mrbc_arg_b(struct VM *vm, mrbc_value v[], int argc, int n)
 
 
 //================================================================
-/*! Get a argument as a C integer with default value.
+/*! (beta) Get a True/False argument as a C integer with default value.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -506,7 +506,7 @@ int mrbc_arg_b2(struct VM *vm, mrbc_value v[], int argc, int n, int default_valu
 
 
 //================================================================
-/*! Convert mrbc_value type to Integer.
+/*! (beta) Convert mrbc_value type to Integer.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -543,7 +543,7 @@ mrbc_int_t mrbc_to_i(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val)
 
 
 //================================================================
-/*! Convert mrbc_value type to Float.
+/*! (beta) Convert mrbc_value type to Float.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
@@ -580,7 +580,7 @@ mrbc_float_t mrbc_to_f(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val)
 
 
 //================================================================
-/*! Convert mrbc_value type to String.
+/*! (beta) Convert mrbc_value type to String.
 
   @param  vm	pointer to vm.
   @param  v	argument array.
