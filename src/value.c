@@ -248,3 +248,360 @@ int mrbc_strcpy( char *dest, int destsize, const char *src )
  RETURN:
   return destsize - n - 1;
 }
+
+
+//================================================================
+/*! (beta) Get a N'th argument pointer.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @return	pointer to mrbc_value.
+
+  @remarks
+  There is a useful macro MRBC_ARG().\n
+*/
+mrbc_value * mrbc_arg(struct VM *vm, mrbc_value v[], int argc, int n)
+{
+  if( argc < n ) {
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError),
+	"wrong number of arguments (given %d, expected %d)", argc, n);
+    return 0;
+  }
+
+  return &v[n];
+}
+
+
+//================================================================
+/*! (beta) Get a argument as a C integer.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @return	integer value.
+
+  @remarks
+  There is a useful macro MRBC_ARG_I().
+*/
+mrbc_int_t mrbc_arg_i(struct VM *vm, mrbc_value v[], int argc, int n)
+{
+  if( argc < n ) {
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError),
+	"wrong number of arguments (given %d, expected %d)", argc, n);
+    return 0;
+  }
+
+  switch(v[n].tt) {
+  case MRBC_TT_INTEGER:
+    return v[n].i;
+
+  case MRBC_TT_FLOAT:
+    return v[n].d;
+
+  default:
+    ;
+  }
+
+  mrbc_value ret = mrbc_send( vm, v, argc, &v[n], "to_i", 0 );
+  if( mrbc_israised(vm) ) return 0;
+
+  return ret.i;
+}
+
+
+//================================================================
+/*! (beta) Get a argument as a C integer with default value.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @param  default_value default value.
+  @return	integer value.
+
+  @remarks
+  There is a useful macro MRBC_ARG_I().
+*/
+mrbc_int_t mrbc_arg_i2(struct VM *vm, mrbc_value v[], int argc, int n, mrbc_int_t default_value)
+{
+  if( argc < n ) return default_value;
+
+  return mrbc_arg_i( vm, v, argc, n );
+}
+
+
+//================================================================
+/*! (beta) Get a argument as a C float (double).
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @return	float value.
+
+  @remarks
+  There is a useful macro MRBC_ARG_F().
+*/
+mrbc_float_t mrbc_arg_f(struct VM *vm, mrbc_value v[], int argc, int n)
+{
+  if( argc < n ) {
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError),
+	"wrong number of arguments (given %d, expected %d)", argc, n);
+    return 0;
+  }
+
+  switch(v[n].tt) {
+  case MRBC_TT_INTEGER:
+    return v[n].i;
+
+  case MRBC_TT_FLOAT:
+    return v[n].d;
+
+  default:
+    ;
+  }
+
+  mrbc_value ret = mrbc_send( vm, v, argc, &v[n], "to_f", 0 );
+  if( mrbc_israised(vm) ) return 0;
+
+  return ret.d;
+}
+
+
+//================================================================
+/*! (beta) Get a argument as a C float (double) with default value.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @param  default_value default value.
+  @return	float value.
+
+  @remarks
+  There is a useful macro MRBC_ARG_F().
+*/
+mrbc_float_t mrbc_arg_f2(struct VM *vm, mrbc_value v[], int argc, int n, mrbc_float_t default_value)
+{
+  if( argc < n ) return default_value;
+
+  return mrbc_arg_f( vm, v, argc, n );
+}
+
+
+//================================================================
+/*! (beta) Get a argument as a C string.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @return	pointer to C string.
+
+  @remarks
+  There is a useful macro MRBC_ARG_S().\n
+  This function changes the n'th argument type to String.
+*/
+const char * mrbc_arg_s(struct VM *vm, mrbc_value v[], int argc, int n)
+{
+  if( argc < n ) {
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError),
+	"wrong number of arguments (given %d, expected %d)", argc, n);
+    return 0;
+  }
+
+  if( v[n].tt == MRBC_TT_STRING ) goto RETURN;
+
+  mrbc_value ret = mrbc_send( vm, v, argc, &v[n], "to_s", 0 );
+  if( mrbc_israised(vm) ) return 0;
+
+  mrbc_decref( &v[n] );
+  v[n] = ret;
+
+ RETURN:
+  return mrbc_string_cstr( &v[n] );
+}
+
+
+//================================================================
+/*! (beta) Get a argument as a C string with default value.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @param  default_value default value.
+  @return	pointer to C string.
+
+  @remarks
+  There is a useful macro MRBC_ARG_S().\n
+  This function changes the n'th argument type to String.
+*/
+const char * mrbc_arg_s2(struct VM *vm, mrbc_value v[], int argc, int n, const char *default_value)
+{
+  if( argc < n ) return default_value;
+
+  return mrbc_arg_s( vm, v, argc, n );
+}
+
+
+//================================================================
+/*! (beta) Get a True/False argument as a C integer.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @return	bool (0/1) value.
+
+  @remarks
+  There is a useful macro MRBC_ARG_B().
+*/
+int mrbc_arg_b(struct VM *vm, mrbc_value v[], int argc, int n)
+{
+  if( argc < n ) {
+    mrbc_raisef(vm, MRBC_CLASS(ArgumentError),
+	"wrong number of arguments (given %d, expected %d)", argc, n);
+    return 0;
+  }
+
+  switch(v[n].tt) {
+  case MRBC_TT_FALSE:
+    return 0;
+
+  case MRBC_TT_TRUE:
+    return 1;
+
+  default:
+    ;
+  }
+
+  mrbc_raise(vm, MRBC_CLASS(TypeError), "Argument type mismatch (true or false).");
+  return 0;
+}
+
+
+//================================================================
+/*! (beta) Get a True/False argument as a C integer with default value.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  n	target argument number.
+  @param  default_value default value.
+  @return	bool (0/1) value.
+
+  @remarks
+  There is a useful macro MRBC_ARG_B().
+*/
+int mrbc_arg_b2(struct VM *vm, mrbc_value v[], int argc, int n, int default_value)
+{
+  if( argc < n ) return default_value;
+
+  return mrbc_arg_b( vm, v, argc, n );
+}
+
+
+//================================================================
+/*! (beta) Convert mrbc_value type to Integer.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  val	target value.
+  @return	integer value.
+
+  @remarks
+  There is a useful macro MRBC_TO_I().
+*/
+mrbc_int_t mrbc_to_i(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val)
+{
+  if( val == NULL ) return 0;
+
+  switch(val->tt) {
+  case MRBC_TT_INTEGER:
+    break;
+
+  case MRBC_TT_FLOAT:
+    mrbc_set_integer(val, val->d);
+    break;
+
+  default:{
+    mrbc_value ret = mrbc_send( vm, v, argc, val, "to_i", 0 );
+    if( mrbc_israised(vm) ) return 0;
+
+    mrbc_decref( val );
+    *val = ret;
+   } break;
+  }
+
+  return val->i;
+}
+
+
+//================================================================
+/*! (beta) Convert mrbc_value type to Float.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  val	target value.
+  @return	float value.
+
+  @remarks
+  There is a useful macro MRBC_TO_F().
+*/
+mrbc_float_t mrbc_to_f(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val)
+{
+  if( val == NULL ) return 0;
+
+  switch(val->tt) {
+  case MRBC_TT_INTEGER:
+    mrbc_set_float(val, val->i);
+    break;
+
+  case MRBC_TT_FLOAT:
+    break;
+
+  default:{
+    mrbc_value ret = mrbc_send( vm, v, argc, val, "to_f", 0 );
+    if( mrbc_israised(vm) ) return 0;
+
+    mrbc_decref( val );
+    *val = ret;
+   } break;
+  }
+
+  return val->d;
+}
+
+
+//================================================================
+/*! (beta) Convert mrbc_value type to String.
+
+  @param  vm	pointer to vm.
+  @param  v	argument array.
+  @param  argc	num of argument.
+  @param  val	target value.
+  @return	pointer to C string.
+
+  @remarks
+  There is a useful macro MRBC_TO_S().
+*/
+char * mrbc_to_s(struct VM *vm, mrbc_value v[], int argc, mrbc_value *val)
+{
+  if( val == NULL ) return 0;
+  if( val->tt == MRBC_TT_STRING ) goto RETURN;
+
+  mrbc_value ret = mrbc_send( vm, v, argc, val, "to_s", 0 );
+  if( mrbc_israised(vm) ) return 0;
+
+  mrbc_decref( val );
+  *val = ret;
+
+ RETURN:
+  return mrbc_string_cstr( val );
+}
