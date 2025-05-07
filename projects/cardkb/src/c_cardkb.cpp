@@ -19,8 +19,9 @@ class_cardkb_initialize(mrb_vm *vm, mrb_value *v, int argc)
 {
     unsigned int addr=0x5f;
     if(argc>0){
-        addr = val_to_i(vm, v, v[1],argc);
+        addr = MRBC_ARG_I(1);
     }
+}
     *v->instance->data = addr;
 }
 

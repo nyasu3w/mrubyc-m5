@@ -13,7 +13,7 @@ class_file_read(mrb_vm *vm, mrb_value *v, int argc)
     if(f){
         int len = 255;
         if(argc>0){
-            len = val_to_i(vm, v, GET_ARG(1),argc);
+            len = MRBC_ARG_I(1);
         } 
 
         if(len>0){
@@ -41,7 +41,7 @@ class_file_write(mrb_vm *vm, mrb_value *v, int argc)
                 uint16_t len = v[1].string->size;
                 r = f->write((uint8_t*)str, len);
             } else {
-                const char* str = val_to_s(vm, v, GET_ARG(1),argc);
+                const char* str = MRBC_ARG_S(1);
                 r = f->write((uint8_t*)str, strlen(str));
             }
             SET_INT_RETURN(r);

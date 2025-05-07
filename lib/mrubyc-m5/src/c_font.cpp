@@ -22,7 +22,7 @@ static void
 class_font_by_name(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){
-        const char* fontname = val_to_s(vm, v, GET_ARG(1),argc);
+        const char* fontname = MRBC_ARG_S(1);
         //search the fonrname from m5fonts vector and return the order number of the font
         for(int i=0; i<m5fonts.size(); i++){
             if(strcmp(m5fonts[i].name, fontname)==0){
@@ -56,14 +56,14 @@ void draw_set_font(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){
         if(GET_ARG(1).tt == MRBC_TT_INTEGER){
-            unsigned int  fontnumber = val_to_i(vm, v, GET_ARG(1),argc);
+            unsigned int  fontnumber = MRBC_ARG_I(1);
             if(fontnumber < m5fonts.size()){
                 dst->setFont(m5fonts[fontnumber].font);
                 SET_TRUE_RETURN();
                 return;
             }
         } else if(GET_ARG(1).tt == MRBC_TT_STRING){   // by_name
-            const char* fontname = val_to_s(vm, v, GET_ARG(1),argc);
+            const char* fontname = MRBC_ARG_S(1);
             for(int i=0; i<m5fonts.size(); i++){
                 if(strcmp(m5fonts[i].name, fontname)==0){
                     dst->setFont(m5fonts[i].font);

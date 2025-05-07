@@ -11,6 +11,7 @@
 #include "libconfig.h"
 #include "c_m5.h"
 
+/*  old definitions before MRBC_ARG_[ISF] was implemented
 inline const char* val_to_s(mrb_vm *vm,  mrb_value *v, mrbc_value &recv, int regofs) {
     const char* str;
     if( recv.tt == MRBC_TT_STRING ) {
@@ -42,6 +43,8 @@ inline float val_to_f(mrb_vm *vm,  mrb_value *v, mrbc_value &recv, int regofs) {
     }
     return f;
 }
+
+*/
 
 inline void put_null_data(mrb_value *v) {
     *(uint8_t**)v->instance->data = nullptr;

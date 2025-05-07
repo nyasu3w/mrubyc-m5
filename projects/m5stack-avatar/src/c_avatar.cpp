@@ -20,8 +20,8 @@ static void class_avatar_initialize(mrb_vm *vm, mrb_value *v, int argc){
 static void class_avatar_set(mrb_vm *vm, mrb_value *v, int argc){
     m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
     if(argc == 2){
-            int x = val_to_i(vm, v, GET_ARG(1), argc);
-            int y = val_to_i(vm, v, GET_ARG(2), argc);
+            int x = MRBC_ARG_I(1);
+            int y = MRBC_ARG_I(2);
             avatar->setPosition(x, y);
     } else {
         mrbc_raise( vm, MRBC_CLASS(TypeError), "Invalid argument type");
@@ -32,7 +32,7 @@ static void class_avatar_set(mrb_vm *vm, mrb_value *v, int argc){
 static void class_avatar_scale(mrb_vm *vm, mrb_value *v, int argc){
     m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
     if(argc == 1){
-        float scale = val_to_f(vm, v, GET_ARG(1), argc);
+        float scale = MRBC_ARG_F(1);
         avatar->setScale(scale);
     }
     SET_NIL_RETURN();
@@ -46,7 +46,7 @@ static void class_avatar_start(mrb_vm *vm, mrb_value *v, int argc){
 static void class_avatar_set_speech_text(mrb_vm *vm, mrb_value *v, int argc){
     m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
     if(argc == 1){
-        const char* text = val_to_s(vm, v, GET_ARG(1), argc);
+        const char* text = MRBC_ARG_S(1);
         avatar->setSpeechText(text);
     }
 }
@@ -54,7 +54,7 @@ static void class_avatar_set_speech_text(mrb_vm *vm, mrb_value *v, int argc){
 static void class_avatar_set_rotation(mrb_vm *vm, mrb_value *v, int argc){
     m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
     if(argc == 1){
-        float radian = val_to_f(vm, v, GET_ARG(1), argc);
+        float radian = MRBC_ARG_F(1);
         avatar->setRotation(radian);
     }
     SET_NIL_RETURN();
@@ -63,7 +63,7 @@ static void class_avatar_set_rotation(mrb_vm *vm, mrb_value *v, int argc){
 static void class_avatar_set_expression(mrb_vm *vm, mrb_value *v, int argc){
     m5avatar::Avatar *avatar = get_checked_data(m5avatar::Avatar, vm, v);
     if(argc == 1){
-        int exp = val_to_i(vm, v, GET_ARG(1), argc);
+        int exp = MRBC_ARG_I(1);
         avatar->setExpression((m5avatar::Expression)exp);
     }
 }

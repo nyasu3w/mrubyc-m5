@@ -10,9 +10,9 @@ static void
 class_display_color_value(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>2){
-        uint8_t r = val_to_i(vm, v, GET_ARG(1),argc);
-        uint8_t g = val_to_i(vm, v, GET_ARG(2),argc);
-        uint8_t b = val_to_i(vm, v, GET_ARG(3),argc);
+        uint8_t r = MRBC_ARG_I(1);
+        uint8_t g = MRBC_ARG_I(2);
+        uint8_t b = MRBC_ARG_I(3);
         uint16_t color = ((r>>3)<<11) | ((g>>2)<<5) | (b>>3);
         SET_INT_RETURN(color);
     } else {

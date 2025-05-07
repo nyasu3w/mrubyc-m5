@@ -36,7 +36,7 @@ class_touch_get_detail(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_touch_wasclicked(mrb_vm *vm, mrb_value *v, int argc)
 {
-    int no = (argc>0)? val_to_i(vm,v,GET_ARG(1),argc) : 0;
+    int no = (argc>0)? MRBC_ARG_I(1) : 0;
     if(no<M5.Touch.getCount()){
         if(M5.Touch.getDetail(no).wasClicked()){  
             SET_TRUE_RETURN();
@@ -48,7 +48,7 @@ static void class_touch_wasclicked(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_touch_ispressed(mrb_vm *vm, mrb_value *v, int argc)
 {
-    int no = (argc>0)? val_to_i(vm,v,GET_ARG(1),argc)  : 0;
+    int no = (argc>0)? MRBC_ARG_I(1)  : 0;
     if(no<M5.Touch.getCount()){
         if(M5.Touch.getDetail(no).isPressed()){
             SET_TRUE_RETURN();
@@ -60,7 +60,7 @@ static void class_touch_ispressed(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_touch_isreleased(mrb_vm *vm, mrb_value *v, int argc)
 {
-    int no = (argc>0)?  val_to_i(vm,v,GET_ARG(1),argc)  : 0;
+    int no = (argc>0)?  MRBC_ARG_I(1)  : 0;
     if(no<M5.Touch.getCount()){
         if(M5.Touch.getDetail(no).isReleased()){
             SET_TRUE_RETURN();
@@ -72,7 +72,7 @@ static void class_touch_isreleased(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_touch_isholding(mrb_vm *vm, mrb_value *v, int argc)
 {
-    int no = (argc>0)?  val_to_i(vm,v,GET_ARG(1),argc)  : 0;
+    int no = (argc>0)?  MRBC_ARG_I(1)  : 0;
     if(no<M5.Touch.getCount()){
         if(M5.Touch.getDetail(no).isHolding()){
             SET_TRUE_RETURN();

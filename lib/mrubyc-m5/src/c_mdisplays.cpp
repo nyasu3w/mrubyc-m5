@@ -37,7 +37,7 @@ class_display_change_device(mrb_vm *vm, mrb_value *v, int argc)
     int f_devno=current_deviceno();
 
     if(argc>0){
-        int no = val_to_i(vm, v, GET_ARG(1),argc);
+        int no = MRBC_ARG_I(1);
         if(0<=no && no<M5.getDisplayCount()){
             M5.setPrimaryDisplay(no);
             SET_TRUE_RETURN();
@@ -63,7 +63,7 @@ class_display_get_device_type(mrb_vm *vm, mrb_value *v, int argc)
 {
 
     if(argc>0){
-        int no = val_to_i(vm, v, GET_ARG(1),argc);
+        int no = MRBC_ARG_I(1);
         if(0<=no && no<M5.getDisplayCount()){
             SET_INT_RETURN((int) M5.getDisplay(no).getBoard());
             return;

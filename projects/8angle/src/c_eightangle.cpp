@@ -21,7 +21,7 @@ static void class_eightangle_initialize(mrb_vm *vm, mrb_value *v, int argc)
     mrbc_value& obj = v[0];
     unsigned int addr=default_eightangle_addr;
     if(argc>0){
-        addr = val_to_i(vm, v, v[1],argc);
+        addr = MRBC_ARG_I(1);
     }
     M5_ANGLE8 *angle8 = new M5_ANGLE8();
     *(M5_ANGLE8**)obj.instance->data = angle8;
@@ -53,12 +53,12 @@ static void
 class_eightangle_set_ledcolor(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5_ANGLE8 *angle8 = get_checked_data(M5_ANGLE8, vm, v);
-    int ch = val_to_i(vm, v, v[1], argc);
-    uint32_t color = val_to_i(vm, v, v[2], argc);
+    int ch = MRBC_ARG_I(1);
+    uint32_t color = MRBC_ARG_I(2);
 
     int bright = 25;
     if(argc>2){
-        int bright = val_to_i(vm, v, v[3], argc);
+        int bright = MRBC_ARG_I(3);
     }
     if(angle8->setLEDColor(ch, color, bright)){
         SET_TRUE_RETURN();
@@ -71,10 +71,10 @@ static void
 class_eightangle_get_analoginput(mrb_vm *vm, mrb_value *v, int argc)
 {
     M5_ANGLE8 *angle8 = get_checked_data(M5_ANGLE8, vm, v);
-    int ch = val_to_i(vm, v, v[1], argc);
+    int ch = MRBC_ARG_I(1);
     angle8_analog_read_mode_t mode = _8bit;
     if(argc>1){
-        mode = (_8bit == val_to_i(vm, v, v[2], argc)) ? _8bit : _12bit;
+        mode = (_8bit == MRBC_ARG_I(2)) ? _8bit : _12bit;
     }
     uint16_t val = angle8->getAnalogInput(ch, mode);
     SET_INT_RETURN(val);

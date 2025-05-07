@@ -12,8 +12,8 @@ static void c_wifi_begin(mrb_vm *vm, mrb_value *v, int argc) {
         SET_INT_RETURN(r);
         return;
     }
-    const char* ssid = val_to_s(vm,v,GET_ARG(1),argc);
-    const char* password = val_to_s(vm,v,GET_ARG(2),argc);
+    const char* ssid = MRBC_ARG_S(1);
+    const char* password = MRBC_ARG_S(2);
 
     auto r = WiFi.begin(ssid, password);
     SET_INT_RETURN(r);
@@ -29,7 +29,7 @@ static void c_wifi_wait_for_connect(mrb_vm *vm, mrb_value *v, int argc) {
     if(argc<1){
         r = WiFi.waitForConnectResult();
     }else {
-        auto timeout = val_to_i(vm,v,GET_ARG(1),argc);
+        auto timeout = MRBC_ARG_I(1);
         r = WiFi.waitForConnectResult(timeout);
     }
     SET_INT_RETURN(r);
@@ -45,7 +45,7 @@ static void c_wifi_set_mode(mrb_vm *vm, mrb_value *v, int argc) {
     if(argc < 1){
         return;
     }
-    auto mode = (wifi_mode_t) val_to_i(vm,v,GET_ARG(1),argc);
+    auto mode = (wifi_mode_t) MRBC_ARG_I(1);
     auto r = WiFi.mode(mode);
     SET_INT_RETURN(r);
     return;
@@ -57,7 +57,7 @@ static void c_wifi_disconnect(mrb_vm *vm, mrb_value *v, int argc) {
         SET_INT_RETURN(r);
         return;
     }
-    auto r = WiFi.disconnect((bool) val_to_i(vm,v,GET_ARG(1),argc));
+    auto r = WiFi.disconnect((bool) MRBC_ARG_I(1));
     SET_INT_RETURN(r);
     return;
 }
@@ -69,8 +69,8 @@ static void c_wifi_softap(mrb_vm *vm, mrb_value *v, int argc) {
     } else if(argc <= 3){
         // optional arg for softAP: channel,ssid_hidden,max_connection
     }
-    const char* ssid = val_to_s(vm,v,GET_ARG(1),argc);
-    const char* password = val_to_s(vm,v,GET_ARG(2),argc);
+    const char* ssid = MRBC_ARG_S(1);
+    const char* password = MRBC_ARG_S(2);
     auto r = WiFi.softAP(ssid, password);
     SET_INT_RETURN(r);
     return;
@@ -91,7 +91,7 @@ static void c_httpclient_initialize(mrb_vm *vm, mrb_value *v, int argc) {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "need 1 argument");
         return;
     }
-    const char* url = val_to_s(vm,v,GET_ARG(1),argc);
+    const char* url = MRBC_ARG_S(1);
     auto client = *(HTTPClient**) v->instance->data = new HTTPClient();
     client->begin(url);
 }

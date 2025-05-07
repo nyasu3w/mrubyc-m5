@@ -13,10 +13,10 @@
 static void class_spiffs_open(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){
-        const char* path = val_to_s(vm, v, GET_ARG(1),argc);
+        const char* path = MRBC_ARG_S(1);
         auto mode = FILE_READ;
         if(argc>1){
-            const char* m = val_to_s(vm, v, GET_ARG(2),argc);
+            const char* m = MRBC_ARG_S(2);
             if(strcmp(m,"w")==0){
                 mode = FILE_WRITE;
             } else if(strcmp(m,"a")==0){
@@ -43,7 +43,7 @@ static void class_spiffs_open(mrb_vm *vm, mrb_value *v, int argc)
 static void class_spiffs_exists(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){
-        const char* path = val_to_s(vm, v, GET_ARG(1),argc);
+        const char* path = MRBC_ARG_S(1);
         if(SPIFFS.exists(path)){
             SET_TRUE_RETURN();
             return;
@@ -55,7 +55,7 @@ static void class_spiffs_exists(mrb_vm *vm, mrb_value *v, int argc)
 static void class_spiffs_remove(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){
-        const char* path = val_to_s(vm, v, GET_ARG(1),argc);
+        const char* path = MRBC_ARG_S(1);
         if(SPIFFS.exists(path)){
             if(SPIFFS.remove(path)){
                 SET_TRUE_RETURN();

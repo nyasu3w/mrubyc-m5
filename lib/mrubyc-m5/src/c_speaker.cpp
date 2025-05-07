@@ -12,16 +12,16 @@ static void c_speaker_tone(mrb_vm *vm, mrb_value *v, int argc) {
         return;
     }
 
-    int freq = val_to_f(vm, v, GET_ARG(1), argc);
-    int duration = val_to_i(vm, v, GET_ARG(2), argc);
-    int channel = (argc>2)? val_to_i(vm, v, GET_ARG(3), argc) : -1;
+    int freq = MRBC_ARG_F(1);
+    int duration = MRBC_ARG_I(2);
+    int channel = (argc>2)? MRBC_ARG_I(3) : -1;
     bool stop_current = (argc<4 || ( GET_ARG(4).tt != MRBC_TT_NIL && GET_ARG(4).tt!=MRBC_TT_FALSE ));
     M5.Speaker.tone(freq, duration,channel, stop_current);
 }
 
 static void c_speaker_stop(mrb_vm *vm, mrb_value *v, int argc) {
     if(argc>0) {
-        int channel = val_to_i(vm, v, GET_ARG(1), argc);
+        int channel = MRBC_ARG_I(1);
         M5.Speaker.stop(channel);
     } else {
         M5.Speaker.stop();
@@ -35,7 +35,7 @@ static void c_speaker_set_volume(mrb_vm *vm, mrb_value *v, int argc) {
         return;
     }
 
-    int volume = val_to_i(vm, v, GET_ARG(1), argc);
+    int volume = MRBC_ARG_I(1);
     M5.Speaker.setVolume(volume);
 }
 
@@ -45,7 +45,7 @@ static void c_speaker_get_volume(mrb_vm *vm, mrb_value *v, int argc) {
 }
 
 static void c_speaker_is_playing(mrb_vm *vm, mrb_value *v, int argc) {
-    int channel = (argc>0)? val_to_i(vm, v, GET_ARG(1), argc) : -1;
+    int channel = (argc>0)? MRBC_ARG_I(1) : -1;
     if(M5.Speaker.isPlaying(channel)){
         SET_TRUE_RETURN();
     } else {

@@ -9,7 +9,7 @@ static void
 class_utils_randomseed(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){
-        randomSeed(val_to_i(vm, v, GET_ARG(1),argc));
+        randomSeed(MRBC_ARG_I(1));
     } else {
         randomSeed(analogRead(0));
     }
@@ -20,9 +20,9 @@ static void
 class_utils_random(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>1){
-        SET_INT_RETURN(random(val_to_i(vm, v, GET_ARG(1),argc),val_to_i(vm, v, GET_ARG(2),argc)));
+        SET_INT_RETURN(random(MRBC_ARG_I(1),MRBC_ARG_I(2)));
     } else if(argc>0){
-        SET_INT_RETURN(random(val_to_i(vm, v, GET_ARG(1),argc)));
+        SET_INT_RETURN(random(MRBC_ARG_I(1)));
     } else {
         SET_INT_RETURN(random());
     }
@@ -37,7 +37,7 @@ class_utils_millis(mrb_vm *vm, mrb_value *v, int argc)
 static void
 class_utils_delay(mrb_vm *vm, mrb_value *v, int argc)
 {
-    if(argc>0) delay(val_to_i(vm, v, GET_ARG(1),argc));
+    if(argc>0) delay(MRBC_ARG_I(1));
 }
 
 

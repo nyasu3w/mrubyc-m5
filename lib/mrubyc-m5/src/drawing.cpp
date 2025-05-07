@@ -13,7 +13,7 @@
 void draw_set_text_size(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){
-        int sz = val_to_i(vm, v, GET_ARG(1),argc);
+        int sz = MRBC_ARG_I(1);
         dst->setTextSize(sz);
         SET_TRUE_RETURN();
     } else {
@@ -26,7 +26,7 @@ void draw_print(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     int r=0;
     for(int i=1; i<=argc; i++){
-        const char* str = val_to_s(vm, v, GET_ARG(i),argc);
+        const char* str = MRBC_ARG_S(i);
         r+=dst->print(str);
     }
     SET_INT_RETURN(r);
@@ -40,7 +40,7 @@ void draw_puts(LovyanGFX *dst, mrb_vm *vm, mrb_value v[], int argc)
         r+=dst->println();
     }
     for(int i=1; i<=argc; i++){
-        const char* str = val_to_s(vm, v, GET_ARG(i),argc);
+        const char* str = MRBC_ARG_S(i);
         r+=dst->println(str);
     }
     SET_INT_RETURN(r);
@@ -51,7 +51,7 @@ void draw_clear(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     int color=0;
     if(argc>0){
-        color = val_to_i(vm, v, GET_ARG(1),argc);
+        color = MRBC_ARG_I(1);
     }
 
     dst->clearDisplay(color);
@@ -64,10 +64,10 @@ void draw_clear(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 void draw_set_text_color(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>1){
-        dst->setTextColor(val_to_i(vm, v, GET_ARG(1),argc),val_to_i(vm, v, GET_ARG(2),argc));
+        dst->setTextColor(MRBC_ARG_I(1),MRBC_ARG_I(2));
         SET_TRUE_RETURN();
     } else if(argc>0) {
-        dst->setTextColor(val_to_i(vm, v, GET_ARG(1),argc));
+        dst->setTextColor(MRBC_ARG_I(1));
         SET_TRUE_RETURN();
     } else {
         SET_FALSE_RETURN();
@@ -78,7 +78,7 @@ void draw_set_text_color(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 void draw_set_cursor(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>1){
-        dst->setCursor(val_to_i(vm, v, GET_ARG(1),argc),val_to_i(vm, v, GET_ARG(2),argc));
+        dst->setCursor(MRBC_ARG_I(1),MRBC_ARG_I(2));
         SET_TRUE_RETURN();
     } else {
         SET_FALSE_RETURN();
@@ -114,11 +114,11 @@ void draw_get_dimension(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 void draw_fill_rect(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>4){
-        int x=val_to_i(vm, v, GET_ARG(1),argc);
-        int y=val_to_i(vm, v, GET_ARG(2),argc);
-        int w=val_to_i(vm, v, GET_ARG(3),argc);
-        int h=val_to_i(vm, v, GET_ARG(4),argc);
-        int color=val_to_i(vm, v, GET_ARG(5),argc);
+        int x=MRBC_ARG_I(1);
+        int y=MRBC_ARG_I(2);
+        int w=MRBC_ARG_I(3);
+        int h=MRBC_ARG_I(4);
+        int color=MRBC_ARG_I(5);
         dst->fillRect(x,y,w,h,color);
         SET_TRUE_RETURN();
     } else {
@@ -130,11 +130,11 @@ void draw_fill_rect(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 void draw_draw_rect(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>4){
-        int x=val_to_i(vm, v, GET_ARG(1),argc);
-        int y=val_to_i(vm, v, GET_ARG(2),argc);
-        int w=val_to_i(vm, v, GET_ARG(3),argc);
-        int h=val_to_i(vm, v, GET_ARG(4),argc);
-        int color=val_to_i(vm, v, GET_ARG(5),argc);
+        int x=MRBC_ARG_I(1);
+        int y=MRBC_ARG_I(2);
+        int w=MRBC_ARG_I(3);
+        int h=MRBC_ARG_I(4);
+        int color=MRBC_ARG_I(5);
         dst->drawRect(x,y,w,h,color);
         SET_TRUE_RETURN();
     } else {
@@ -146,11 +146,11 @@ void draw_draw_rect(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 void draw_draw_line(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>4){
-        int x1=val_to_i(vm, v, GET_ARG(1),argc);
-        int y1=val_to_i(vm, v, GET_ARG(2),argc);
-        int x2=val_to_i(vm, v, GET_ARG(3),argc);
-        int y2=val_to_i(vm, v, GET_ARG(4),argc);
-        int color=val_to_i(vm, v, GET_ARG(5),argc);
+        int x1=MRBC_ARG_I(1);
+        int y1=MRBC_ARG_I(2);
+        int x2=MRBC_ARG_I(3);
+        int y2=MRBC_ARG_I(4);
+        int color=MRBC_ARG_I(5);
         dst->drawLine(x1,y1,x2,y2,color);
         SET_TRUE_RETURN();
     } else {
@@ -163,10 +163,10 @@ void draw_draw_line(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 void draw_flll_circle(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>3){
-        int x=val_to_i(vm, v, GET_ARG(1),argc);
-        int y=val_to_i(vm, v, GET_ARG(2),argc);
-        int r=val_to_i(vm, v, GET_ARG(3),argc);
-        int color=val_to_i(vm, v, GET_ARG(4),argc);
+        int x=MRBC_ARG_I(1);
+        int y=MRBC_ARG_I(2);
+        int r=MRBC_ARG_I(3);
+        int color=MRBC_ARG_I(4);
         dst->fillCircle(x,y,r,color);
         SET_TRUE_RETURN();
     } else {
@@ -178,10 +178,10 @@ void draw_flll_circle(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 void draw_draw_circle(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>3){
-        int x=val_to_i(vm, v, GET_ARG(1),argc);
-        int y=val_to_i(vm, v, GET_ARG(2),argc);
-        int r=val_to_i(vm, v, GET_ARG(3),argc);
-        int color=val_to_i(vm, v, GET_ARG(4),argc);
+        int x=MRBC_ARG_I(1);
+        int y=MRBC_ARG_I(2);
+        int r=MRBC_ARG_I(3);
+        int color=MRBC_ARG_I(4);
         dst->drawCircle(x,y,r,color);
         SET_TRUE_RETURN();
     } else {
@@ -221,8 +221,8 @@ static void draw_draw_pic_file(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_
         return;
     }
     File *f = *(File**) file.instance->data;
-    int x = val_to_i(vm, v, GET_ARG(2),argc);
-    int y = val_to_i(vm, v, GET_ARG(3),argc);
+    int x = MRBC_ARG_I(2);
+    int y = MRBC_ARG_I(3);
 
     draw_draw_pic_stream(dst,t,f,x,y);
 
@@ -275,8 +275,8 @@ void draw_draw_pic_str(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_value *v
     const uint8_t *mem = GET_ARG(1).string->data;
     size_t memsize = GET_ARG(1).string->size;
 
-    int x = val_to_i(vm, v, GET_ARG(2),argc);
-    int y = val_to_i(vm, v, GET_ARG(3),argc);
+    int x = MRBC_ARG_I(2);
+    int y = MRBC_ARG_I(3);
 
     draw_draw_pic_mem(dst,t, mem, memsize,x,y);
     
@@ -301,7 +301,7 @@ void draw_draw_pngstr(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 void draw_set_rotation(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){
-        int rotation = val_to_i(vm, v, GET_ARG(1),argc);
+        int rotation = MRBC_ARG_I(1);
         dst->setRotation(rotation);
         SET_TRUE_RETURN();
     } else {
@@ -312,8 +312,8 @@ void draw_set_rotation(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 void draw_scroll(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
     if (argc == 2) {
-        int dx = val_to_i(vm, v, GET_ARG(1), argc);
-        int dy = val_to_i(vm, v, GET_ARG(2), argc);
+        int dx = MRBC_ARG_I(1);
+        int dy = MRBC_ARG_I(2);
         dst->scroll(dx, dy);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "dx and dy");
@@ -328,16 +328,16 @@ void draw_set_scroll_rect(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
     int h=dst->height();
 
     if(argc>0){
-        x = val_to_i(vm, v, GET_ARG(1), argc);
+        x = MRBC_ARG_I(1);
     } 
     if(argc>1){
-        y = val_to_i(vm, v, GET_ARG(2), argc);
+        y = MRBC_ARG_I(2);
     } 
     if(argc>2){
-        w = val_to_i(vm, v, GET_ARG(3), argc);
+        w = MRBC_ARG_I(3);
     } 
     if(argc>3){
-        h = val_to_i(vm, v, GET_ARG(4), argc);
+        h = MRBC_ARG_I(4);
     } 
 
     dst->setScrollRect(x,y,w,h);
@@ -347,7 +347,7 @@ void draw_set_text_scroll(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
 {
 
     int f = true;
-    if(argc>0) f = val_to_i(vm, v, GET_ARG(1), argc);
+    if(argc>0) f = MRBC_ARG_I(1);
     dst->setTextScroll(f!=0);
 }
 

@@ -11,7 +11,7 @@ static void class_m5dial_read(mrb_vm *vm, mrb_value *v, int argc){
 }
 
 static void class_m5dial_write(mrb_vm *vm, mrb_value *v, int argc){
-    int pos = val_to_i(vm, v, v[1], argc);
+    int pos = MRBC_ARG_I(1);
     M5Dial.Encoder.write(pos);
 }
 

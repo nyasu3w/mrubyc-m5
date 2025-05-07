@@ -83,7 +83,7 @@ add_espnow_peer(uint8_t no, mrb_value *ary, mrb_vm *vm, mrb_value *v, int argc){
     if(!mrbc_obj_is_kind_of(&temp_val,MRBC_CLASS(Integer))){
         return false;  // need a channel number
     }
-    uint8_t chan = val_to_i(vm,v,temp_val,argc);
+    uint8_t chan = MRBC_TO_I(temp_val);
     temp_val = mrbc_array_get(ary,1);
     if(!mrbc_obj_is_kind_of(&temp_val,MRBC_CLASS(Array))){
         return false;  // need an array of MAC addr
@@ -105,7 +105,7 @@ add_espnow_peer(uint8_t no, mrb_value *ary, mrb_vm *vm, mrb_value *v, int argc){
     peer_info[peer_no].channel = chan;
     for(int i=0;i<6;i++){   // 6 is a size of MAC addr
         mrbc_value octed_val = mrbc_array_get(&temp_val,i);
-        peer_info[peer_no].peer_addr[i] = val_to_i(vm,v,octed_val,argc);
+        peer_info[peer_no].peer_addr[i] = MRBC_TO_I(octed_val);
     }
     if(esp_now_add_peer(&peer_info[peer_no])==ESP_OK) {
         return true;
@@ -135,7 +135,7 @@ class_espnow_del_peer(mrb_vm *vm, mrb_value *v, int argc){
         SET_FALSE_RETURN();
         return;
     }
-    uint8_t peer = val_to_i(vm,v,v[1],1);
+    uint8_t peer = MRBC_ARG_I(1);
     if(peer>=paired_num){
         SET_FALSE_RETURN();
         return;
@@ -162,7 +162,7 @@ class_espnow_send(mrb_vm *vm, mrb_value *v, int argc){  // written by copilot
         SET_FALSE_RETURN();
         return;
     }
-    int peer = val_to_i(vm,v,v[1],1);
+    int peer = MRBC_ARG_I(1);
     if(peer>=paired_num){
         SET_FALSE_RETURN();
         return;
@@ -180,7 +180,7 @@ class_espnow_recv(mrb_vm *vm, mrb_value *v, int argc){
     if(recv_data_out==recv_data_in){
         SET_NIL_RETURN();
     } else if(argc>0){
-        int rtype=val_to_i(vm,v,v[1],argc);
+        int rtype=MRBC_ARG_I(1);
         switch(rtype) {
             case 0: // return only data
                 SET_RETURN(m_espnow_recvdata[recv_data_out].string);

@@ -14,7 +14,7 @@ static void c_unitasr_receive_command(mrb_vm *vm, mrb_value *v, int argc) {
     unsigned long timeout;
 
     if(argc > 0) {
-        timeout = val_to_i(vm, v, GET_ARG(1), argc);
+        timeout = MRBC_ARG_I(1);
     } else {
         timeout = 0; // Default timeout
     }
@@ -110,7 +110,7 @@ static void c_unitasr_default_vocabulary(mrb_vm *vm, mrb_value *v, int argc) {
     };
 
     if(argc > 0) {
-        int vocab = val_to_i(vm, v, GET_ARG(1), argc);
+        int vocab = MRBC_ARG_I(1);
         SET_RETURN(mrbc_string_new_cstr(vm, commandList[vocab]));
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "too few arguments");

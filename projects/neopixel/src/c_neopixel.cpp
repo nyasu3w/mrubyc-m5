@@ -9,10 +9,10 @@
 static void
 class_neopixel_new(mrb_vm *vm, mrb_value *v, int argc)
 {
-    int pin = (argc>1)? val_to_i(vm, v, GET_ARG(2),argc):M5.getPin(m5::port_a_pin2); 
+    int pin = (argc>1)? MRBC_ARG_I(2):M5.getPin(m5::port_a_pin2); 
 
     if(argc>0){
-        int num=val_to_i(vm, v, GET_ARG(1),argc);
+        int num=MRBC_ARG_I(1);
         Adafruit_NeoPixel *strip = new Adafruit_NeoPixel(num, pin, NEO_GRB + NEO_KHZ800);
         mrbc_value obj = mrbc_instance_new(vm, v[0].cls, sizeof(Adafruit_NeoPixel*));
         *(Adafruit_NeoPixel**)obj.instance->data = strip;
@@ -31,10 +31,10 @@ class_neopixel_set_pixel_color(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>3){
         Adafruit_NeoPixel *strip = get_checked_data(Adafruit_NeoPixel, vm, v);
-        int n = val_to_i(vm, v, GET_ARG(1),argc);
-        int r = val_to_i(vm, v, GET_ARG(2),argc);
-        int g = val_to_i(vm, v, GET_ARG(3),argc);
-        int b = val_to_i(vm, v, GET_ARG(4),argc);
+        int n = MRBC_ARG_I(1);
+        int r = MRBC_ARG_I(2);
+        int g = MRBC_ARG_I(3);
+        int b = MRBC_ARG_I(4);
         if(n<0 || n>=strip->numPixels()){
             mrbc_raisef(vm, MRBC_CLASS(ArgumentError),"out of range (%d)",n);
             SET_FALSE_RETURN();
@@ -59,11 +59,11 @@ class_neopixel_fill(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>4){
         Adafruit_NeoPixel *strip = get_checked_data(Adafruit_NeoPixel, vm, v);
-        int r = val_to_i(vm, v, GET_ARG(1),argc);
-        int g = val_to_i(vm, v, GET_ARG(2),argc);
-        int b = val_to_i(vm, v, GET_ARG(3),argc);
-        int st = val_to_i(vm, v, GET_ARG(4),argc);
-        int co = val_to_i(vm, v, GET_ARG(5),argc);
+        int r = MRBC_ARG_I(1);
+        int g = MRBC_ARG_I(2);
+        int b = MRBC_ARG_I(3);
+        int st = MRBC_ARG_I(4);
+        int co = MRBC_ARG_I(5);
         strip->fill(strip->Color(r,g,b),st,co);
     } else {
         SET_FALSE_RETURN();
@@ -97,7 +97,7 @@ class_neopixel_map1(mrb_vm *vm, mrb_value *v, int argc)
 
     unsigned int alen = GET_ARG(1).array->n_stored;
 
-    int offset = (argc>1)? val_to_i(vm, v, GET_ARG(2),argc) : 0;
+    int offset = (argc>1)? MRBC_ARG_I(2) : 0;
     if(offset<0) offset = 0;
     unsigned int p=(int)offset;
 
@@ -106,11 +106,11 @@ class_neopixel_map1(mrb_vm *vm, mrb_value *v, int argc)
         if(ary.tt == MRBC_TT_ARRAY && ary.array->n_stored>=3){
             mrbc_value va;
             va = mrbc_array_get(&ary,0);
-            int r = val_to_i(vm, v, va, argc);
+            int r =MRBC_TO_I(va);
             va = mrbc_array_get(&ary,1);
-            int g = val_to_i(vm, v, va,argc);
+            int g = MRBC_TO_I(va);
             va = mrbc_array_get(&ary,2);
-            int b = val_to_i(vm, v, va, argc);
+            int b =MRBC_TO_I(va);
             strip->setPixelColor(p, strip->Color(r,g,b));
         } else {
             mrbc_raisef(vm, MRBC_CLASS(ArgumentError), "argument1 is not in the format [%d]",p);
@@ -147,18 +147,18 @@ class_neopixel_map3(mrb_vm *vm, mrb_value *v, int argc)
     mrbc_value ga = GET_ARG(2);
     mrbc_value ba = GET_ARG(3);
 
-    int offset = (argc>3)? val_to_i(vm, v, GET_ARG(4),argc) : 0;
+    int offset = (argc>3)? MRBC_ARG_I(4) : 0;
     if(offset<0) offset = 0;
     unsigned int p=(int)offset;
 
     while(p < sz && p - offset < minlen){
         mrbc_value va;
         va = mrbc_array_get(&ra,p);
-        int r = val_to_i(vm, v, va, argc);
+        int r =MRBC_TO_I(va);
         va = mrbc_array_get(&ga,p);
-        int g = val_to_i(vm, v, va, argc);
+        int g =MRBC_TO_I(va);
         va = mrbc_array_get(&ba,p);
-        int b = val_to_i(vm, v, va,  argc);
+        int b = MRBC_TO_I(va);
         strip->setPixelColor(p, strip->Color(r,g,b));
         p++;
     }

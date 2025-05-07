@@ -34,7 +34,7 @@ static void class_roller485_calibration(mrb_vm *vm, mrb_value *v, int argc) {
 // mode = 1:SPEED, 2:POSITION, 3:CURRENT, 4:ENCODER
 static void class_roller485_setmode(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 0) {
-        int mode = val_to_i(vm, v, GET_ARG(1), argc);
+        int mode = MRBC_ARG_I(1);
         if(mode < 1 || mode > 4) {
             mrbc_raise(vm, MRBC_CLASS(ArgumentError), "mode");
             SET_FALSE_RETURN();
@@ -52,7 +52,7 @@ static void class_roller485_getmode(mrb_vm *vm, mrb_value *v, int argc) {
 
 static void class_roller485_setoutput(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 0) {
-        uint8_t output = val_to_i(vm, v, GET_ARG(1), argc);
+        uint8_t output = MRBC_ARG_I(1);
         Roller.setOutput(output);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "output");
@@ -62,7 +62,7 @@ static void class_roller485_setoutput(mrb_vm *vm, mrb_value *v, int argc) {
 
 static void class_roller485_setspeed(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 0) {
-        int32_t speed = val_to_i(vm, v, GET_ARG(1), argc);
+        int32_t speed = MRBC_ARG_I(1);
         Roller.setSpeed(speed);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "speed");
@@ -72,7 +72,7 @@ static void class_roller485_setspeed(mrb_vm *vm, mrb_value *v, int argc) {
 
 static void class_roller485_setspeedmaxcurrent(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 0) {
-        int32_t current = val_to_i(vm, v, GET_ARG(2), argc);
+        int32_t current = MRBC_ARG_I(2);
         Roller.setSpeedMaxCurrent(current);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "speed");
@@ -82,7 +82,7 @@ static void class_roller485_setspeedmaxcurrent(mrb_vm *vm, mrb_value *v, int arg
 
 static void class_roller485_setcurrent(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 0) {
-        int32_t current = val_to_i(vm, v, GET_ARG(1), argc);
+        int32_t current = MRBC_ARG_I(1);
         Roller.setCurrent(current);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "current");
@@ -108,7 +108,7 @@ static void class_roller485_speed_readback(mrb_vm *vm, mrb_value *v, int argc) {
 }
 static void class_roller485_setpos(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 0) {
-        int32_t pos = val_to_i(vm, v, GET_ARG(1), argc);
+        int32_t pos = MRBC_ARG_I(1);
         Roller.setPos(pos);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "pos");
@@ -139,9 +139,9 @@ static void class_roller485_getpospid(mrb_vm *vm, mrb_value *v, int argc) {
 
 static void class_roller485_setpospid(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 2) {
-        uint32_t p = val_to_i(vm, v, GET_ARG(1), argc);
-        uint32_t i = val_to_i(vm, v, GET_ARG(2), argc);
-        uint32_t d = val_to_i(vm, v, GET_ARG(3), argc);
+        uint32_t p = MRBC_ARG_I(1);
+        uint32_t i = MRBC_ARG_I(2);
+        uint32_t d = MRBC_ARG_I(3);
         Roller.setPosPID(p,i,d);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "pospid");
@@ -164,9 +164,9 @@ static void class_roller485_getspeedpid(mrb_vm *vm, mrb_value *v, int argc) {
 
 static void class_roller485_setspeedpid(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 2) {
-        uint32_t p = val_to_i(vm, v, GET_ARG(1), argc);
-        uint32_t i = val_to_i(vm, v, GET_ARG(2), argc);
-        uint32_t d = val_to_i(vm, v, GET_ARG(3), argc);
+        uint32_t p = MRBC_ARG_I(1);
+        uint32_t i = MRBC_ARG_I(2);
+        uint32_t d = MRBC_ARG_I(3);
         Roller.setSpeedPID(p,i,d);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "speedpid");
@@ -176,7 +176,7 @@ static void class_roller485_setspeedpid(mrb_vm *vm, mrb_value *v, int argc) {
 
 static void class_roller485_setdialcounter(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 0) {
-        int32_t counter = val_to_i(vm, v, GET_ARG(1), argc);
+        int32_t counter = MRBC_ARG_I(1);
         Roller.setDialCounter(counter);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "counter");
@@ -190,7 +190,7 @@ static void class_roller485_getdialcounter(mrb_vm *vm, mrb_value *v, int argc) {
 
 static void class_roller485_set_pos_maxcurrent(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 0) {
-        int32_t current = val_to_i(vm, v, GET_ARG(1), argc);
+        int32_t current = MRBC_ARG_I(1);
         Roller.setPosMaxCurrent(current);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "posmaxcurrent");
@@ -200,7 +200,7 @@ static void class_roller485_set_pos_maxcurrent(mrb_vm *vm, mrb_value *v, int arg
 
 static void class_roller485_setRGBBrightness(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 0) {
-        uint8_t brightness = val_to_i(vm, v, GET_ARG(1), argc);
+        uint8_t brightness = MRBC_ARG_I(1);
         Roller.setRGBBrightness(brightness);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "brightness");
@@ -214,7 +214,7 @@ static void class_roller485_getRGBBrightness(mrb_vm *vm, mrb_value *v, int argc)
 
 static void class_roller485_set_RGBmode(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 0) {
-        int mode = val_to_i(vm, v, GET_ARG(1), argc);
+        int mode = MRBC_ARG_I(1);
         Roller.setRGBMode((roller_rgb_t) mode);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "rgbmode");
@@ -228,7 +228,7 @@ static void class_roller485_get_RGBmode(mrb_vm *vm, mrb_value *v, int argc) {
 
 static void class_roller485_set_RGBcolor(mrb_vm *vm, mrb_value *v, int argc) {
     if (argc > 0) {
-        int color = val_to_i(vm, v, GET_ARG(1), argc);
+        int color = MRBC_ARG_I(1);
         Roller.setRGB(color);
     } else {
         mrbc_raise(vm, MRBC_CLASS(ArgumentError), "rgbcolor");
