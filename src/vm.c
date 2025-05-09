@@ -1369,7 +1369,7 @@ static inline void op_argary( mrbc_vm *vm, mrbc_value *regs EXT )
     return;
   }
   if( b & 0x3e0 ) {	// check m2 parameter.
-    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 or keyword argument");
+    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 argument");
     return;
   }
 
@@ -1443,7 +1443,7 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
 
   // Check m2 parameter.
   if( a & FLAG_M2 ) {
-    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 or keyword argument");
+    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 argument");
     return;
   }
 
@@ -1810,7 +1810,7 @@ static inline void op_blkpush( mrbc_vm *vm, mrbc_value *regs EXT )
   int lv = (b      ) & 0x0f;
 
   if( m2 ) {
-    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 or keyword argument");
+    mrbc_raise( vm, MRBC_CLASS(NotImplementedError), "not support m2 argument");
     return;
   }
 
