@@ -53,17 +53,20 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
 {
   int narg = c & 0x0f;
   int karg = (c >> 4) & 0x0f;
+  int have_block = (c >> 8);
   mrbc_value *recv = vm->cur_regs + a;
 
   // If it's packed in an array, expand it.
   if( narg == CALL_MAXARGS ) {
     mrbc_value argv = recv[1];
+    int n_move = (karg == CALL_MAXARGS) ? 2 : karg * 2 + 1;
+
     narg = mrbc_array_size(&argv);
     for( int i = 0; i < narg; i++ ) {
       mrbc_incref( &argv.array->data[i] );
     }
 
-    memmove( recv + narg + 1, recv + 2, sizeof(mrbc_value) * (karg * 2 + 1) );
+    memmove( recv + narg + 1, recv + 2, sizeof(mrbc_value) * n_move );
     memcpy( recv + 1, argv.array->data, sizeof(mrbc_value) * narg );
 
     mrbc_decref(&argv);
@@ -88,7 +91,7 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
   }
 
   // is not have block
-  if( (c >> 8) == 0 ) {
+  if( !have_block ) {
     mrbc_decref( recv + narg + 1 );
     mrbc_set_nil( recv + narg + 1 );
   }
