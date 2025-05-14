@@ -130,7 +130,7 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
   if( sym_id == MRBC_SYM(call) ) return;
   if( sym_id == MRBC_SYM(new) ) return;
 
-  for( int i = 1; i <= narg+1; i++ ) {
+  for( int i = 1; i <= narg + !!karg + have_block; i++ ) {
     mrbc_decref_empty( recv + i );
   }
   return;
