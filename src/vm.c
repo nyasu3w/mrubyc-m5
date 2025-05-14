@@ -72,28 +72,26 @@ static void send_by_name( struct VM *vm, mrbc_sym sym_id, int a, int c )
     mrbc_decref(&argv);
   }
 
+  mrbc_value *r1 = recv + narg;
+
   // Convert keyword argument to hash.
-  if( karg ) {
-    narg++;
-    if( karg != CALL_MAXARGS ) {
-      mrbc_value h = mrbc_hash_new( vm, karg );
-      if( !h.hash ) return;	// ENOMEM
+  if( karg && karg != CALL_MAXARGS ) {
+    mrbc_value hval = mrbc_hash_new( vm, karg );
+    if( !hval.hash ) return;	// ENOMEM
 
-      mrbc_value *r1 = recv + narg;
-      memcpy( h.hash->data, r1, sizeof(mrbc_value) * karg * 2 );
-      h.hash->n_stored = karg * 2;
+    memcpy( hval.hash->data, r1+1, sizeof(mrbc_value) * karg * 2 );
+    hval.hash->n_stored = karg * 2;
 
-      mrbc_value block = r1[karg * 2];
-      memset( r1 + 2, 0, sizeof(mrbc_value) * (karg * 2 - 1) );
-      *r1++ = h;
-      *r1 = block;
-    }
+    r1[1] = hval;
+    r1[2] = r1[karg * 2 + 1];	// Proc
+    memset( r1 + 3, 0, sizeof(mrbc_value) * (karg * 2 - 1) );
   }
 
   // is not have block
   if( !have_block ) {
-    mrbc_decref( recv + narg + 1 );
-    mrbc_set_nil( recv + narg + 1 );
+    r1 += (!!karg + 1);
+    mrbc_decref( r1 );
+    mrbc_set_nil( r1 );
   }
 
   // find a method
@@ -1453,8 +1451,11 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
   int m1 = (a >> 18) & 0x1f;	// num of required parameters 1
   int o  = (a >> 13) & 0x1f;	// num of optional parameters
   int argc = vm->callinfo_tail->n_args;
+  int flag_kwarg = regs[argc+1].tt == MRBC_TT_HASH;
 
-  if( argc < m1 && mrbc_type(regs[0]) != MRBC_TT_PROC ) {
+  argc += flag_kwarg;
+
+  if( argc < m1 && regs[0].tt != MRBC_TT_PROC ) {
     mrbc_raise( vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
     return;
   }
@@ -1464,10 +1465,8 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
   regs[argc+1].tt = MRBC_TT_EMPTY;
 
   // support yield [...] pattern, to expand array.
-  if( mrbc_type(regs[0]) == MRBC_TT_PROC &&
-      mrbc_type(regs[1]) == MRBC_TT_ARRAY &&
+  if( regs[0].tt == MRBC_TT_PROC && regs[1].tt == MRBC_TT_ARRAY &&
       argc == 1 && m1 > 1 ) {
-
     mrbc_value argary = regs[1];
     int argary_size = mrbc_array_size(&argary);
 
@@ -1490,7 +1489,7 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
   if( a & (FLAG_DICT|FLAG_KW|FLAG_REST) ) {
     mrbc_value dict;
     if( a & (FLAG_DICT|FLAG_KW) ) {
-      if( (argc - m1) > 0 && mrbc_type(regs[argc]) == MRBC_TT_HASH ) {
+      if( (argc - m1) > 0 && regs[argc].tt == MRBC_TT_HASH ) {
 	dict = regs[argc];
 	regs[argc--].tt = MRBC_TT_EMPTY;
       } else {
@@ -1513,12 +1512,11 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
     }
 
     // reorder arguments.
-    int i;
-    for( i = argc; i < m1; ) {
+    for( int i = argc; i < m1; ) {
       mrbc_decref( &regs[++i] );
       mrbc_set_nil( &regs[i] );
     }
-    i = m1 + o;
+    int i = m1 + o;
     if( a & FLAG_REST ) {
       mrbc_decref(&regs[++i]);
       regs[i] = rest;
@@ -1536,12 +1534,11 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
 
   } else {
     // reorder arguments.
-    int i;
-    for( i = argc; i < m1; ) {
+    for( int i = argc; i < m1; ) {
       mrbc_decref( &regs[++i] );
       mrbc_set_nil( &regs[i] );
     }
-    i = m1 + o;
+    int i = m1 + o;
     mrbc_decref(&regs[i+1]);
     regs[i+1] = proc;
     vm->callinfo_tail->n_args = i;
@@ -1553,7 +1550,7 @@ static inline void op_enter( mrbc_vm *vm, mrbc_value *regs EXT )
     if( jmp_ofs > o ) {
       jmp_ofs = o;
 
-      if( !(a & FLAG_REST) && mrbc_type(regs[0]) != MRBC_TT_PROC ) {
+      if( !(a & FLAG_REST) && regs[0].tt != MRBC_TT_PROC ) {
 	mrbc_raise( vm, MRBC_CLASS(ArgumentError), "wrong number of arguments");
 	return;
       }
