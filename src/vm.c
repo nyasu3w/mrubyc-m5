@@ -250,10 +250,10 @@ void mrbc_pop_callinfo( struct VM *vm )
 
   // clear used register.
   mrbc_callinfo *callinfo = vm->callinfo_tail;
-  mrbc_value *reg1 = vm->cur_regs + callinfo->cur_irep->nregs - callinfo->reg_offset;
-  mrbc_value *reg2 = vm->cur_regs + vm->cur_irep->nregs;
-  while( reg1 < reg2 ) {
-    mrbc_decref_empty( reg1++ );
+  mrbc_value *r0 = vm->cur_regs;
+
+  for( int i = 1; i < vm->cur_irep->nregs; i++ ) {
+    mrbc_decref_empty( r0+i );
   }
   if( callinfo->karg_keep ) {
     mrbc_hash_delete( &(mrbc_value){.tt = MRBC_TT_HASH, .hash = callinfo->karg_keep} );
