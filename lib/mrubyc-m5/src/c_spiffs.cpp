@@ -1,15 +1,15 @@
 #include <FS.h>
 #include <SPIFFS.h>
 
+#include <M5Unified.h>
 #include "my_mrubydef.h"
 #include "c_file.h"
 #include "c_spiffs.h"
 
-#ifndef USE_FILE_CLASS
-#error "USE_FILE_CLASS must be defined"
-#endif
 
+#ifdef USE_SPIFFS_FUNCTION
 
+#ifdef USE_FILE_CLASS
 static void class_spiffs_open(mrb_vm *vm, mrb_value *v, int argc)
 {
     if(argc>0){
@@ -66,6 +66,8 @@ static void class_spiffs_remove(mrb_vm *vm, mrb_value *v, int argc)
     SET_FALSE_RETURN();
 }
 
+#endif // USE_FILE_CLASS
+
 void class_spiffs_init() {
     constexpr bool FORMAT_SPIFFS_IF_FAILED=true;
     if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)){  // if failed
@@ -73,11 +75,16 @@ void class_spiffs_init() {
         mrbc_set_const(mrbc_str_to_symid("SPIFFS"),&failed_object);
         return;
     }
+
     mrbc_class *class_spiffs=mrbc_define_class(0,"SPIFFS", mrbc_class_object);
     mrbc_define_method(0, class_spiffs, "available?", true_return);
 
+#ifdef USE_FILE_CLASS
     mrbc_define_method(0, class_spiffs, "open", class_spiffs_open);
     mrbc_define_method(0, class_spiffs, "exists?", class_spiffs_exists);
     mrbc_define_method(0, class_spiffs, "remove", class_spiffs_remove);
-
+#endif // USE_FILE_CLASS
 }
+
+#endif // USE_SPIFFS_FUNCTION
+

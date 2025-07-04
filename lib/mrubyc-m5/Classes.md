@@ -75,10 +75,13 @@ Representing M5.Display.
   > draw a filled circle
 - draw_line(x1,y1,x2,y2,color)
   > draw a line
-- draw_bmpfile(picfile,x,y)
-- draw_jpgfile(picfile,x,y)
-- draw_pngfile(picfile,x,y)
-  > draw a picture at (x,y). `picfile` is a File object, such as SD.open("/test.jpg")
+- draw_bmpfile(storage,filepath,x,y,scale_x=1.0,scale_y=0.0)
+- draw_jpgfile(storage,filepath,x,y,scale_x=1.0,scale_y=0.0)
+- draw_pngfile(storage,filepath,x,y,scale_x=1.0,scale_y=0.0)
+  > draw a picture at (x,y). `filepath` is a path to the picture file in SPIFFS or SD.
+  > - `storage` can be `SPIFFS` or `SD`. It shows the storage where the file is stored.
+  > - `x`,`y` are the coordinates of upper-left corner of the picture.
+  > - `scale_x` and `scale_y` are the scale factor and these can be omit. if `scale_y`=0.0 or omit, the scale factor is the same as `scale_x`
 - draw_bmpstr(picstr,x,y)
 - draw_jpgstr(picstr,x,y)
 - draw_pngstr(picstr,x,y)
@@ -153,6 +156,18 @@ If you have compatibility issues, please adjust them yourself.
   > Check if the `filename` exists.
 - remove(filename)
   > Removes `filename` from the SD card.
+
+### SPIFFS (c_spiffs.cpp) \[USE_SPIFFS_FUNCTION\]
+A class to use SPIFFS. Almost same as SD class.
+Representing arduino's SPIFFS class. When SPIFFS is not available, Constant SPIFFS is a FailObject.
+
+- open(filename, mode="r")
+  > Opens the `filename` in mode `mode` and returns a File object.
+  > `mode` is one in "r", "w" and "a".
+- exists?(filename)
+  > Check if the `filename` exists.
+- remove(filename)
+  > Removes `filename` from the SPIFFS.
 
 ### Speaker (c_speaker.cpp) \[USE_SPEAKER\]
 Representing M5.Speaker.

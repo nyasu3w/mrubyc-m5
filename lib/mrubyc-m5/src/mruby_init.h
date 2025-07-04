@@ -25,6 +25,9 @@
 #ifdef USE_SD_FUNCTION
 #include "c_sd.h"
 #endif
+#ifdef USE_SPIFFS_FUNCTION
+#include "c_spiffs.h"
+#endif
 #ifdef USE_FILE_CLASS
 #include "c_file.h"
 #endif
@@ -58,6 +61,11 @@ void my_mrubyc_init(){
     class_sd_init();  // define SD 
 #else
     mrbc_set_const(mrbc_str_to_symid("SD"), &failed_object);
+#endif
+#ifdef USE_SPIFFS_FUNCTION
+    class_spiffs_init();
+#else
+    mrbc_set_const(mrbc_str_to_symid("SPIFFS"), &failed_object);
 #endif
 #ifdef USE_FILE_CLASS
     class_file_init();  // define SD 

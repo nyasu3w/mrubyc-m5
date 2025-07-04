@@ -147,4 +147,4 @@ void class_file_init()
     mrbc_define_method(0, class_file, "destroy", class_file_destroy);
 }
 
-#endif // USE_FILE_FUNCTION
+#endif // USE_FILE_CLASS

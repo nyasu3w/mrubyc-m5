@@ -11,6 +11,7 @@
 ////#define USE_EFONTJA10  // to support efontJA10 
 #define USE_IMU_FUNCTION  // IMU to support M5Unified IMU functions
 #define USE_SD_FUNCTION  // to support SD functions
+#define USE_SPIFFS_FUNCTION // to support SPIFFS functions
 #define USE_FILE_CLASS  // to support File functions
 #define USE_TOUCH // to support Touch functions
 #define USE_SPEAKER // to support Speaker functions

@@ -2,8 +2,17 @@
 // Common drawing functions for M5GFX, M5Canvas
 //
 
-#include <M5Unified.h>
 #include "my_mrubydef.h"
+
+#ifdef USE_SD_FUNCTION
+#include <SD.h>
+#endif
+
+#ifdef USE_SPIFFS_FUNCTION
+#include <SPIFFS.h>
+#endif
+
+#include <M5Unified.h>
 
 #include "drawing.h"
 #include "c_font.h"
@@ -189,42 +198,79 @@ void draw_draw_circle(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
     }
 }
 
-static void draw_draw_pic_stream(LovyanGFX *dst, draw_pic_type t, Stream* instream, int x, int y){
+#if defined(USE_SD_FUNCTION) || defined(USE_SPIFFS_FUNCTION)
+
+static uint8_t draw_draw_pic_from_path(LovyanGFX *dst, draw_pic_type t, mrb_value* storage, const char* path, int32_t x, int32_t y,float scale_x=1.0, float scale_y=0.0 ){
+    if(storage == &failed_object) {
+        return 1;
+    }
+    enum {STO_NONE=0, STO_SPIFFS, STO_SDCARD } sto_class;
+    if(mrbc_obj_is_kind_of(storage, mrbc_get_class_by_name("SPIFFS"))) {
+        sto_class = STO_SPIFFS;
+    } else if(mrbc_obj_is_kind_of(storage, mrbc_get_class_by_name("SD"))) {
+        sto_class=STO_SDCARD;
+    } else {  // path error
+        return 1;
+    }
+
     switch(t){
         case bmp:
-            dst->drawBmp(instream,x,y);
-            break;
+#ifdef USE_SPIFFS_FUNCTION
+            if(sto_class==STO_SPIFFS)
+                dst->drawBmpFile(SPIFFS,path,x,y,0,0,0,0,scale_x,scale_y);
+#endif
+#ifdef USE_SD_FUNCTION
+            if(sto_class==STO_SDCARD)
+                dst->drawBmpFile(SD,path,x,y,0,0,0,0,scale_x,scale_y);
+#endif
+                break;
         case jpg:
-            dst->drawJpg(instream,x,y);
+#ifdef USE_SPIFFS_FUNCTION
+            if(sto_class==STO_SPIFFS)
+                dst->drawJpgFile(SPIFFS,path,x,y,0,0,0,0,scale_x,scale_y);
+#endif
+#ifdef USE_SD_FUNCTION
+            if(sto_class==STO_SDCARD)
+                dst->drawJpgFile(SD,path,x,y,0,0,0,0,scale_x,scale_y);
+#endif
             break;
         case png:
-            dst->drawPng(instream,x,y);
+#ifdef USE_SPIFFS_FUNCTION
+            if(sto_class==STO_SPIFFS)
+                dst->drawPngFile(SPIFFS,path,x,y,0,0,0,0,scale_x,scale_y);
+#endif
+#ifdef USE_SD_FUNCTION
+            if(sto_class==STO_SDCARD)
+                dst->drawPngFile(SD,path,x,y,0,0,0,0,scale_x,scale_y);
+#endif
             break;
     }
+    return 0;
 }
-
-
-
-#ifdef USE_FILE_FUNCTION
 
 static void draw_draw_pic_file(LovyanGFX *dst, draw_pic_type t, mrb_vm *vm, mrb_value *v, int argc)
 {
-    if(argc<3){
+    if(argc<4){
         mrbc_raise(vm, MRBC_CLASS(ArgumentError),"too few arguments");
         return;
     }
-    mrbc_value file = GET_ARG(1);
-    int r = mrbc_obj_is_kind_of(&file, class_file);
-    if(r==0){
-        mrbc_raise(vm, MRBC_CLASS(ArgumentError),"not a file");
-        SET_FALSE_RETURN();
-        return;
-    }
-    File *f = *(File**) file.instance->data;
-    int x = MRBC_ARG_I(2);
-    int y = MRBC_ARG_I(3);
 
-    draw_draw_pic_stream(dst,t,f,x,y);
+    const char* path = MRBC_ARG_S(2);
+    int x = MRBC_ARG_I(3);
+    int y = MRBC_ARG_I(4);
+
+    float scale_x=1.0, scale_y=0.0;
+    if(argc>4){
+        scale_x = MRBC_ARG_F(5);
+    } 
+    if(argc>5){
+        scale_y = MRBC_ARG_F(6);
+    } 
+
+    if(draw_draw_pic_from_path(dst,t,MRBC_ARG(1), path,x,y,scale_x,scale_y)){
+        // now only retcode:1 is implemented
+        mrbc_raise(vm, MRBC_CLASS(ArgumentError), "wrong path or storage");
+    }
 
     SET_TRUE_RETURN();
 }
@@ -245,7 +291,7 @@ void draw_draw_png(LovyanGFX *dst, mrb_vm *vm, mrb_value *v, int argc)
     draw_draw_pic_file(dst, png,vm,v,argc);
 }
 
-#endif // USE_FILE_FUNCTION
+#endif // USE_SD_FUNCTION || SPIFFS_FUNCTIOn
 
 static void draw_draw_pic_mem(LovyanGFX *dst, draw_pic_type t, const uint8_t * mem, size_t memsize, int x, int y){
     switch(t){
