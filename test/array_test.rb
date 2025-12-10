@@ -266,9 +266,9 @@ class ArrayTest < Picotest::Test
     hash = {1=>1, :k2=>:v2, "k3"=>"v3"}
     range = 1..3
     a = [nil, false, true, 123, 2.718, :symbol, array, "string", range, hash]
-    assert_equal %q![nil, false, true, 123, 2.718, :symbol, [1, "AA", :sym], "string", 1..3, {1=>1, :k2=>:v2, "k3"=>"v3"}]!, a.inspect
-    assert_equal %q![nil, false, true, 123, 2.718, :symbol, [1, "AA", :sym], "string", 1..3, {1=>1, :k2=>:v2, "k3"=>"v3"}]!, a.to_s
-    assert_equal %q!,false,true,123,2.718,symbol,1,AA,sym,string,1..3,{1=>1, :k2=>:v2, "k3"=>"v3"}!, a.join(",")
+    assert_equal %q![nil, false, true, 123, 2.718, :symbol, [1, "AA", :sym], "string", 1..3, {1 => 1, k2: :v2, "k3" => "v3"}]!, a.inspect
+    assert_equal %q![nil, false, true, 123, 2.718, :symbol, [1, "AA", :sym], "string", 1..3, {1 => 1, k2: :v2, "k3" => "v3"}]!, a.to_s
+    assert_equal %q!,false,true,123,2.718,symbol,1,AA,sym,string,1..3,{1 => 1, k2: :v2, "k3" => "v3"}!, a.join(",")
   end
 
   description "each"
@@ -336,9 +336,9 @@ class ArrayTest < Picotest::Test
 
   description "uniq test"
   def test_uniq
-    a = %(A B C B)
+    a = %W(A B C B)
     assert_equal %W(A B C), a.uniq
-    assert_equal %(A B C B), a
+    assert_equal %W(A B C B), a
 
     assert_equal %W(A B C), a.uniq!
     assert_equal %W(A B C), a
@@ -347,4 +347,51 @@ class ArrayTest < Picotest::Test
     assert_equal %W(A B C), a
   end
 
+  description "difference"
+  def test_difference
+    assert_equal [3,3,5], [1,1,2,2,3,3,4,5].difference( [1,2,4] )
+    assert_equal [:s,"yep"], [1,'c',:s,'yep'].difference( [1], ['a','c'] )
+  end
+
+  description "select test"
+  def test_select
+    a = %w{A B C D E F}
+    assert_equal( %w{A B C}, a.select {|v| v < "D"} )
+    assert_equal( [], a.select {|v| v < "A"} )
+    assert_equal( %w{A B C D E F}, a )
+
+    assert_equal( %w{A B C}, a.select! {|v| v < "D"} )
+    assert_equal( %w{A B C}, a )
+    assert_equal( nil, a.select! {|v| v < "D"} )
+    assert_equal( %w{A B C}, a )
+  end
+
+  description "all? test"
+  def test_all_
+    assert_equal( true,  [5,  6, 7].all? {|v| v > 0 } )
+    assert_equal( false, [5, -1, 7].all? {|v| v > 0 } )
+    assert_equal( true,  [].all? {|v| v > 0 } )
+    assert_equal( true,  [1, 1, 1].all?(1) )
+    assert_equal( false, [1, 1, 0].all?(1) )
+  end
+
+  description "any? test"
+  def test_any_
+    assert_equal( false, [1, 2, 3].any? {|v| v > 3 } )
+    assert_equal( true,  [1, 2, 3].any? {|v| v > 1 } )
+    assert_equal( false, [].any? {|v| v > 0 } )
+    assert_equal( true,  [nil, true, 99].any?(Integer) )
+    assert_equal( true,  [nil, true, 99].any? )
+    assert_equal( false, [].any? )
+  end
+
+  description "any? test"
+  def test_none_
+    assert_equal( true,  %w{ant bear cat}.none? {|word| word.length == 5} )
+    assert_equal( false, %w{ant bear cat}.none? {|word| word.length >= 4} )
+    assert_equal( true,  [].none? )
+    assert_equal( true,  [nil].none? )
+    assert_equal( true,  [nil,false].none? )
+    assert_equal( false, [nil,false,true].none? )
+  end
 end

@@ -67,7 +67,9 @@ typedef struct IREP {
 				//!<  uint16_t   tbl_pools[plen]
 				//!<  mrbc_irep *tbl_ireps[rlen]
 } mrbc_irep;
+//@cond
 typedef struct IREP mrb_irep;
+//@endcond
 
 // mrbc_irep manipulate macro.
 //! get a symbol id table pointer.
@@ -127,10 +129,13 @@ typedef struct CALLINFO {
   mrbc_sym method_id;		//!< called method ID.
   uint8_t reg_offset;		//!< register offset after call.
   uint8_t n_args;		//!< num of arguments.
-  uint8_t is_called_super;	//!< this is called by op_super.
+  uint8_t is_called_super;	//!< flags when called by OP_SUPER.
+  uint8_t is_called_block;	//!< flags when block calls.
 
 } mrbc_callinfo;
+//@cond
 typedef struct CALLINFO mrb_callinfo;
+//@endcond
 
 
 //================================================================
@@ -159,8 +164,11 @@ typedef struct VM {
 
   mrbc_value	  exception;		//!< Raised exception or nil.
   mrbc_value      regs[];
+
 } mrbc_vm;
+//@cond
 typedef struct VM mrb_vm;
+//@endcond
 
 
 /***** Global variables *****************************************************/
@@ -190,7 +198,7 @@ int mrbc_vm_run(struct VM *vm);
 */
 static inline mrbc_value * mrbc_get_self( struct VM *vm, mrbc_value *regs )
 {
-  return regs[0].tt == MRBC_TT_PROC ? &(regs[0].proc->self) : &regs[0];
+  return mrbc_type(regs[0]) == MRBC_TT_PROC ? &(regs[0].proc->self) : &regs[0];
 }
 
 
@@ -204,9 +212,9 @@ static inline mrbc_value * mrbc_get_self( struct VM *vm, mrbc_value *regs )
 */
 static inline int mrbc_c_block_given( struct VM *vm, mrbc_value v[], int argc )
 {
-  int ofs = 1 + (v[argc+1].tt == MRBC_TT_HASH);
+  int ofs = 1 + (mrbc_type(v[argc+1]) == MRBC_TT_HASH);
 
-  return v[argc + ofs].tt == MRBC_TT_PROC;
+  return mrbc_type(v[argc + ofs]) == MRBC_TT_PROC;
 }
 
 #ifdef __cplusplus

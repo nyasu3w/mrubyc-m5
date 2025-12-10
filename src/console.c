@@ -95,6 +95,26 @@ static int mrbc_printf_sub_output_arg( mrbc_printf_t *pf, va_list *ap )
   return ret;
 }
 
+/* sub function to print a hashkey
+ */
+static int mrbc_p_sub_hashkey(const mrbc_value *v)
+{
+  switch( mrbc_type(*v) ) {
+    case MRBC_TT_SYMBOL:{
+      const char *s = mrbc_symbol_cstr(v);
+      const char *fmt = strchr(s, ':') ? "\"%s\": " : "%s: ";
+      mrbc_printf(fmt, s);
+      break;
+    }
+    default: {
+      mrbc_p_sub(v);
+      mrbc_print(" => ");
+      break;
+    }
+  }
+  return 0;
+}
+
 
 /***** Global functions *****************************************************/
 
@@ -354,10 +374,14 @@ int mrbc_p_sub(const mrbc_value *v)
     const unsigned char *s = (const unsigned char *)mrbc_string_cstr(v);
 
     for( int i = 0; i < mrbc_string_size(v); i++ ) {
-      if( s[i] < ' ' || 0x7f <= s[i] ) {	// tiny isprint()
-	mrbc_printf("\\x%02X", s[i]);
+      if( 0x07 <= s[i] && s[i] <= 0xd ) {
+	mrbc_printf("\\%c", "abtnvfr"[s[i] - 0x07]);
+      } else if( s[i] == 0x1b ) {
+	mrbc_printf("\\e");
+      } else if( s[i] < ' ' || 0x7f == s[i] ) {	// tiny isprint()
+        mrbc_printf("\\x%02X", s[i]);
       } else {
-	mrbc_putchar(s[i]);
+        mrbc_putchar(s[i]);
       }
     }
     mrbc_putchar('"');
@@ -365,11 +389,16 @@ int mrbc_p_sub(const mrbc_value *v)
 #endif
 
   case MRBC_TT_RANGE:{
-    mrbc_value v1 = mrbc_range_first(v);
-    mrbc_p_sub(&v1);
+    const mrbc_value *v1 = mrbc_range_first_p(v);
+    const mrbc_value *v2 = mrbc_range_last_p(v);
+
+    if( mrbc_type(*v1) != MRBC_TT_NIL ||
+        mrbc_type(*v2) == MRBC_TT_NIL ) mrbc_p_sub(v1);
+
     mrbc_print( mrbc_range_exclude_end(v) ? "..." : ".." );
-    v1 = mrbc_range_last(v);
-    mrbc_p_sub(&v1);
+
+    if( mrbc_type(*v1) == MRBC_TT_NIL ||
+        mrbc_type(*v2) != MRBC_TT_NIL ) mrbc_p_sub(v2);
   } break;
 
   default:
@@ -469,16 +498,17 @@ int mrbc_print_sub(const mrbc_value *v)
   case MRBC_TT_STRING:
     mrbc_nprint( mrbc_string_cstr(v), mrbc_string_size(v) );
     if( mrbc_string_size(v) != 0 &&
-	mrbc_string_cstr(v)[ mrbc_string_size(v) - 1 ] == '\n' ) ret = 1;
+        mrbc_string_cstr(v)[ mrbc_string_size(v) - 1 ] == '\n' ) ret = 1;
     break;
 #endif
 
   case MRBC_TT_RANGE:{
-    mrbc_value v1 = mrbc_range_first(v);
-    mrbc_print_sub(&v1);
+    mrbc_value *v1 = mrbc_range_first_p(v);
+    mrbc_value *v2 = mrbc_range_last_p(v);
+
+    mrbc_print_sub(v1);
     mrbc_print( mrbc_range_exclude_end(v) ? "..." : ".." );
-    v1 = mrbc_range_last(v);
-    mrbc_print_sub(&v1);
+    mrbc_print_sub(v2);
   } break;
 
   case MRBC_TT_HASH:{
@@ -486,8 +516,7 @@ int mrbc_print_sub(const mrbc_value *v)
     mrbc_hash_iterator ite = mrbc_hash_iterator_new(v);
     while( mrbc_hash_i_has_next(&ite) ) {
       mrbc_value *vk = mrbc_hash_i_next(&ite);
-      mrbc_p_sub(vk);
-      mrbc_print("=>");
+      mrbc_p_sub_hashkey(vk);
       mrbc_p_sub(vk+1);
       if( mrbc_hash_i_has_next(&ite) ) mrbc_print(", ");
     }
@@ -500,9 +529,9 @@ int mrbc_print_sub(const mrbc_value *v)
 
   case MRBC_TT_EXCEPTION:
     mrbc_printf("#<%s: %s>", mrbc_symid_to_str(v->exception->cls->sym_id),
-		 v->exception->message ?
-		   (const char *)v->exception->message :
-		   mrbc_symid_to_str(v->exception->cls->sym_id) );
+                 v->exception->message ?
+                   (const char *)v->exception->message :
+                   mrbc_symid_to_str(v->exception->cls->sym_id) );
     break;
 
   default:
@@ -548,9 +577,9 @@ int mrbc_printf_main( mrbc_printf_t *pf )
     pf->fstr++;
     if( ch == '%' ) {
       if( *pf->fstr == '%' ) {	// is "%%"
-	pf->fstr++;
+        pf->fstr++;
       } else {
-	goto PARSE_FLAG;
+        goto PARSE_FLAG;
       }
     }
     *pf->p++ = ch;

@@ -79,9 +79,9 @@ mrbc_class * mrbc_traverse_class_tree( mrbc_class *cls, mrbc_class *nest_buf[], 
     if( cls->super ) {
       // save the branch point to nest_buf.
       if( *nest_idx >= MRBC_TRAVERSE_NEST_LEVEL ) {
-	mrbc_printf("Warning: Module nest exceeds upper limit.\n");
+        mrbc_printf("Warning: Module nest exceeds upper limit.\n");
       } else {
-	nest_buf[(*nest_idx)++] = cls;
+        nest_buf[(*nest_idx)++] = cls;
       }
     }
 
@@ -145,7 +145,7 @@ mrbc_class * mrbc_define_class(struct VM *vm, const char *name, mrbc_class *supe
   };
 
   // register to global constant
-  mrbc_set_const( sym_id, &(mrbc_value){.tt = MRBC_TT_CLASS, .cls = cls});
+  mrbc_set_const( sym_id, &mrbc_immediate_value(MRBC_TT_CLASS, .cls = cls) );
 
   return cls;
 }
@@ -171,7 +171,7 @@ mrbc_class * mrbc_define_class_under(struct VM *vm, const mrbc_class *outer, con
   // already defined?
   const mrbc_value *val = mrbc_get_class_const( outer, sym_id );
   if( val ) {
-    if( val->tt != MRBC_TT_CLASS ) {
+    if( mrbc_type(*val) != MRBC_TT_CLASS ) {
       mrbc_raisef(vm, MRBC_CLASS(TypeError), "%s is not a class", name);
       return 0;
     }
@@ -194,8 +194,8 @@ mrbc_class * mrbc_define_class_under(struct VM *vm, const mrbc_class *outer, con
   };
 
   // register to global constant
-  mrbc_set_class_const( outer, sym_id,
-			&(mrbc_value){.tt = MRBC_TT_CLASS, .cls = cls});
+  mrbc_set_class_const( outer, sym_id, &mrbc_immediate_value(MRBC_TT_CLASS, .cls = cls) );
+
   return cls;
 }
 
@@ -238,7 +238,7 @@ mrbc_class * mrbc_define_module(struct VM *vm, const char *name)
   };
 
   // register to global constant
-  mrbc_set_const( sym_id, &(mrbc_value){.tt = MRBC_TT_MODULE, .cls = cls});
+  mrbc_set_const( sym_id, &mrbc_immediate_value(MRBC_TT_MODULE, .cls = cls) );
 
   return cls;
 }
@@ -263,7 +263,7 @@ mrbc_class * mrbc_define_module_under(struct VM *vm, const mrbc_class *outer, co
   // already defined?
   const mrbc_value *val = mrbc_get_class_const( outer, sym_id );
   if( val ) {
-    if( val->tt != MRBC_TT_MODULE ) {
+    if( mrbc_type(*val) != MRBC_TT_MODULE ) {
       mrbc_raisef(vm, MRBC_CLASS(TypeError), "%s is not a module", name);
       return 0;
     }
@@ -287,8 +287,8 @@ mrbc_class * mrbc_define_module_under(struct VM *vm, const mrbc_class *outer, co
   };
 
   // register to global constant
-  mrbc_set_class_const( outer, sym_id,
-			&(mrbc_value){.tt = MRBC_TT_MODULE, .cls = cls});
+  mrbc_set_class_const( outer, sym_id, &mrbc_immediate_value(MRBC_TT_MODULE, .cls = cls) );
+
   return cls;
 }
 
@@ -330,7 +330,8 @@ void mrbc_define_method(struct VM *vm, mrbc_class *cls, const char *name, mrbc_f
 */
 mrbc_value mrbc_instance_new(struct VM *vm, mrbc_class *cls, int size)
 {
-  mrbc_value v = {.tt = MRBC_TT_OBJECT};
+  mrbc_value v = mrbc_immediate_value(MRBC_TT_OBJECT);
+
   v.instance = mrbc_alloc(vm, sizeof(mrbc_instance) + size);
   if( v.instance == NULL ) return v;	// ENOMEM
 
@@ -354,7 +355,7 @@ mrbc_value mrbc_instance_new(struct VM *vm, mrbc_class *cls, int size)
 */
 void mrbc_instance_delete(mrbc_value *v)
 {
-  assert( v->tt == MRBC_TT_OBJECT );
+  assert( mrbc_type(*v) == MRBC_TT_OBJECT );
   mrbc_class *cls = v->instance->cls;
 
   if( !cls->flag_builtin && cls->destructor ) cls->destructor( v );
@@ -449,9 +450,9 @@ mrbc_method * mrbc_find_method( mrbc_method *r_method, mrbc_class *cls, mrbc_sym
     mrbc_method *method;
     for( method = cls->method_link; method != 0; method = method->next ) {
       if( method->sym_id == sym_id ) {
-	*r_method = *method;
-	r_method->cls = cls;
-	return r_method;
+        *r_method = *method;
+        r_method->cls = cls;
+        return r_method;
       }
     }
 
@@ -463,9 +464,9 @@ mrbc_method * mrbc_find_method( mrbc_method *r_method, mrbc_class *cls, mrbc_sym
     while( left < right ) {
       int mid = (left + right) / 2;
       if( c->method_symbols[mid] < sym_id ) {
-	left = mid + 1;
+        left = mid + 1;
       } else {
-	right = mid;
+        right = mid;
       }
     }
 
@@ -506,8 +507,8 @@ mrbc_class * mrbc_get_class_by_name( const char *name )
   mrbc_value *obj = mrbc_get_const(sym_id);
   if( obj == NULL ) return NULL;
 
-  if( obj->tt == MRBC_TT_CLASS ||
-      obj->tt == MRBC_TT_MODULE ) return obj->cls;
+  if( mrbc_type(*obj) == MRBC_TT_CLASS ||
+      mrbc_type(*obj) == MRBC_TT_MODULE ) return obj->cls;
 
   return NULL;
 }
@@ -536,20 +537,20 @@ mrbc_class * mrbc_get_class_by_name( const char *name )
 @endcode
 */
 mrbc_value mrbc_send( struct VM *vm, mrbc_value *v, int argc,
-	mrbc_value *recv, const char *method_name, int n_params, ... )
+        mrbc_value *recv, const char *method_name, int n_params, ... )
 {
   mrbc_method method;
   mrbc_class *cls = find_class_by_object(recv);
 
   if( mrbc_find_method( &method, cls, mrbc_str_to_symid(method_name)) == 0 ) {
     mrbc_raisef(vm, MRBC_CLASS(NoMethodError), "undefined method '%s' for %s",
-		method_name, mrbc_symid_to_str(cls->sym_id) );
+                method_name, mrbc_symid_to_str(cls->sym_id) );
     goto ERROR;
   }
   if( !method.c_func ) {
     mrbc_raisef(vm, MRBC_CLASS(NotImplementedError),
-		"Method needs to be C function. '%s' for %s",
-		method_name, mrbc_symid_to_str(cls->sym_id) );
+                "Method needs to be C function. '%s' for %s",
+                method_name, mrbc_symid_to_str(cls->sym_id) );
     goto ERROR;
   }
 
@@ -575,7 +576,7 @@ mrbc_value mrbc_send( struct VM *vm, mrbc_value *v, int argc,
   mrbc_value ret = regs[0];
 
   for(; i >= 0; i-- ) {
-    regs[i].tt = MRBC_TT_EMPTY;
+    mrbc_set_tt(&regs[i], MRBC_TT_EMPTY);
   }
 
   return ret;
@@ -640,8 +641,8 @@ void mrbc_init_class(void)
 
     cls->super = MRBC_BuiltinClass[i].super;
     cls->method_link = 0;
+    mrbc_set_tt( &vcls, cls->flag_module ? MRBC_TT_MODULE : MRBC_TT_CLASS );
     vcls.cls = cls;
-    vcls.tt = cls->flag_module ? MRBC_TT_MODULE : MRBC_TT_CLASS;
 
     mrbc_set_const( cls->sym_id, &vcls );
   }

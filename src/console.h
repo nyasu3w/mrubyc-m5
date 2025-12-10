@@ -31,12 +31,14 @@ extern "C" {
 #endif
 /***** Constant values ******************************************************/
 /***** Macros ***************************************************************/
+//@cond
 // For compatibility. Not recommended for use.
 #define mrb_p(vm, v)	mrbc_p(&v)
 #define console_print mrbc_print
 #define console_nprint mrbc_nprint
 #define console_putchar mrbc_putchar
 #define console_printf mrbc_printf
+//@endcond
 
 
 /***** Typedefs *************************************************************/
@@ -116,7 +118,7 @@ static inline void mrbc_print(const char *str)
   @param  fstr	format string.
 */
 static inline void mrbc_printf_init( mrbc_printf_t *pf, char *buf, int size,
-				     const char *fstr )
+                                     const char *fstr )
 {
   pf->p = pf->buf = buf;
   pf->buf_end = buf + size - 1;

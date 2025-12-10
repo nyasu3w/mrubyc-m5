@@ -377,6 +377,9 @@ class StringTest < Picotest::Test
     assert_equal 'abcd'[-3 ... 2], "b"
     assert_equal 'abcd'[-4 ... 2], "ab"
     assert_equal 'abcd'[-5 ... 2], nil
+
+    assert_equal 'abcd'[ 1 ..   ], "bcd"
+    assert_equal 'abcd'[   .. 2 ], "abc"
   end
 
   description "self[Range]="
@@ -783,6 +786,20 @@ class StringTest < Picotest::Test
     assert_equal "a\0bc", str
     assert_equal str, ret
     assert_nil "abc".downcase!
+  end
+
+  description "String#each_line"
+  def test_string_each_line
+    str = "line1\nline2\r\nline3\rline4"
+    lines = []
+    str.each_line { |line| lines << line }
+    assert_equal ["line1\n", "line2\r\n", "line3\rline4"], lines
+    lines.clear
+    str.each_line("\r") { |line| lines << line }
+    assert_equal ["line1\nline2\r", "\nline3\r", "line4"], lines
+    lines.clear
+    str.each_line(chomp: true) { |line| lines << line }
+    assert_equal ["line1", "line2", "line3\rline4"], lines
   end
 
 end

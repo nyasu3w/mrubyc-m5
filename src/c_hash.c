@@ -76,7 +76,7 @@
 */
 mrbc_value mrbc_hash_new(struct VM *vm, int size)
 {
-  mrbc_value value = {.tt = MRBC_TT_HASH};
+  mrbc_value value = mrbc_immediate_value(MRBC_TT_HASH);
 
   /*
     Allocate handle and data buffer.
@@ -149,7 +149,7 @@ mrbc_value * mrbc_hash_search_by_id(const mrbc_value *hash, mrbc_sym sym_id)
 
   while( p1 < p2 ) {
     if( mrbc_type(*p1) == MRBC_TT_SYMBOL &&
-	mrbc_symbol(*p1) == sym_id ) return p1;
+        mrbc_symbol(*p1) == sym_id ) return p1;
     p1 += 2;
   }
 
@@ -253,7 +253,7 @@ mrbc_value mrbc_hash_remove(mrbc_value *hash, const mrbc_value *key)
 mrbc_value mrbc_hash_remove_by_id(mrbc_value *hash, mrbc_sym sym_id)
 {
   mrbc_value *v = mrbc_hash_search_by_id(hash, sym_id);
-  if( !v ) return (mrbc_value){.tt = MRBC_TT_EMPTY};
+  if( !v ) return mrbc_immediate_value(MRBC_TT_EMPTY);
 
   mrbc_value val = v[1];	// value
 
@@ -372,8 +372,8 @@ static void c_hash_set(struct VM *vm, mrbc_value v[], int argc)
   mrbc_value *v1 = &v[1];
   mrbc_value *v2 = &v[2];
   mrbc_hash_set(v, v1, v2);
-  v1->tt = MRBC_TT_EMPTY;
-  v2->tt = MRBC_TT_EMPTY;
+  mrbc_set_tt(v1, MRBC_TT_EMPTY);
+  mrbc_set_tt(v2, MRBC_TT_EMPTY);
 }
 
 
@@ -579,8 +579,8 @@ static void c_hash_values(struct VM *vm, mrbc_value v[], int argc)
 */
 static void c_hash_inspect(struct VM *vm, mrbc_value v[], int argc)
 {
-  if( v[0].tt == MRBC_TT_CLASS ) {
-    v[0] = mrbc_string_new_cstr(vm, mrbc_symid_to_str( v[0].cls->sym_id ));
+  if( mrbc_type(v[0]) == MRBC_TT_CLASS ) {
+    mrbc_object_inspect(vm, v, argc);
     return;
   }
 
@@ -594,12 +594,18 @@ static void c_hash_inspect(struct VM *vm, mrbc_value v[], int argc)
     if( !flag_first ) mrbc_string_append_cstr( &ret, ", " );
     flag_first = 0;
     mrbc_value *kv = mrbc_hash_i_next(&ite);
+    mrbc_value s1;
 
-    mrbc_value s1 = mrbc_send( vm, v, argc, &kv[0], "inspect", 0 );
-    mrbc_string_append( &ret, &s1 );
-    mrbc_string_delete( &s1 );
-
-    mrbc_string_append_cstr( &ret, "=>" );
+    if (mrbc_type(*kv) == MRBC_TT_SYMBOL) {
+      const char *s = mrbc_symid_to_str(kv->sym_id);
+      mrbc_string_append_cstr( &ret, s );
+      mrbc_string_append_cstr( &ret, ": " );
+    } else {
+      s1 = mrbc_send( vm, v, argc, &kv[0], "inspect", 0 );
+      mrbc_string_append( &ret, &s1 );
+      mrbc_string_delete( &s1 );
+      mrbc_string_append_cstr( &ret, " => " );
+    }
 
     s1 = mrbc_send( vm, v, argc, &kv[1], "inspect", 0 );
     mrbc_string_append( &ret, &s1 );

@@ -129,7 +129,7 @@ void mrbc_get_all_class_const( const struct RClass *cls, mrbc_value *ret )
 
       mrbc_separate_nested_symid( kv->sym_id, &id1, &id2 );
       if( id1 == cls->sym_id ) {
-	mrbc_array_push(ret, &mrbc_symbol_value(id2));
+        mrbc_array_push(ret, &mrbc_symbol_value(id2));
       }
 
     } else if( flag_object_class ) {
@@ -201,7 +201,7 @@ void mrbc_debug_dump_const( void )
       mrbc_printf(")");
     }
 
-    if( kv->value.tt == MRBC_TT_CLASS ) {
+    if( mrbc_type(kv->value) == MRBC_TT_CLASS ) {
       const mrbc_class *cls = kv->value.cls;
       mrbc_printf(" = Class(symid=$%x name=", cls->sym_id);
       mrbc_print_symbol(cls->sym_id);
@@ -209,7 +209,7 @@ void mrbc_debug_dump_const( void )
       continue;
     }
 
-    if( kv->value.tt == MRBC_TT_MODULE ) {
+    if( mrbc_type(kv->value) == MRBC_TT_MODULE ) {
       const mrbc_class *cls = kv->value.cls;
       mrbc_printf(" = Module(symid=$%x name=", cls->sym_id);
       mrbc_print_symbol(cls->sym_id);
